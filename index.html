@@ -493,6 +493,7 @@ async function loginAs(userId){
   document.getElementById('main-nav').style.display='flex';
   await initUserData();
   go('home');
+  checkNameDefault();
 }
 
 async function doLogout(){
@@ -567,9 +568,12 @@ async function initUserData(){
 }
 
 async function initS(){
-  // Try Supabase first
+  SK=getUserSK(currentUserId);
+  // ── Try Supabase first ──
+  let supabaseOk=false;
   try{
-    const {data}=await sb.from('user_data').select('data').eq('user_id',currentUserId).single();
+    const {data,error}=await sb.from('user_data').select('data').eq('user_id',currentUserId).single();
+    if(error)throw error;
     if(data?.data){
       const loaded=data.data;
       const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg'};
@@ -589,10 +593,14 @@ async function initS(){
       S.streak=calcStreak();
       if(_pendingName){S.user.name=_pendingName;_pendingName=null;save();}
       try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+      supabaseOk=true;
       return;
     }
-  }catch(e){}
-  // Fall back to localStorage cache
+  }catch(e){
+    console.warn('Supabase load failed:',e?.message||e);
+  }
+
+  // ── Fall back to localStorage cache ──
   const r=localStorage.getItem(SK);
   if(r){
     try{
@@ -613,10 +621,13 @@ async function initS(){
       if(!Array.isArray(S.bw))S.bw=[];
       S.streak=calcStreak();
       if(_pendingName){S.user.name=_pendingName;_pendingName=null;save();}
+      // If loaded from localStorage, push to Supabase so other devices get it
+      if(!supabaseOk)save();
       return;
     }catch(e){}
   }
-  // NEW USER default state
+
+  // ── NEW USER default state ──
   const displayName=_pendingName||'Athlete';
   _pendingName=null;
   const w1=uid(),w2=uid(),w3=uid();
@@ -672,15 +683,64 @@ async function initS(){
 }
 var _saveTimer=null;
 function save(){
-  // Instant local save — UI never waits
   try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
-  // Debounced cloud sync: fires 2s after last save, not on every button press
   if(currentUserId&&sb){
     clearTimeout(_saveTimer);
     _saveTimer=setTimeout(function(){
       sb.from('user_data').upsert({user_id:currentUserId,data:JSON.parse(JSON.stringify(S)),updated_at:new Date().toISOString()})
-        .catch(function(){});
+        .catch(function(e){console.warn('Supabase sync failed:',e?.message||e);});
     },2000);
+  }
+}
+
+// Force immediate Supabase sync (for critical data like profile name)
+async function saveNow(){
+  try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+  clearTimeout(_saveTimer);
+  if(currentUserId&&sb){
+    await sb.from('user_data').upsert({user_id:currentUserId,data:JSON.parse(JSON.stringify(S)),updated_at:new Date().toISOString()})
+      .catch(function(e){console.warn('Supabase sync failed:',e?.message||e);});
+  }
+}
+
+// ── Toast notification ──
+function showToast(msg,type='info',dur=3000){
+  let t=document.getElementById('_toast');
+  if(!t){
+    t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:calc(var(--nh) + 12px);left:50%;transform:translateX(-50%);z-index:999;pointer-events:none;transition:opacity .3s,transform .3s;max-width:360px;width:calc(100% - 32px)';
+    document.body.appendChild(t);
+  }
+  const colors={info:'#2A2A2A',ok:'rgba(0,201,106,.15)',err:'rgba(255,45,85,.15)',warn:'rgba(255,184,0,.15)'};
+  const borders={info:'#3a3a3a',ok:'rgba(0,201,106,.4)',err:'rgba(255,45,85,.4)',warn:'rgba(255,184,0,.4)'};
+  const icons={info:'ℹ️',ok:'✅',err:'❌',warn:'⚠️'};
+  t.innerHTML=`<div style="background:${colors[type]};border:1px solid ${borders[type]};border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
+    <span style="font-size:16px">${icons[type]}</span>
+    <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:.5px;color:var(--tx)">${msg}</span>
+  </div>`;
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(8px)';},dur);
+}
+
+// ── Auto-prompt name if still default after login ──
+function checkNameDefault(){
+  if(S.user?.name==='Athlete'||!S.user?.name){
+    setTimeout(()=>{
+      showQuickModal('SET YOUR NAME',
+        `<div style="margin-bottom:14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:.3px">Salut! Cum vrei să te numim?</div>
+        <div class="frow"><div class="flbl">Your Name</div><input class="inp" id="fni" type="text" placeholder="e.g. Alex" autocomplete="given-name" style="font-size:18px;font-weight:600" autofocus></div>`,
+        async ()=>{
+          const n=document.getElementById('fni').value.trim();
+          if(!n){alert('Te rog introdu un nume.');return;}
+          S.user.name=n;
+          await saveNow();
+          renderHome();renderProf();
+          showToast(`Bun venit, ${n}! 💪`,'ok');
+        },'SALVEAZĂ NUMELE'
+      );
+      setTimeout(()=>{try{document.getElementById('fni').focus();}catch(_){}},300);
+    },600);
   }
 }
 
@@ -1522,10 +1582,11 @@ function ach(em,lbl,unlocked,hint){
 function tglCfg(k,el){S.cfg[k]=!S.cfg[k];el.classList.toggle('on',S.cfg[k]);save();}
 function setU(u){S.cfg.units=u;save();renderProf();}
 function openProf(){OM('m-prof');}
-function saveProf(){
+async function saveProf(){
   const n=document.getElementById('pni').value.trim();if(!n){alert('Enter your name.');return;}
   S.user.name=n;S.user.prog=document.getElementById('ppi').value.trim()||S.user.prog;
-  save();CM('m-prof');renderProf();
+  await saveNow();CM('m-prof');renderProf();renderHome();
+  showToast('Profil salvat ✓','ok');
 }
 function saveGoals(){
   S.goals.tw=parseFloat(document.getElementById('gtw').value)||S.goals.tw;
@@ -1684,6 +1745,7 @@ document.addEventListener('focusin',e=>{
     await initUserData();
     renderHome();
     document.getElementById('sc-home').classList.add('active');
+    checkNameDefault();
     return;
   }
   document.getElementById('main-nav').style.display='none';

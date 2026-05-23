@@ -40,7 +40,7 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
 .fullscreen{display:none;flex-direction:column;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:50;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 .fullscreen.active{display:flex}
 ::-webkit-scrollbar{width:0;height:0}
-.top-bar{padding:max(48px,calc(var(--sat) + 14px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;position:sticky;top:0;z-index:10;background:var(--bg)}
+.top-bar{padding:max(48px,calc(var(--sat) + 14px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;background:var(--bg)}
 .top-bar h1{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1.5px;line-height:1}
 .slbl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--tx3);margin:20px 20px 10px;display:flex;justify-content:space-between;align-items:center}
 .card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);padding:16px}
@@ -884,19 +884,17 @@ function renderHome(){
     </div>`;
 
   document.getElementById('sc-home').innerHTML=`
-    <!-- sticky header: flex-shrink:0 keeps it out of scroll -->
-    <div style="background:var(--bg);padding:max(48px,calc(env(safe-area-inset-top)+14px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0;border-bottom:1px solid var(--bd)">
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:5px;line-height:1">IRON<span style="color:var(--ac)">M</span>EN</div>
-        <div style="font-size:14px;color:var(--tx2);margin-top:3px">Good ${greet()}, <strong style="color:var(--tx)">${(S.user?.name||'Athlete').split(' ')[0]}</strong> 💪</div>
-      </div>
-      <div style="text-align:right">
-        <div onclick="manualStreak()" style="background:var(--ac);padding:6px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🔥 ${S.streak||0} DAY</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--tx3);margin-top:6px">${DAYS[now.getDay()].toUpperCase()}, ${MONS[now.getMonth()].toUpperCase()} ${now.getDate()}</div>
-      </div>
-    </div>
-    <!-- scrollable body -->
     <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
+      <div class="top-bar" style="border-bottom:1px solid var(--bd)">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:5px;line-height:1">IRON<span style="color:var(--ac)">M</span>EN</div>
+          <div style="font-size:14px;color:var(--tx2);margin-top:3px">Good ${greet()}, <strong style="color:var(--tx)">${(S.user?.name||'Athlete').split(' ')[0]}</strong> 💪</div>
+        </div>
+        <div style="text-align:right">
+          <div onclick="manualStreak()" style="background:var(--ac);padding:6px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🔥 ${S.streak||0} DAY</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--tx3);margin-top:6px">${DAYS[now.getDay()].toUpperCase()}, ${MONS[now.getMonth()].toUpperCase()} ${now.getDate()}</div>
+        </div>
+      </div>
       <div class="slbl">THIS WEEK</div>
       <div class="stats-row">
         <div class="sc"><div class="bn" style="color:var(--ac)">${wkHist.length}</div><div class="lbl">Workouts</div></div>
@@ -1093,33 +1091,108 @@ function saveWk(){
   save();CM('m-wk');renderLib();
 }
 
-// ═══════════ WORKOUT DETAIL ═══════════
-function moveEx(wid,i,dir){
-  const w=S.workouts.find(x=>x.id===wid);if(!w)return;
-  const j=i+dir;
-  if(j<0||j>=w.exs.length)return;
-  [w.exs[i],w.exs[j]]=[w.exs[j],w.exs[i]];
-  save();renderWKD(wid);
+// ═══════════ WORKOUT DETAIL + DRAG-AND-DROP (Pointer Events) ═══════════
+let _ds=null;
+
+function initExDrag(wid){
+  const list=document.getElementById('ex-list');
+  if(!list)return;
+  list.querySelectorAll('.ex-drag-handle').forEach(h=>{
+    h.style.touchAction='none'; // obligatoriu pt pointer capture pe mobile
+    h.onpointerdown=e=>{
+      e.preventDefault();
+      try{h.setPointerCapture(e.pointerId);}catch(_){}
+      const card=h.closest('.ex-card');
+      _startDrag(e,wid,+card.dataset.idx,card,list,h);
+    };
+  });
 }
+
+function _startDrag(e,wid,idx,card,list,handle){
+  const rect=card.getBoundingClientRect();
+  const ghost=card.cloneNode(true);
+  ghost.style.cssText=`position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;z-index:999;opacity:.93;box-shadow:0 24px 64px rgba(0,0,0,.8);border:2px solid var(--ac);border-radius:12px;pointer-events:none;margin:0;transform:scale(1.03);transition:none;background:var(--sf)`;
+  document.body.appendChild(ghost);
+  card.style.opacity='.2';
+  card.style.borderStyle='dashed';
+  const offsetY=e.clientY-rect.top;
+  // Snapshot poziții naturale înainte de orice shift
+  const naturalMids=[...list.querySelectorAll('.ex-card')].map(c=>{
+    const r=c.getBoundingClientRect();
+    return{ci:+c.dataset.idx,mid:r.top+r.height/2};
+  });
+  _ds={wid,idx,toIdx:idx,card,ghost,list,offsetY,cardH:rect.height,naturalMids,handle};
+
+  handle.onpointermove=_onDragMove;
+  handle.onpointerup=_onDragEnd;
+  handle.onpointercancel=_onDragEnd;
+}
+
+function _onDragMove(e){
+  if(!_ds)return;
+  e.preventDefault();
+  const newTop=e.clientY-_ds.offsetY;
+  _ds.ghost.style.top=newTop+'px';
+  const ghostMid=newTop+_ds.cardH/2;
+  // Calcul index pe baza pozițiilor naturale snapshot-ate
+  let toIdx=_ds.idx;
+  _ds.naturalMids.forEach(({ci,mid})=>{
+    if(ci===_ds.idx)return;
+    if(ci<_ds.idx&&ghostMid<mid)toIdx=Math.min(toIdx,ci);
+    if(ci>_ds.idx&&ghostMid>mid)toIdx=Math.max(toIdx,ci);
+  });
+  _ds.toIdx=toIdx;
+  // Shift vizual celelalte carduri
+  [..._ds.list.querySelectorAll('.ex-card')].forEach(c=>{
+    if(c===_ds.card)return;
+    const ci=+c.dataset.idx;
+    let sh=0;
+    if(_ds.idx<toIdx&&ci>_ds.idx&&ci<=toIdx)sh=-(_ds.cardH+10);
+    if(_ds.idx>toIdx&&ci>=toIdx&&ci<_ds.idx)sh=_ds.cardH+10;
+    c.style.transform=sh?`translateY(${sh}px)`:'';
+    c.style.transition='transform .15s';
+  });
+}
+
+function _onDragEnd(e){
+  if(!_ds)return;
+  const{handle,ghost,card,wid,idx:from,toIdx:to,list}=_ds;
+  handle.onpointermove=null;
+  handle.onpointerup=null;
+  handle.onpointercancel=null;
+  try{handle.releasePointerCapture(e.pointerId);}catch(_){}
+  ghost.remove();
+  // Reset vizual carduri rămase
+  [...list.querySelectorAll('.ex-card')].forEach(c=>{
+    c.style.transform='';c.style.transition='';
+  });
+  _ds=null;
+  if(from!==to){
+    const w=S.workouts.find(x=>x.id===wid);
+    if(w){const[m]=w.exs.splice(from,1);w.exs.splice(to,0,m);save();}
+  }
+  renderWKD(wid);
+}
+
 function renderWKD(id){
   const w=S.workouts.find(x=>x.id===id);
   if(!w){go('library');return;}
   const isToday=S.todayWk===id;
-  const total=w.exs.length;
-  const exsH=total?w.exs.map((e,i)=>`
-    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px">
+  const exsH=w.exs.length?`<div id="ex-list">`+w.exs.map((e,i)=>`
+    <div class="ex-card" data-idx="${i}" style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px;user-select:none;-webkit-user-select:none">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="display:flex;flex-direction:column;gap:2px">
-            <button onclick="moveEx('${id}',${i},-1)" style="background:${i===0?'transparent':'var(--sf2)'};border:1px solid ${i===0?'transparent':'var(--bd)'};border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:${i===0?'var(--tx3)':'var(--tx)'};font-size:12px;pointer-events:${i===0?'none':'auto'};outline:none" ${i===0?'tabindex="-1"':''}>▲</button>
-            <button onclick="moveEx('${id}',${i},1)" style="background:${i===total-1?'transparent':'var(--sf2)'};border:1px solid ${i===total-1?'transparent':'var(--bd)'};border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:${i===total-1?'var(--tx3)':'var(--tx)'};font-size:12px;pointer-events:${i===total-1?'none':'auto'};outline:none" ${i===total-1?'tabindex="-1"':''}>▼</button>
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+          <div class="ex-drag-handle" style="display:flex;flex-direction:column;gap:4px;padding:10px 12px;cursor:grab;flex-shrink:0;touch-action:none;min-width:44px;min-height:44px;justify-content:center;align-items:center">
+            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
+            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
+            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
           </div>
-          <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">${e.n}</div>
+          <div style="min-width:0">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div>
             <div style="font-size:12px;color:var(--tx2);margin-top:2px">${e.t} · ${e.m}</div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--tx2)">${e.sets.length}×${e.sets[0]?.r||0}</div>
           <button onclick="delEx('${id}','${e.id}')" style="background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:6px;transition:color .15s;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
         </div>
@@ -1135,7 +1208,7 @@ function renderWKD(id){
           </div>`).join('')}
         <div style="background:transparent;border:1px dashed var(--bd);border-radius:6px;padding:6px 10px;text-align:center;min-width:52px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx3)" onclick="addSetToWk('${id}','${e.id}')">+</div>
       </div>
-    </div>`).join('')
+    </div>`).join('')+`</div>`
   :`<div style="padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:12px">🏋️</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">NO EXERCISES YET</div><button class="btn bp" onclick="openAddEx('${id}')">+ ADD YOUR FIRST EXERCISE</button></div>`;
 
   document.getElementById('sc-wkd').innerHTML=`
@@ -1165,6 +1238,7 @@ function renderWKD(id){
     </div>
     <div style="padding:0 16px">${exsH}</div>
     <div style="height:16px"></div>`;
+  initExDrag(id);
 }
 
 function delWk(id){

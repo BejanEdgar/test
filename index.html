@@ -232,6 +232,40 @@ button{-webkit-user-select:none;user-select:none}
   </button>
 </nav>
 
+<!-- CREATE CUSTOM EXERCISE MODAL -->
+<div class="modal" id="m-cex">
+  <div class="mbox">
+    <div class="mtop"><div class="mtitle" id="m-cex-title">NEW EXERCISE</div><button class="cbtn" onclick="CM('m-cex')">✕</button></div>
+    <input type="hidden" id="cex-id">
+    <div class="frow"><div class="flbl">Exercise Name *</div><input class="inp" id="cex-name" placeholder="e.g. Cable Fly" maxlength="50"></div>
+    <div class="frow"><div class="flbl">Muscle Group *</div>
+      <select class="inp" id="cex-muscle">
+        <option value="Chest">Chest</option><option value="Shoulders">Shoulders</option>
+        <option value="Back">Back</option><option value="Biceps">Biceps</option>
+        <option value="Triceps">Triceps</option><option value="Quads">Quads</option>
+        <option value="Hamstrings">Hamstrings</option><option value="Glutes">Glutes</option>
+        <option value="Calves">Calves</option><option value="Core">Core</option>
+        <option value="Cardio">Cardio</option><option value="Full Body">Full Body</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="frow"><div class="flbl">Equipment Type</div>
+      <select class="inp" id="cex-type">
+        <option value="Barbell">Barbell</option><option value="Dumbbell">Dumbbell</option>
+        <option value="Cable">Cable</option><option value="Machine">Machine</option>
+        <option value="Bodyweight">Bodyweight</option><option value="Kettlebell">Kettlebell</option>
+        <option value="Resistance Band">Resistance Band</option><option value="Cardio">Cardio</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="frow"><div class="flbl">Notes (optional)</div><input class="inp" id="cex-notes" placeholder="e.g. Keep elbows high" maxlength="80"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+      <button class="btn bg" onclick="CM('m-cex')">CANCEL</button>
+      <button class="btn bp" onclick="saveCustomEx()">SAVE EXERCISE</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADD/EDIT WORKOUT MODAL -->
 <div class="modal" id="m-wk">
   <div class="mbox">
@@ -590,6 +624,7 @@ async function initS(){
       if(!Array.isArray(S.hist))S.hist=[];
       if(!Array.isArray(S.workouts))S.workouts=[];
       if(!Array.isArray(S.bw))S.bw=[];
+      if(!Array.isArray(S.customExs))S.customExs=[];
       S.streak=calcStreak();
       if(_pendingName){S.user.name=_pendingName;_pendingName=null;save();}
       try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
@@ -619,6 +654,7 @@ async function initS(){
       if(!Array.isArray(S.hist))S.hist=[];
       if(!Array.isArray(S.workouts))S.workouts=[];
       if(!Array.isArray(S.bw))S.bw=[];
+      if(!Array.isArray(S.customExs))S.customExs=[];
       S.streak=calcStreak();
       if(_pendingName){S.user.name=_pendingName;_pendingName=null;save();}
       // If loaded from localStorage, push to Supabase so other devices get it
@@ -672,6 +708,7 @@ async function initS(){
       {ex:'Overhead Press',w:65,r:1,date:new Date(Date.now()-432000000).toISOString().split('T')[0],prev:62.5},
     ],
     bw:[],
+    customExs:[],
   };
   let bw=84.2;
   for(let i=27;i>=0;i--){
@@ -961,7 +998,10 @@ function renderLib(){
         <div class="hinfo"><div class="hname">${e.n}</div><div class="hdate">${e.t} · ${e.m}</div></div>
         <span class="chip" style="font-size:10px">+ ADD</span>
       </div>`).join('')}
-      <button class="btn bg" style="margin-top:12px" onclick="showAllEx()">VIEW ALL ${EDB.length} EXERCISES</button>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px">
+        <button class="btn bg" onclick="showAllEx()">VIEW ALL ${EDB.length} EXERCISES</button>
+        <button class="btn bp bsm" onclick="openCreateEx()" style="white-space:nowrap;padding:10px 14px">+ CREATE</button>
+      </div>
     </div>
     <div style="height:16px"></div>
   </div>`;
@@ -992,8 +1032,9 @@ function quickAddEx(name,muscle,type){
 function showAllEx(){
   const muscles=[...new Set(EDB.map(e=>e.m))];
   const b=document.createElement('div');b.className='modal open';b.style.zIndex=300;
+  const totalCount=EDB.length+(S.customExs||[]).length;
   b.innerHTML=`<div class="mbox" style="max-height:95dvh">
-    <div class="mtop"><div class="mtitle">ALL EXERCISES (${EDB.length})</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
+    <div class="mtop"><div class="mtitle">ALL EXERCISES (${totalCount})</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
     <input style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:14px;outline:none;width:100%;margin-bottom:14px" placeholder="🔍 Search..." oninput="filterAllEx(this.value)">
     <div id="all-ex-list">${renderExList('')}</div>
   </div>`;
@@ -1001,16 +1042,25 @@ function showAllEx(){
   document.body.appendChild(b);
 }
 function renderExList(q){
+  const customExs=S.customExs||[];
+  const fCustom=customExs.filter(e=>!q||e.n.toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
   const filtered=EDB.filter(e=>!q||e.n.toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
-  if(!filtered.length)return '<div style="padding:20px;text-align:center;color:var(--tx3)">No results</div>';
+  if(!filtered.length&&!fCustom.length)return '<div style="padding:20px;text-align:center;color:var(--tx3)">No results</div>';
   const byMuscle={};
   filtered.forEach(e=>{if(!byMuscle[e.m])byMuscle[e.m]=[];byMuscle[e.m].push(e);});
-  return Object.entries(byMuscle).map(([m,exs])=>`
+  const customSection=fCustom.length?`
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ac);text-transform:uppercase;padding:10px 0 4px">★ My Custom Exercises</div>
+    ${fCustom.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;border-left:2px solid var(--ac);padding-left:8px">
+      <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${e.t} · ${e.m}</div></div>
+      <button class="btn bok bsm" onclick="quickAddEx('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}');this.closest('.modal').remove()">+ ADD</button>
+    </div>`).join('')}`:'';
+  const stdSection=Object.entries(byMuscle).map(([m,exs])=>`
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;padding:10px 0 4px">${m}</div>
     ${exs.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center">
       <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${e.t}</div></div>
       <button class="btn bok bsm" onclick="quickAddEx('${e.n}','${e.m}','${e.t}');this.closest('.modal').remove()">+ ADD</button>
     </div>`).join('')}`).join('');
+  return customSection+stdSection;
 }
 function filterAllEx(q){const el=document.getElementById('all-ex-list');if(el)el.innerHTML=renderExList(q.toLowerCase());}
 
@@ -1043,19 +1093,108 @@ function saveWk(){
   save();CM('m-wk');renderLib();
 }
 
-// ═══════════ WORKOUT DETAIL ═══════════
+// ═══════════ WORKOUT DETAIL + DRAG-AND-DROP (Pointer Events) ═══════════
+let _ds=null;
+
+function initExDrag(wid){
+  const list=document.getElementById('ex-list');
+  if(!list)return;
+  list.querySelectorAll('.ex-drag-handle').forEach(h=>{
+    h.style.touchAction='none'; // obligatoriu pt pointer capture pe mobile
+    h.onpointerdown=e=>{
+      e.preventDefault();
+      try{h.setPointerCapture(e.pointerId);}catch(_){}
+      const card=h.closest('.ex-card');
+      _startDrag(e,wid,+card.dataset.idx,card,list,h);
+    };
+  });
+}
+
+function _startDrag(e,wid,idx,card,list,handle){
+  const rect=card.getBoundingClientRect();
+  const ghost=card.cloneNode(true);
+  ghost.style.cssText=`position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;z-index:999;opacity:.93;box-shadow:0 24px 64px rgba(0,0,0,.8);border:2px solid var(--ac);border-radius:12px;pointer-events:none;margin:0;transform:scale(1.03);transition:none;background:var(--sf)`;
+  document.body.appendChild(ghost);
+  card.style.opacity='.2';
+  card.style.borderStyle='dashed';
+  const offsetY=e.clientY-rect.top;
+  // Snapshot poziții naturale înainte de orice shift
+  const naturalMids=[...list.querySelectorAll('.ex-card')].map(c=>{
+    const r=c.getBoundingClientRect();
+    return{ci:+c.dataset.idx,mid:r.top+r.height/2};
+  });
+  _ds={wid,idx,toIdx:idx,card,ghost,list,offsetY,cardH:rect.height,naturalMids,handle};
+
+  handle.onpointermove=_onDragMove;
+  handle.onpointerup=_onDragEnd;
+  handle.onpointercancel=_onDragEnd;
+}
+
+function _onDragMove(e){
+  if(!_ds)return;
+  e.preventDefault();
+  const newTop=e.clientY-_ds.offsetY;
+  _ds.ghost.style.top=newTop+'px';
+  const ghostMid=newTop+_ds.cardH/2;
+  // Calcul index pe baza pozițiilor naturale snapshot-ate
+  let toIdx=_ds.idx;
+  _ds.naturalMids.forEach(({ci,mid})=>{
+    if(ci===_ds.idx)return;
+    if(ci<_ds.idx&&ghostMid<mid)toIdx=Math.min(toIdx,ci);
+    if(ci>_ds.idx&&ghostMid>mid)toIdx=Math.max(toIdx,ci);
+  });
+  _ds.toIdx=toIdx;
+  // Shift vizual celelalte carduri
+  [..._ds.list.querySelectorAll('.ex-card')].forEach(c=>{
+    if(c===_ds.card)return;
+    const ci=+c.dataset.idx;
+    let sh=0;
+    if(_ds.idx<toIdx&&ci>_ds.idx&&ci<=toIdx)sh=-(_ds.cardH+10);
+    if(_ds.idx>toIdx&&ci>=toIdx&&ci<_ds.idx)sh=_ds.cardH+10;
+    c.style.transform=sh?`translateY(${sh}px)`:'';
+    c.style.transition='transform .15s';
+  });
+}
+
+function _onDragEnd(e){
+  if(!_ds)return;
+  const{handle,ghost,card,wid,idx:from,toIdx:to,list}=_ds;
+  handle.onpointermove=null;
+  handle.onpointerup=null;
+  handle.onpointercancel=null;
+  try{handle.releasePointerCapture(e.pointerId);}catch(_){}
+  ghost.remove();
+  // Reset vizual carduri rămase
+  [...list.querySelectorAll('.ex-card')].forEach(c=>{
+    c.style.transform='';c.style.transition='';
+  });
+  _ds=null;
+  if(from!==to){
+    const w=S.workouts.find(x=>x.id===wid);
+    if(w){const[m]=w.exs.splice(from,1);w.exs.splice(to,0,m);save();}
+  }
+  renderWKD(wid);
+}
+
 function renderWKD(id){
   const w=S.workouts.find(x=>x.id===id);
   if(!w){go('library');return;}
   const isToday=S.todayWk===id;
-  const exsH=w.exs.length?w.exs.map((e,i)=>`
-    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px">
+  const exsH=w.exs.length?`<div id="ex-list">`+w.exs.map((e,i)=>`
+    <div class="ex-card" data-idx="${i}" style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px;user-select:none;-webkit-user-select:none">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">${e.n}</div>
-          <div style="font-size:12px;color:var(--tx2);margin-top:2px">${e.t} · ${e.m}</div>
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+          <div class="ex-drag-handle" style="display:flex;flex-direction:column;gap:4px;padding:10px 12px;cursor:grab;flex-shrink:0;touch-action:none;min-width:44px;min-height:44px;justify-content:center;align-items:center">
+            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
+            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
+            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
+          </div>
+          <div style="min-width:0">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div>
+            <div style="font-size:12px;color:var(--tx2);margin-top:2px">${e.t} · ${e.m}</div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--tx2)">${e.sets.length}×${e.sets[0]?.r||0}</div>
           <button onclick="delEx('${id}','${e.id}')" style="background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer;padding:6px;transition:color .15s;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
         </div>
@@ -1071,7 +1210,7 @@ function renderWKD(id){
           </div>`).join('')}
         <div style="background:transparent;border:1px dashed var(--bd);border-radius:6px;padding:6px 10px;text-align:center;min-width:52px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx3)" onclick="addSetToWk('${id}','${e.id}')">+</div>
       </div>
-    </div>`).join('')
+    </div>`).join('')+`</div>`
   :`<div style="padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:12px">🏋️</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">NO EXERCISES YET</div><button class="btn bp" onclick="openAddEx('${id}')">+ ADD YOUR FIRST EXERCISE</button></div>`;
 
   document.getElementById('sc-wkd').innerHTML=`
@@ -1101,6 +1240,7 @@ function renderWKD(id){
     </div>
     <div style="padding:0 16px">${exsH}</div>
     <div style="height:16px"></div>`;
+  initExDrag(id);
 }
 
 function delWk(id){
@@ -1157,11 +1297,18 @@ function openAddEx(wid){
 }
 function filterEx(q){
   const list=document.getElementById('exlib');
+  const customExs=S.customExs||[];
+  const fCustom=customExs.filter(e=>!q||e.n.toLowerCase().includes(q.toLowerCase())||e.m.toLowerCase().includes(q.toLowerCase()));
   const f=EDB.filter(e=>!q||e.n.toLowerCase().includes(q.toLowerCase())||e.m.toLowerCase().includes(q.toLowerCase()));
-  list.innerHTML=f.slice(0,15).map(e=>`
+  const customH=fCustom.map(e=>`
+    <div class="eli" onclick="addExFromLib('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}')" style="border-left:2px solid var(--ac)">
+      <strong>${e.n} <span style="font-size:10px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">★ CUSTOM</span></strong><small>${e.t} · ${e.m}${e.notes?' · '+e.notes:''}</small>
+    </div>`).join('');
+  const stdH=f.slice(0,15-fCustom.length).map(e=>`
     <div class="eli" onclick="addExFromLib('${e.n}','${e.m}','${e.t}')">
       <strong>${e.n}</strong><small>${e.t} · ${e.m}</small>
-    </div>`).join('')||'<div style="padding:14px;text-align:center;color:var(--tx3);font-size:13px">No results</div>';
+    </div>`).join('');
+  list.innerHTML=(customH+stdH)||'<div style="padding:14px;text-align:center;color:var(--tx3);font-size:13px">No results</div>';
 }
 function addExFromLib(n,m,t){
   const wid=document.getElementById('aewid').value;
@@ -1174,6 +1321,84 @@ function addCustEx(){
   const n=document.getElementById('cen').value.trim();
   if(!n){alert('Enter exercise name.');return;}
   addExFromLib(n,document.getElementById('cem').value,document.getElementById('cet').value);
+}
+
+// ─── Custom Exercise Library ───
+function renderCustomExList(){
+  const exs=S.customExs||[];
+  if(!exs.length)return `<div style="padding:20px;text-align:center;color:var(--tx3)">
+    <div style="font-size:28px;margin-bottom:8px">🏗️</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:13px;margin-bottom:14px">No custom exercises yet</div>
+    <button class="btn bp bsm" onclick="openCreateEx()">+ CREATE FIRST EXERCISE</button>
+  </div>`;
+  return exs.map(e=>`
+    <div class="hr" style="align-items:center">
+      <div class="hico" style="background:rgba(255,61,0,.12);font-size:16px">⭐</div>
+      <div class="hinfo">
+        <div class="hname">${e.n}</div>
+        <div class="hdate">${e.t} · ${e.m}${e.notes?' · '+e.notes:''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn bok bsm" onclick="quickAddEx('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}')">+ ADD</button>
+        <button onclick="editCustomEx('${e.id}')" style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--tx2)">✏️</button>
+        <button onclick="deleteCustomEx('${e.id}')" style="background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:color .15s" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function openCreateEx(){
+  document.getElementById('m-cex-title').textContent='NEW EXERCISE';
+  document.getElementById('cex-id').value='';
+  document.getElementById('cex-name').value='';
+  document.getElementById('cex-muscle').value='Chest';
+  document.getElementById('cex-type').value='Barbell';
+  document.getElementById('cex-notes').value='';
+  OM('m-cex');
+  setTimeout(()=>{try{document.getElementById('cex-name').focus();}catch(_){}},300);
+}
+
+function editCustomEx(id){
+  const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
+  document.getElementById('m-cex-title').textContent='EDIT EXERCISE';
+  document.getElementById('cex-id').value=id;
+  document.getElementById('cex-name').value=e.n;
+  document.getElementById('cex-muscle').value=e.m;
+  document.getElementById('cex-type').value=e.t;
+  document.getElementById('cex-notes').value=e.notes||'';
+  OM('m-cex');
+}
+
+function saveCustomEx(){
+  const n=document.getElementById('cex-name').value.trim();
+  if(!n){alert('Enter an exercise name.');return;}
+  const id=document.getElementById('cex-id').value;
+  const m=document.getElementById('cex-muscle').value;
+  const t=document.getElementById('cex-type').value;
+  const notes=document.getElementById('cex-notes').value.trim();
+  if(!S.customExs)S.customExs=[];
+  if(id){
+    const e=S.customExs.find(x=>x.id===id);
+    if(e){e.n=n;e.m=m;e.t=t;e.notes=notes;}
+  } else {
+    S.customExs.push({id:uid(),n,m,t,notes});
+  }
+  save();CM('m-cex');
+  // Refresh custom list in library if visible
+  const cl=document.getElementById('custom-ex-list');if(cl)cl.innerHTML=renderCustomExList();
+  const cc=document.getElementById('cex-count');if(cc)cc.textContent='('+S.customExs.length+')';
+  // Also refresh the exercise picker list if open
+  filterEx(document.getElementById('exs')?.value||'');
+  showToast(id?'Exercise updated ✓':'Exercise saved ✓','ok');
+}
+
+function deleteCustomEx(id){
+  const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
+  if(!confirm(`Delete "${e.n}"?`))return;
+  S.customExs=S.customExs.filter(x=>x.id!==id);
+  save();
+  const cl=document.getElementById('custom-ex-list');if(cl)cl.innerHTML=renderCustomExList();
+  const cc=document.getElementById('cex-count');if(cc)cc.textContent='('+S.customExs.length+')';
+  showToast('Exercise deleted','info');
 }
 
 // ═══════════ ACTIVE WORKOUT ═══════════

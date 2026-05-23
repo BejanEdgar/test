@@ -613,62 +613,55 @@ async function initUserData(){
 
 async function initS(){
   SK=getUserSK(currentUserId);
-  // ── Try Supabase first ──
-  let supabaseOk=false;
-  try{
-    const {data,error}=await sb.from('user_data').select('data').eq('user_id',currentUserId).single();
-    if(error)throw error;
-    if(data?.data){
-      const loaded=data.data;
-      const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg'};
-      const defGoals={tw:80,dpw:4,bf:15};
-      const defUser={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
-      S=loaded;
-      S.cfg=Object.assign({},defCfg,loaded.cfg||{});
-      S.goals=Object.assign({},defGoals,loaded.goals||{});
-      S.user=Object.assign({},defUser,loaded.user||{});
-      if(!S.user.xp||isNaN(S.user.xp))S.user.xp=0;
-      if(!S.user.mxp||isNaN(S.user.mxp))S.user.mxp=1000;
-      if(!S.user.lvl||isNaN(S.user.lvl))S.user.lvl=1;
-      if(!Array.isArray(S.prs))S.prs=[];
-      if(!Array.isArray(S.hist))S.hist=[];
-      if(!Array.isArray(S.workouts))S.workouts=[];
-      if(!Array.isArray(S.bw))S.bw=[];
-      if(!Array.isArray(S.customExs))S.customExs=[];
-      S.streak=calcStreak();
-      if(_pendingName){S.user.name=_pendingName;_pendingName=null;save();}
-      try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
-      supabaseOk=true;
-      return;
-    }
-  }catch(e){
-    console.warn('Supabase load failed:',e?.message||e);
+
+  function applyData(loaded){
+    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg'};
+    const defGoals={tw:80,dpw:4,bf:15};
+    const defUser={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
+    const clean={...loaded};delete clean._sid; // elimină session ID din date
+    S=clean;
+    S.cfg=Object.assign({},defCfg,clean.cfg||{});
+    S.goals=Object.assign({},defGoals,clean.goals||{});
+    S.user=Object.assign({},defUser,clean.user||{});
+    if(!S.user.xp||isNaN(S.user.xp))S.user.xp=0;
+    if(!S.user.mxp||isNaN(S.user.mxp))S.user.mxp=1000;
+    if(!S.user.lvl||isNaN(S.user.lvl))S.user.lvl=1;
+    if(!Array.isArray(S.prs))S.prs=[];
+    if(!Array.isArray(S.hist))S.hist=[];
+    if(!Array.isArray(S.workouts))S.workouts=[];
+    if(!Array.isArray(S.bw))S.bw=[];
+    if(!Array.isArray(S.customExs))S.customExs=[];
+    S.streak=calcStreak();
+    if(_pendingName){S.user.name=_pendingName;_pendingName=null;}
   }
 
-  // ── Fall back to localStorage cache ──
+  // ── 1. Încearcă Supabase ──
+  try{
+    const {data,error}=await sb.from('user_data').select('data').eq('user_id',currentUserId).single();
+    // PGRST116 = no rows found (utilizator nou) — nu e eroare reală
+    if(error && error.code!=='PGRST116')throw error;
+    if(data?.data){
+      applyData(data.data);
+      try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+      return; // ✓ date încărcate din cloud
+    }
+    // Supabase accesibil dar fără date → cade la pasul 2
+  }catch(e){
+    console.warn('Supabase load failed:',e?.message||e);
+    // Supabase inaccesibil → cade la localStorage fără să suprascrie
+    const r=localStorage.getItem(SK);
+    if(r){
+      try{applyData(JSON.parse(r));return;}catch(_){}
+    }
+    // Nici Supabase nici localStorage → utilizator nou (va fi creat mai jos)
+  }
+
+  // ── 2. Fallback localStorage (Supabase ok dar fără rând) ──
   const r=localStorage.getItem(SK);
   if(r){
     try{
-      const loaded=JSON.parse(r);
-      const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg'};
-      const defGoals={tw:80,dpw:4,bf:15};
-      const defUser={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
-      S=loaded;
-      S.cfg=Object.assign({},defCfg,loaded.cfg||{});
-      S.goals=Object.assign({},defGoals,loaded.goals||{});
-      S.user=Object.assign({},defUser,loaded.user||{});
-      if(!S.user.xp||isNaN(S.user.xp))S.user.xp=0;
-      if(!S.user.mxp||isNaN(S.user.mxp))S.user.mxp=1000;
-      if(!S.user.lvl||isNaN(S.user.lvl))S.user.lvl=1;
-      if(!Array.isArray(S.prs))S.prs=[];
-      if(!Array.isArray(S.hist))S.hist=[];
-      if(!Array.isArray(S.workouts))S.workouts=[];
-      if(!Array.isArray(S.bw))S.bw=[];
-      if(!Array.isArray(S.customExs))S.customExs=[];
-      S.streak=calcStreak();
-      if(_pendingName){S.user.name=_pendingName;_pendingName=null;save();}
-      // If loaded from localStorage, push to Supabase so other devices get it
-      if(!supabaseOk)save();
+      applyData(JSON.parse(r));
+      save(); // sincronizează cu Supabase dacă lipsea rândul
       return;
     }catch(e){}
   }

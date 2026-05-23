@@ -35,7 +35,7 @@ body{
   overscroll-behavior:none;-webkit-user-select:none;user-select:none;
 }
 input,textarea,select{-webkit-user-select:auto;user-select:auto}
-.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:var(--nh);-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden}
 .screen.active{display:flex}
 .fullscreen{display:none;flex-direction:column;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:50;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 .fullscreen.active{display:flex}
@@ -792,78 +792,94 @@ document.getElementById('egrid').addEventListener('click',e=>{
 function greet(){const h=now.getHours();return h<12?'morning':h<17?'afternoon':'evening';}
 function renderHome(){
   try{
-  const wkHist=S.hist.filter(h=>(Date.now()-new Date(h.date).getTime())<7*864e5);
-  const totCal=wkHist.reduce((a,h)=>a+h.cal,0);
-  const totMin=wkHist.reduce((a,h)=>a+h.dur,0);
-  const wk=S.workouts?.find(w=>w.id===S.todayWk)||S.workouts?.[0]||null;
-  const rec=[...S.hist].slice(0,3);
+  const wkHist=(S.hist||[]).filter(h=>(Date.now()-new Date(h.date).getTime())<7*864e5);
+  const totCal=wkHist.reduce((a,h)=>a+(h.cal||0),0);
+  const totMin=wkHist.reduce((a,h)=>a+(h.dur||0),0);
+  const workouts=Array.isArray(S.workouts)?S.workouts:[];
+  const wk=workouts.find(w=>w.id===S.todayWk)||workouts[0]||null;
+  const rec=[...(S.hist||[])].slice(0,3);
   const H=Math.floor(totMin/60),M=totMin%60;
   const tStr=H>0?H+'h '+(M>0?M+'m':''):M+'m';
 
-  const exPrev=wk&&Array.isArray(wk.exs)&&wk.exs.length?wk.exs.slice(0,3).map(e=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd)">
-      <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${e.n||'Exercise'}</div>
-      <div style="font-size:11px;color:var(--tx2);margin-top:2px">${e.t||''} · ${e.m||''}</div></div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--tx2)">${e.sets?.length||0}×${e.sets?.[0]?.r||0}</div>
-    </div>`).join('')+'<div style="padding:8px 0;color:var(--tx3);font-size:12px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px">'+(wk.exs.length>3?'+'+(wk.exs.length-3)+' MORE EXERCISES':'')+'</div>'
-  :'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">No exercises yet</div>';
+  let exPrev='<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">No exercises yet</div>';
+  if(wk&&Array.isArray(wk.exs)&&wk.exs.length){
+    try{
+      exPrev=wk.exs.slice(0,3).map(e=>{
+        const reps=(e.sets&&e.sets[0])?e.sets[0].r||0:0;
+        const slen=(e.sets&&e.sets.length)||0;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd)">
+          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${e.n||'Exercise'}</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">${e.t||''} · ${e.m||''}</div></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--tx2)">${slen}×${reps}</div>
+        </div>`;
+      }).join('')+(wk.exs.length>3?`<div style="padding:8px 0;color:var(--tx3);font-size:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">+${wk.exs.length-3} MORE EXERCISES</div>`:'');
+    }catch(ex){console.warn('exPrev error:',ex);}
+  }
 
   const recH=rec.length?rec.map(h=>`
-    <div class="hr" onclick="openWKD('${h.wid}')">
+    <div class="hr" onclick="openWKD('${h.wid||''}')">
       <div class="hico" style="background:rgba(255,61,0,.1)">${h.em||'🏋️'}</div>
-      <div class="hinfo"><div class="hname">${h.name||'Workout'}</div><div class="hdate">${fdate(h.date)} · ${h.dur} min</div></div>
+      <div class="hinfo"><div class="hname">${h.name||'Workout'}</div><div class="hdate">${fdate(h.date)} · ${h.dur||0} min</div></div>
       <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:20px">${h.sets||0}</div><div style="font-size:11px;color:var(--tx3)">sets</div></div>
     </div>`).join('')
   :'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">Complete your first workout!</div>';
 
+  const wkCard=wk?`
+    <div onclick="openWKD('${wk.id}')" style="cursor:pointer">
+      <div style="background:var(--ac);padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:26px;margin-bottom:4px">${wk.em||'🏋️'}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;line-height:1">${wk.name||'Workout'}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.7);letter-spacing:1px;margin-top:4px">${wk.desc||''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${(wk.exs||[]).length} EX</div>
+          <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${wk.dur||0} MIN</div>
+        </div>
+      </div>
+      <div style="padding:4px 18px 0">${exPrev}</div>
+      <div style="padding:10px 18px 14px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px">TAP TO VIEW &amp; START ›</div>
+    </div>`
+  :`<div style="padding:28px;text-align:center">
+      <div style="font-size:36px;margin-bottom:10px">🏋️</div>
+      <div style="color:var(--tx2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:14px">NO WORKOUT SELECTED</div>
+      <button class="btn bp bsm" onclick="go('library')">BROWSE LIBRARY</button>
+    </div>`;
+
   document.getElementById('sc-home').innerHTML=`
-    <div style="padding:max(48px,calc(env(safe-area-inset-top)+14px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;background:var(--bg);position:sticky;top:0;z-index:10">
+    <!-- sticky header: flex-shrink:0 keeps it out of scroll -->
+    <div style="background:var(--bg);padding:max(48px,calc(env(safe-area-inset-top)+14px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0;border-bottom:1px solid var(--bd)">
       <div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:5px;line-height:1">IRON<span style="color:var(--ac)">M</span>EN</div>
         <div style="font-size:14px;color:var(--tx2);margin-top:3px">Good ${greet()}, <strong style="color:var(--tx)">${(S.user?.name||'Athlete').split(' ')[0]}</strong> 💪</div>
       </div>
       <div style="text-align:right">
-        <div onclick="manualStreak()" style="background:var(--ac);padding:6px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🔥 ${S.streak||0} DAY STREAK</div>
+        <div onclick="manualStreak()" style="background:var(--ac);padding:6px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🔥 ${S.streak||0} DAY</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--tx3);margin-top:6px">${DAYS[now.getDay()].toUpperCase()}, ${MONS[now.getMonth()].toUpperCase()} ${now.getDate()}</div>
       </div>
     </div>
-    <div class="slbl">THIS WEEK</div>
-    <div class="stats-row">
-      <div class="sc"><div class="bn" style="color:var(--ac)">${wkHist.length}</div><div class="lbl">Workouts</div></div>
-      <div class="sc"><div class="bn" style="color:var(--ac2)">${totCal.toLocaleString()}</div><div class="lbl">Calories</div></div>
-      <div class="sc"><div class="bn">${tStr||'0m'}</div><div class="lbl">Volume</div></div>
-    </div>
-    <div class="slbl">TODAY'S PLAN <span style="font-size:11px;color:var(--ac);cursor:pointer;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-weight:700" onclick="changeTodayWk()">CHANGE ›</span></div>
-    <div style="margin:0 20px 4px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden">
-      ${wk?`
-      <div onclick="openWKD('${wk.id}')" style="cursor:pointer">
-        <div style="background:var(--ac);padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start">
-          <div>
-            <div style="font-size:26px;margin-bottom:4px">${wk.em||'🏋️'}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:#fff;line-height:1">${wk.name||'Workout'}</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.7);letter-spacing:1px;margin-top:4px">${wk.desc||''}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-            <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${wk.exs?.length||0} EXERCISES</div>
-            <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${wk.dur||0} MIN</div>
-          </div>
-        </div>
-        <div style="padding:4px 18px 0">${exPrev}</div>
-        <div style="padding:10px 18px 14px;display:flex;align-items:center;gap:6px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px">TAP TO VIEW &amp; START ›</div>
-      </div>`
-      :`<div style="padding:30px;text-align:center"><div style="font-size:36px;margin-bottom:12px">🏋️</div>
-        <div style="color:var(--tx2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">NO WORKOUT SELECTED</div>
-        <button class="btn bp bsm" onclick="go('library')">BROWSE LIBRARY</button></div>`}
-    </div>
-    <div class="slbl">RECENT SESSIONS</div>
-    <div class="card" style="margin:0 20px">${recH}</div>
-    <div style="height:10px"></div>`;
+    <!-- scrollable body -->
+    <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
+      <div class="slbl">THIS WEEK</div>
+      <div class="stats-row">
+        <div class="sc"><div class="bn" style="color:var(--ac)">${wkHist.length}</div><div class="lbl">Workouts</div></div>
+        <div class="sc"><div class="bn" style="color:var(--ac2)">${totCal.toLocaleString()}</div><div class="lbl">Calories</div></div>
+        <div class="sc"><div class="bn">${tStr||'0m'}</div><div class="lbl">Volume</div></div>
+      </div>
+      <div class="slbl">TODAY'S PLAN <span style="font-size:11px;color:var(--ac);cursor:pointer;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-weight:700" onclick="changeTodayWk()">CHANGE ›</span></div>
+      <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;min-height:80px">
+        ${wkCard}
+      </div>
+      <div class="slbl">RECENT SESSIONS</div>
+      <div class="card" style="margin:0 20px">${recH}</div>
+      <div style="height:16px"></div>
+    </div>`;
   }catch(err){
     console.error('renderHome failed:',err);
     document.getElementById('sc-home').innerHTML=`
-      <div style="padding:60px 20px;text-align:center">
+      <div style="flex:1;overflow-y:auto;padding:60px 20px;text-align:center">
         <div style="font-size:36px;margin-bottom:16px">⚠️</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--tx2);letter-spacing:1px;margin-bottom:20px">EROARE LA ÎNCĂRCARE</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:1px;margin-bottom:20px">${err.message||'Eroare la încărcare'}</div>
         <button class="btn bp" onclick="location.reload()">REÎNCARCĂ</button>
       </div>`;
   }
@@ -921,7 +937,7 @@ function renderLib(){
   const cats=[{v:'all',l:'All'},{v:'strength',l:'Strength'},{v:'cardio',l:'Cardio'},{v:'hiit',l:'HIIT'},{v:'mobility',l:'Mobility'},{v:'custom',l:'Custom'}];
   const catH=cats.map(c=>`<button class="catbtn${c.v===libCat?' active':''}" data-cat="${c.v}" onclick="libCat='${c.v}';renderLibGrid()">${c.l}</button>`).join('');
 
-  document.getElementById('sc-library').innerHTML=`
+  document.getElementById('sc-library').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
     <div class="top-bar"><h1>LIBRARY</h1>
       <button class="bico" onclick="openAddWk()" style="background:var(--ac);border-color:var(--ac);color:#fff;font-size:22px;width:40px;height:40px">+</button>
     </div>
@@ -947,7 +963,8 @@ function renderLib(){
       </div>`).join('')}
       <button class="btn bg" style="margin-top:12px" onclick="showAllEx()">VIEW ALL ${EDB.length} EXERCISES</button>
     </div>
-    <div style="height:80px"></div>`;
+    <div style="height:16px"></div>
+  </div>`;
   renderLibGrid();
 }
 
@@ -1355,7 +1372,7 @@ function renderProg(){
       </td>
     </tr>`):'';
 
-  document.getElementById('sc-progress').innerHTML=`
+  document.getElementById('sc-progress').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
     <div class="top-bar"><h1>PROGRESS</h1><span class="pill pok">${S.hist.length} sessions</span></div>
 
     <div class="card" style="margin:0 20px">
@@ -1419,7 +1436,8 @@ function renderProg(){
         </div>`).join('')
       :'<div style="padding:20px;text-align:center;color:var(--tx3)">No sessions yet</div>'}
     </div>
-    <div style="height:10px"></div>`;
+    <div style="height:16px"></div>
+  </div>`;
 
   setTimeout(()=>{drawBW(bw);drawVol(wkVol);},60);
 }
@@ -1495,8 +1513,8 @@ function renderProf(){
   const initials=name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2)||'?';
   const lvlNames=['','Iron','Bronze','Silver','Gold','Platinum','Diamond','Elite','Legend','Mythic'];
 
-  document.getElementById('sc-profile').innerHTML=`
-    <div style="padding:50px 20px 20px;text-align:center;background:var(--sf);border-bottom:1px solid var(--bd)">
+  document.getElementById('sc-profile').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
+    <div style="padding:max(50px,calc(env(safe-area-inset-top)+20px)) 20px 20px;text-align:center;background:var(--sf);border-bottom:1px solid var(--bd)">
       <div onclick="openProf()" style="width:88px;height:88px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin:0 auto 14px;cursor:pointer;border:3px solid rgba(255,61,0,.5)">${initials}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;cursor:pointer" onclick="openProf()">${name}</div>
       <div style="font-size:13px;color:var(--tx2);margin-top:4px;cursor:pointer" onclick="openProf()">${u.prog||'My Program'} ✏️</div>
@@ -1577,7 +1595,8 @@ function renderProf(){
     </div>
     <div style="margin:0 20px 30px">
       <button class="btn bd2" style="font-size:11px" onclick="deleteAccount()">🗑 DELETE THIS ACCOUNT</button>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 function sr(ico,name,sub,key,val){

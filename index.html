@@ -536,10 +536,12 @@ async function loginAs(userId){
   go('home');
   checkNameDefault();
   scheduleReminder();
+  subscribeRealtime();
 }
 
 async function doLogout(){
   if(!confirm('Log out of this account?'))return;
+  if(_realtimeCh){try{_realtimeCh.unsubscribe();}catch(_){}}_realtimeCh=null;
   await sb.auth.signOut();
   currentUserId=null;S={};
   document.querySelectorAll('.screen,.fullscreen').forEach(s=>s.classList.remove('active'));
@@ -726,15 +728,19 @@ async function initS(){
   }
   save();
 }
+// ── Session ID: identifică dispozitivul curent (ignorăm propriile save-uri la realtime) ──
+const _SID = Math.random().toString(36).slice(2);
 var _saveTimer=null;
+
 function save(){
   try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
   if(currentUserId&&sb){
     clearTimeout(_saveTimer);
     _saveTimer=setTimeout(function(){
-      sb.from('user_data').upsert({user_id:currentUserId,data:JSON.parse(JSON.stringify(S)),updated_at:new Date().toISOString()})
+      const payload={user_id:currentUserId,data:{...JSON.parse(JSON.stringify(S)),_sid:_SID},updated_at:new Date().toISOString()};
+      sb.from('user_data').upsert(payload)
         .catch(function(e){console.warn('Supabase sync failed:',e?.message||e);});
-    },2000);
+    },1500);
   }
 }
 
@@ -743,9 +749,43 @@ async function saveNow(){
   try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
   clearTimeout(_saveTimer);
   if(currentUserId&&sb){
-    await sb.from('user_data').upsert({user_id:currentUserId,data:JSON.parse(JSON.stringify(S)),updated_at:new Date().toISOString()})
+    const payload={user_id:currentUserId,data:{...JSON.parse(JSON.stringify(S)),_sid:_SID},updated_at:new Date().toISOString()};
+    await sb.from('user_data').upsert(payload)
       .catch(function(e){console.warn('Supabase sync failed:',e?.message||e);});
   }
+}
+
+// ═══════════ REALTIME SYNC ═══════════
+let _realtimeCh=null;
+function subscribeRealtime(){
+  if(!currentUserId||!sb)return;
+  if(_realtimeCh){try{_realtimeCh.unsubscribe();}catch(_){}};
+  _realtimeCh=sb.channel('ud_'+currentUserId)
+    .on('postgres_changes',{
+      event:'UPDATE',
+      schema:'public',
+      table:'user_data',
+      filter:'user_id=eq.'+currentUserId
+    },function(payload){
+      const incoming=payload?.new?.data;
+      if(!incoming)return;
+      // Ignorăm propriile save-uri
+      if(incoming._sid===_SID)return;
+      // Datele vin de pe alt dispozitiv — aplicăm
+      const clean={...incoming};delete clean._sid;
+      S=clean;
+      try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+      refreshUI();
+      showToast('🔄 Sync de pe alt dispozitiv','info');
+    })
+    .subscribe();
+}
+function refreshUI(){
+  if(curSc==='home')renderHome();
+  else if(curSc==='library'){renderLib();}
+  else if(curSc==='progress')renderProg();
+  else if(curSc==='profile')renderProf();
+  else if(curSc==='wkd'&&activeWid)renderWKD(activeWid);
 }
 
 // ── Toast notification ──

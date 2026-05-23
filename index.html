@@ -386,6 +386,13 @@ button{-webkit-user-select:none;user-select:none}
     </div>
     <div id="fin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
     <div id="fin-prs" style="margin-bottom:14px"></div>
+    <div id="fin-weight" style="display:none;margin-bottom:14px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);margin-bottom:8px">📊 LOGHEAZĂ GREUTATEA DE AZI</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="fin-bw-val" type="number" step="0.1" min="30" max="250" placeholder="kg" style="flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-size:16px;outline:none">
+        <button class="btn bp bsm" style="white-space:nowrap" onclick="finLogWeight()">SALVEAZĂ</button>
+      </div>
+    </div>
     <button class="btn bp" onclick="CM('m-fin');go('home')">BACK TO HOME</button>
     <button class="btn bg" style="margin-top:8px" onclick="CM('m-fin');go('progress')">VIEW PROGRESS</button>
   </div>
@@ -528,6 +535,7 @@ async function loginAs(userId){
   await initUserData();
   go('home');
   checkNameDefault();
+  scheduleReminder();
 }
 
 async function doLogout(){
@@ -997,7 +1005,7 @@ function renderLib(){
         <span class="chip" style="font-size:10px">+ ADD</span>
       </div>`).join('')}
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px">
-        <button class="btn bg" onclick="showAllEx()">VIEW ALL ${EDB.length} EXERCISES</button>
+        <button class="btn bg" onclick="showAllEx()">VIEW ALL ${EDB.length+(S.customExs||[]).length} EXERCISES</button>
         <button class="btn bp bsm" onclick="openCreateEx()" style="white-space:nowrap;padding:10px 14px">+ CREATE</button>
       </div>
     </div>
@@ -1048,9 +1056,13 @@ function renderExList(q){
   filtered.forEach(e=>{if(!byMuscle[e.m])byMuscle[e.m]=[];byMuscle[e.m].push(e);});
   const customSection=fCustom.length?`
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ac);text-transform:uppercase;padding:10px 0 4px">★ My Custom Exercises</div>
-    ${fCustom.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;border-left:2px solid var(--ac);padding-left:8px">
-      <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${e.t} · ${e.m}</div></div>
-      <button class="btn bok bsm" onclick="quickAddEx('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}');this.closest('.modal').remove()">+ ADD</button>
+    ${fCustom.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;gap:6px;border-left:2px solid var(--ac);padding-left:8px">
+      <div style="flex:1;min-width:0"><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${e.t} · ${e.m}</div></div>
+      <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
+        <button class="btn bok bsm" style="padding:6px 10px" onclick="quickAddEx('${e.n.replace(/'/g,"\'")}','${e.m}','${e.t}');this.closest('.modal').remove()">+ ADD</button>
+        <button style="width:30px;height:30px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="editCustomEx('${e.id}');this.closest('.modal').remove()">✏️</button>
+        <button style="width:30px;height:30px;border-radius:7px;border:none;background:transparent;color:var(--tx3);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'" onclick="deleteCustomExFromModal('${e.id}',this)">✕</button>
+      </div>
     </div>`).join('')}`:'';
   const stdSection=Object.entries(byMuscle).map(([m,exs])=>`
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;padding:10px 0 4px">${m}</div>
@@ -1091,101 +1103,28 @@ function saveWk(){
   save();CM('m-wk');renderLib();
 }
 
-// ═══════════ WORKOUT DETAIL + DRAG-AND-DROP (Pointer Events) ═══════════
-let _ds=null;
-
-function initExDrag(wid){
-  const list=document.getElementById('ex-list');
-  if(!list)return;
-  list.querySelectorAll('.ex-drag-handle').forEach(h=>{
-    h.style.touchAction='none'; // obligatoriu pt pointer capture pe mobile
-    h.onpointerdown=e=>{
-      e.preventDefault();
-      try{h.setPointerCapture(e.pointerId);}catch(_){}
-      const card=h.closest('.ex-card');
-      _startDrag(e,wid,+card.dataset.idx,card,list,h);
-    };
-  });
+// ═══════════ REORDONARE EXERCIȚII ═══════════
+function moveEx(wid,i,dir){
+  const w=S.workouts.find(x=>x.id===wid);if(!w)return;
+  const j=i+dir;
+  if(j<0||j>=w.exs.length)return;
+  [w.exs[i],w.exs[j]]=[w.exs[j],w.exs[i]];
+  save();renderWKD(wid);
 }
-
-function _startDrag(e,wid,idx,card,list,handle){
-  const rect=card.getBoundingClientRect();
-  const ghost=card.cloneNode(true);
-  ghost.style.cssText=`position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;z-index:999;opacity:.93;box-shadow:0 24px 64px rgba(0,0,0,.8);border:2px solid var(--ac);border-radius:12px;pointer-events:none;margin:0;transform:scale(1.03);transition:none;background:var(--sf)`;
-  document.body.appendChild(ghost);
-  card.style.opacity='.2';
-  card.style.borderStyle='dashed';
-  const offsetY=e.clientY-rect.top;
-  // Snapshot poziții naturale înainte de orice shift
-  const naturalMids=[...list.querySelectorAll('.ex-card')].map(c=>{
-    const r=c.getBoundingClientRect();
-    return{ci:+c.dataset.idx,mid:r.top+r.height/2};
-  });
-  _ds={wid,idx,toIdx:idx,card,ghost,list,offsetY,cardH:rect.height,naturalMids,handle};
-
-  handle.onpointermove=_onDragMove;
-  handle.onpointerup=_onDragEnd;
-  handle.onpointercancel=_onDragEnd;
-}
-
-function _onDragMove(e){
-  if(!_ds)return;
-  e.preventDefault();
-  const newTop=e.clientY-_ds.offsetY;
-  _ds.ghost.style.top=newTop+'px';
-  const ghostMid=newTop+_ds.cardH/2;
-  // Calcul index pe baza pozițiilor naturale snapshot-ate
-  let toIdx=_ds.idx;
-  _ds.naturalMids.forEach(({ci,mid})=>{
-    if(ci===_ds.idx)return;
-    if(ci<_ds.idx&&ghostMid<mid)toIdx=Math.min(toIdx,ci);
-    if(ci>_ds.idx&&ghostMid>mid)toIdx=Math.max(toIdx,ci);
-  });
-  _ds.toIdx=toIdx;
-  // Shift vizual celelalte carduri
-  [..._ds.list.querySelectorAll('.ex-card')].forEach(c=>{
-    if(c===_ds.card)return;
-    const ci=+c.dataset.idx;
-    let sh=0;
-    if(_ds.idx<toIdx&&ci>_ds.idx&&ci<=toIdx)sh=-(_ds.cardH+10);
-    if(_ds.idx>toIdx&&ci>=toIdx&&ci<_ds.idx)sh=_ds.cardH+10;
-    c.style.transform=sh?`translateY(${sh}px)`:'';
-    c.style.transition='transform .15s';
-  });
-}
-
-function _onDragEnd(e){
-  if(!_ds)return;
-  const{handle,ghost,card,wid,idx:from,toIdx:to,list}=_ds;
-  handle.onpointermove=null;
-  handle.onpointerup=null;
-  handle.onpointercancel=null;
-  try{handle.releasePointerCapture(e.pointerId);}catch(_){}
-  ghost.remove();
-  // Reset vizual carduri rămase
-  [...list.querySelectorAll('.ex-card')].forEach(c=>{
-    c.style.transform='';c.style.transition='';
-  });
-  _ds=null;
-  if(from!==to){
-    const w=S.workouts.find(x=>x.id===wid);
-    if(w){const[m]=w.exs.splice(from,1);w.exs.splice(to,0,m);save();}
-  }
-  renderWKD(wid);
-}
+function initExDrag(){}
 
 function renderWKD(id){
   const w=S.workouts.find(x=>x.id===id);
   if(!w){go('library');return;}
   const isToday=S.todayWk===id;
-  const exsH=w.exs.length?`<div id="ex-list">`+w.exs.map((e,i)=>`
+  const total=w.exs.length;
+  const exsH=total?`<div id="ex-list">`+w.exs.map((e,i)=>`
     <div class="ex-card" data-idx="${i}" style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:10px;user-select:none;-webkit-user-select:none">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
-          <div class="ex-drag-handle" style="display:flex;flex-direction:column;gap:4px;padding:10px 12px;cursor:grab;flex-shrink:0;touch-action:none;min-width:44px;min-height:44px;justify-content:center;align-items:center">
-            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
-            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
-            <div style="width:20px;height:2.5px;background:var(--tx2);border-radius:2px"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <button onclick="moveEx('${id}',${i},-1)" style="background:${i===0?'transparent':'var(--sf2)'};border:1px solid ${i===0?'transparent':'var(--bd)'};border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:${i===0?'var(--tx3)':'var(--tx)'};font-size:12px;pointer-events:${i===0?'none':'auto'};outline:none" ${i===0?'tabindex="-1"':''}>▲</button>
+            <button onclick="moveEx('${id}',${i},1)" style="background:${i===total-1?'transparent':'var(--sf2)'};border:1px solid ${i===total-1?'transparent':'var(--bd)'};border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:${i===total-1?'var(--tx3)':'var(--tx)'};font-size:12px;pointer-events:${i===total-1?'none':'auto'};outline:none" ${i===total-1?'tabindex="-1"':''}>▼</button>
           </div>
           <div style="min-width:0">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div>
@@ -1391,12 +1330,26 @@ function saveCustomEx(){
 
 function deleteCustomEx(id){
   const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
-  if(!confirm(`Delete "${e.n}"?`))return;
+  if(!confirm(`Ștergi "${e.n}"?`))return;
   S.customExs=S.customExs.filter(x=>x.id!==id);
   save();
-  const cl=document.getElementById('custom-ex-list');if(cl)cl.innerHTML=renderCustomExList();
-  const cc=document.getElementById('cex-count');if(cc)cc.textContent='('+S.customExs.length+')';
-  showToast('Exercise deleted','info');
+  renderLib();
+  showToast('Exercițiu șters','info');
+}
+function deleteCustomExFromModal(id,btn){
+  const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
+  if(!confirm(`Ștergi "${e.n}"?`))return;
+  S.customExs=S.customExs.filter(x=>x.id!==id);
+  save();
+  // Ștergem rândul din modal fără să închidem modalul
+  const row=btn?btn.closest('div[style*="border-left"]'):null;
+  if(row)row.remove();
+  // Dacă nu mai sunt custom exercises, eliminăm și header-ul secțiunii
+  if(!(S.customExs||[]).length){
+    const el=document.getElementById('all-ex-list');
+    if(el)el.innerHTML=renderExList('');
+  }
+  showToast('Exercițiu șters','info');
 }
 
 // ═══════════ ACTIVE WORKOUT ═══════════
@@ -1553,6 +1506,20 @@ function finishActive(wid){
       ${newPRs.map(p=>`<div style="font-size:14px;color:var(--tx2);margin-top:4px">${p.ex}: <strong style="color:var(--tx)">${p.w}kg</strong>${p.prev?' (was '+p.prev+'kg)':' — first PR!'}</div>`).join('')}
     </div>`:'';
   OM('m-fin');
+  // Auto-log weight prompt
+  const fw=document.getElementById('fin-weight');
+  if(fw){fw.style.display=S.cfg?.autoLog?'block':'none';}
+  const fv=document.getElementById('fin-bw-val');
+  if(fv)fv.value='';
+}
+function finLogWeight(){
+  const v=parseFloat(document.getElementById('fin-bw-val').value);
+  if(!v||v<30||v>250){showToast('Greutate invalidă','err');return;}
+  const ex=S.bw.find(b=>b.date===td());
+  if(ex)ex.w=v;else S.bw.push({date:td(),w:v});
+  save();
+  document.getElementById('fin-weight').style.display='none';
+  showToast('Greutate logată: '+v+' kg ✓','ok');
 }
 
 // ═══════════ REST TIMER ═══════════
@@ -1569,7 +1536,26 @@ function updR(){
   el.style.color=rLeft<=10?'var(--err)':'var(--ac)';
 }
 function adjR(d){rLeft=Math.max(0,rLeft+d);if(d>0)rTotal=Math.max(rTotal,rLeft);updR();}
-function endRest(){clearInterval(rInt);document.getElementById('rscreen').classList.remove('open');}
+function endRest(){
+  clearInterval(rInt);
+  document.getElementById('rscreen').classList.remove('open');
+  playRestBeep();
+}
+function playRestBeep(){
+  if(!S.cfg?.restSound)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[0,660],[0.18,880],[0.36,1100]].forEach(([t,freq])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';o.frequency.value=freq;
+      g.gain.setValueAtTime(0,ctx.currentTime+t);
+      g.gain.linearRampToValueAtTime(0.5,ctx.currentTime+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.35);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.4);
+    });
+  }catch(_){}
+}
 
 // ═══════════ PROGRESS ═══════════
 function renderProg(){
@@ -1837,7 +1823,51 @@ function ach(em,lbl,unlocked,hint){
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:${unlocked?'var(--ac2)':'var(--tx3)'};margin-top:6px;font-weight:700;letter-spacing:1px">${lbl}</div>
   </div>`;
 }
-function tglCfg(k,el){S.cfg[k]=!S.cfg[k];el.classList.toggle('on',S.cfg[k]);save();}
+function tglCfg(k,el){
+  S.cfg[k]=!S.cfg[k];
+  el.classList.toggle('on',S.cfg[k]);
+  save();
+  if(k==='reminders')handleRemindersToggle(S.cfg[k]);
+  else if(k==='music')handleMusicToggle(S.cfg[k]);
+  else if(k==='autoLog')showToast(S.cfg[k]?'Auto-log activ — greutatea se va cere după workout ✓':'Auto-log dezactivat','info');
+  else if(k==='restSound')showToast(S.cfg[k]?'Sunet activat ✓':'Sunet dezactivat','info');
+}
+
+// ── Workout Reminders ──
+async function handleRemindersToggle(on){
+  if(!on){clearTimeout(window._remTO);showToast('Remindere dezactivate','info');return;}
+  if(!('Notification' in window)){
+    showToast('Notificările nu sunt suportate de browser','err');
+    S.cfg.reminders=false;save();renderProf();return;
+  }
+  const perm=Notification.permission==='granted'?'granted':await Notification.requestPermission();
+  if(perm!=='granted'){
+    showToast('Permisiune refuzată — activează din setările browserului','err');
+    S.cfg.reminders=false;save();renderProf();return;
+  }
+  scheduleReminder();
+  showToast('Reminder zilnic la 7:00 AM activat 🔔','ok');
+}
+function scheduleReminder(){
+  if(!S.cfg?.reminders||Notification.permission!=='granted')return;
+  const now=new Date(),next=new Date();
+  next.setHours(7,0,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);
+  clearTimeout(window._remTO);
+  window._remTO=setTimeout(()=>{
+    new Notification('IRONMEN 💪',{body:'Zi bună pentru antrenament! Workout-ul te așteaptă.',icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2228%22 font-size=%2228%22>💪</text></svg>'});
+    scheduleReminder();
+  },next-now);
+}
+
+// ── Workout Music ──
+function handleMusicToggle(on){
+  if(!on){showToast('Muzică dezactivată','info');return;}
+  if(confirm('Deschid Spotify?')){
+    window.open('https://open.spotify.com','_blank');
+  }
+  showToast('Pornește muzica și revino la antrenament 🎵','ok');
+}
 function setU(u){S.cfg.units=u;save();renderProf();}
 function openProf(){OM('m-prof');}
 async function saveProf(){

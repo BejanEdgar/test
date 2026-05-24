@@ -148,6 +148,370 @@ button{-webkit-user-select:none;user-select:none}
 }
 /* ── Smooth scrolling on iOS ── */
 [data-scroll]{-webkit-overflow-scrolling:touch}
+
+/* ════════════════════════════════════════
+   IRONMEN — ANIMATIONS
+   Toate animațiile sunt CSS-only și
+   language-independent.
+   ════════════════════════════════════════ */
+
+/* ── 1. Keyframes ── */
+@keyframes imFadeSlideUp{
+  from{opacity:0;transform:translateY(14px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+@keyframes imSlideInRight{
+  from{opacity:0;transform:translateX(calc(-50% + 28px))}
+  to  {opacity:1;transform:translateX(-50%)}
+}
+@keyframes imLogoIn{
+  0%  {opacity:0;transform:scale(.82) translateY(-18px)}
+  65% {opacity:1;transform:scale(1.04) translateY(3px)}
+  100%{opacity:1;transform:scale(1)    translateY(0)}
+}
+@keyframes imFadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+@keyframes imModalSlideUp{
+  from{transform:translateY(70px);opacity:0}
+  to  {transform:translateY(0);   opacity:1}
+}
+@keyframes imBackdropFade{
+  from{background:rgba(0,0,0,0)}
+  to  {background:rgba(0,0,0,.8)}
+}
+@keyframes imRestIn{
+  from{opacity:0;transform:scale(.94)}
+  to  {opacity:1;transform:scale(1)}
+}
+@keyframes imTimerPulse{
+  0%,100%{transform:scale(1)}
+  50%    {transform:scale(1.04)}
+}
+@keyframes imNavBounce{
+  0%  {transform:scale(1)}
+  35% {transform:scale(1.28)}
+  65% {transform:scale(.88)}
+  100%{transform:scale(1)}
+}
+@keyframes imCheckBounce{
+  0%  {transform:scale(1)}
+  28% {transform:scale(1.38)}
+  55% {transform:scale(.82)}
+  78% {transform:scale(1.1)}
+  100%{transform:scale(1)}
+}
+@keyframes imCardDone{
+  0%  {box-shadow:0 0 0 0   rgba(0,201,106,0)}
+  45% {box-shadow:0 0 0 6px rgba(0,201,106,.2)}
+  100%{box-shadow:0 0 0 0   rgba(0,201,106,0)}
+}
+@keyframes imCelebrateEmoji{
+  0%  {transform:scale(0) rotate(-20deg);opacity:0}
+  55% {transform:scale(1.15) rotate(6deg);opacity:1}
+  80% {transform:scale(.94) rotate(-2deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+@keyframes imToastIn{
+  from{opacity:0;transform:translateX(-50%) translateY(14px)}
+  to  {opacity:1;transform:translateX(-50%) translateY(0)}
+}
+@keyframes imStatCard{
+  from{opacity:0;transform:translateY(10px) scale(.95)}
+  to  {opacity:1;transform:translateY(0)    scale(1)}
+}
+@keyframes imBarFill{
+  from{transform:scaleX(0);transform-origin:left}
+  to  {transform:scaleX(1);transform-origin:left}
+}
+@keyframes imWkCardIn{
+  from{opacity:0;transform:translateY(18px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+
+/* ── 2. Screen transitions ── */
+/* Tab screens: fade + slide up */
+.screen.active{
+  animation:imFadeSlideUp .22s cubic-bezier(.25,.8,.25,1) both;
+}
+/* Fullscreen panels (WKD, Active): slide in from right */
+#sc-wkd.active,#sc-active.active{
+  animation:imSlideInRight .26s cubic-bezier(.25,.8,.25,1) both;
+}
+
+/* ── 3. Auth screen entrance ── */
+/* Logo */
+.im-auth-logo{
+  animation:imLogoIn .72s cubic-bezier(.34,1.56,.64,1) .05s both;
+}
+/* Language picker */
+.im-auth-lang{
+  animation:imFadeUp .42s ease-out .22s both;
+}
+/* Tab switcher */
+.im-auth-tabs{
+  animation:imFadeUp .42s ease-out .32s both;
+}
+/* Forms */
+.im-auth-form{
+  animation:imFadeUp .42s ease-out .42s both;
+}
+/* Footer */
+.im-auth-footer{
+  animation:imFadeUp .38s ease-out .52s both;
+}
+
+/* ── 4. Modals: slide-up on open ── */
+.modal.open{
+  animation:imBackdropFade .25s ease-out both;
+}
+.modal.open .mbox{
+  animation:imModalSlideUp .3s cubic-bezier(.34,1.08,.64,1) both;
+}
+/* Workout complete emoji */
+#m-fin.open .mbox > div:first-child > div:first-child{
+  animation:imCelebrateEmoji .55s cubic-bezier(.34,1.56,.64,1) .05s both;
+}
+
+/* ── 5. Rest timer screen ── */
+.rscreen.open{
+  animation:imRestIn .3s cubic-bezier(.25,.8,.25,1) both;
+}
+/* Timer number pulse every second (matches rInt interval) */
+#rbig{
+  animation:imTimerPulse 1s ease-in-out infinite;
+}
+
+/* ── 6. Nav icon bounce on activate ── */
+.nb svg{
+  animation:none;
+  transition:stroke .15s;
+}
+.nb.active svg{
+  animation:imNavBounce .38s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* ── 7. Set done checkmark bounce ── */
+.sdone{transition:background .15s,border-color .15s,color .15s;}
+.sdone.on{
+  animation:imCheckBounce .45s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* ── 8. Exercise card "all done" glow ── */
+.aexc.alld{
+  animation:imCardDone .6s ease-out both;
+}
+
+/* ── 9. Stats row cards stagger ── */
+.stats-row .sc:nth-child(1){animation:imStatCard .28s ease-out .04s both;}
+.stats-row .sc:nth-child(2){animation:imStatCard .28s ease-out .12s both;}
+.stats-row .sc:nth-child(3){animation:imStatCard .28s ease-out .20s both;}
+
+/* ── 10. Workout card on home ── */
+.wkc{
+  animation:imWkCardIn .32s ease-out both;
+}
+
+/* ── 11. Recent history rows stagger ── */
+.hr{
+  animation:imFadeSlideUp .25s ease-out both;
+}
+.hr:nth-child(2){animation-delay:.07s}
+.hr:nth-child(3){animation-delay:.14s}
+
+/* ── 12. Library workout cards stagger ── */
+.wkc:nth-child(2){animation-delay:.06s}
+.wkc:nth-child(3){animation-delay:.12s}
+.wkc:nth-child(4){animation-delay:.18s}
+.wkc:nth-child(5){animation-delay:.24s}
+
+/* ── 13. Active exercise cards stagger ── */
+#aex-wrap .aexc:nth-child(1){animation:imFadeSlideUp .28s ease-out .05s both}
+#aex-wrap .aexc:nth-child(2){animation:imFadeSlideUp .28s ease-out .12s both}
+#aex-wrap .aexc:nth-child(3){animation:imFadeSlideUp .28s ease-out .19s both}
+#aex-wrap .aexc:nth-child(4){animation:imFadeSlideUp .28s ease-out .26s both}
+#aex-wrap .aexc:nth-child(5){animation:imFadeSlideUp .28s ease-out .33s both}
+#aex-wrap .aexc:nth-child(6){animation:imFadeSlideUp .28s ease-out .40s both}
+
+/* ── 14. Barf progress fill — add origin ── */
+.barf{transform-origin:left}
+
+/* ── reduce motion: respect user preference ── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-delay:.01ms!important;
+    transition-duration:.01ms!important;
+  }
+}
+
+/* ════════════════════════════════════════
+   PROGRESS SCREEN — ANIMATIONS
+   Scoped to #sc-progress — language-independent
+   ════════════════════════════════════════ */
+
+/* ── Extra keyframes ── */
+@keyframes imSlideFromTop{
+  from{opacity:0;transform:translateY(-18px)}
+  to  {opacity:1;transform:translateY(0)}
+}
+@keyframes imSlideFromLeft{
+  from{opacity:0;transform:translateX(-16px)}
+  to  {opacity:1;transform:translateX(0)}
+}
+@keyframes imPopScale{
+  0%  {opacity:0;transform:scale(.65)}
+  60% {opacity:1;transform:scale(1.1)}
+  80% {transform:scale(.95)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes imNumPop{
+  0%  {opacity:0;transform:scale(.4) translateY(10px)}
+  55% {opacity:1;transform:scale(1.14) translateY(-3px)}
+  78% {transform:scale(.93) translateY(1px)}
+  100%{opacity:1;transform:scale(1)   translateY(0)}
+}
+@keyframes imFireWiggle{
+  0%,100%{transform:rotate(0) scale(1)}
+  15%    {transform:rotate(-12deg) scale(1.2)}
+  35%    {transform:rotate(10deg)  scale(1.25)}
+  55%    {transform:rotate(-8deg)  scale(1.15)}
+  75%    {transform:rotate(6deg)   scale(1.08)}
+  90%    {transform:rotate(-3deg)  scale(1.03)}
+}
+@keyframes imTrophyBounce{
+  0%  {opacity:0;transform:scale(0) rotate(-20deg)}
+  50% {opacity:1;transform:scale(1.2) rotate(8deg)}
+  70% {transform:scale(.9)  rotate(-4deg)}
+  85% {transform:scale(1.06) rotate(2deg)}
+  100%{opacity:1;transform:scale(1)   rotate(0)}
+}
+@keyframes imBarGrow{
+  from{transform:scaleX(0)}
+  to  {transform:scaleX(1)}
+}
+@keyframes imPRRowIn{
+  from{opacity:0;transform:translateX(-12px)}
+  to  {opacity:1;transform:translateX(0)}
+}
+@keyframes imPillPop{
+  0%  {opacity:0;transform:scale(.5) translateX(8px)}
+  60% {opacity:1;transform:scale(1.12) translateX(-2px)}
+  100%{opacity:1;transform:scale(1)    translateX(0)}
+}
+@keyframes imCardReveal{
+  from{opacity:0;transform:translateY(16px) scale(.98)}
+  to  {opacity:1;transform:translateY(0)    scale(1)}
+}
+@keyframes imCanvasFadeIn{
+  from{opacity:0}
+  to  {opacity:1}
+}
+
+/* ── Top bar ── */
+#sc-progress > div > :nth-child(1){
+  animation:imSlideFromTop .3s ease-out .04s both;
+}
+
+/* ── Sessions pill ── */
+#sc-progress .top-bar .pill{
+  animation:imPillPop .4s cubic-bezier(.34,1.56,.64,1) .18s both;
+}
+
+/* ── Body weight card ── */
+#sc-progress > div > :nth-child(2){
+  animation:imCardReveal .35s ease-out .10s both;
+}
+/* Chart canvas fade in after card */
+#sc-progress #bwc{
+  animation:imCanvasFadeIn .5s ease-out .35s both;
+}
+
+/* ── Section labels: slide from left ── */
+#sc-progress > div > :nth-child(3){animation:imSlideFromLeft .28s ease-out .18s both;}
+#sc-progress > div > :nth-child(5){animation:imSlideFromLeft .28s ease-out .28s both;}
+#sc-progress > div > :nth-child(7){animation:imSlideFromLeft .28s ease-out .38s both;}
+#sc-progress > div > :nth-child(9){animation:imSlideFromLeft .28s ease-out .48s both;}
+#sc-progress > div > :nth-child(11){animation:imSlideFromLeft .28s ease-out .58s both;}
+#sc-progress > div > :nth-child(13){animation:imSlideFromLeft .28s ease-out .68s both;}
+
+/* ── Log body weight card ── */
+#sc-progress > div > :nth-child(4){
+  animation:imCardReveal .32s ease-out .22s both;
+}
+
+/* ── Streak card ── */
+#sc-progress > div > :nth-child(6){
+  animation:imCardReveal .38s cubic-bezier(.34,1.1,.64,1) .30s both;
+}
+/* 🔥 fire emoji wiggle */
+.pg-fire{
+  animation:imFireWiggle .9s cubic-bezier(.34,1.2,.64,1) .50s both;
+  display:inline-block;
+}
+/* 🏆 trophy bounce-in */
+.pg-trophy{
+  animation:imTrophyBounce .7s cubic-bezier(.34,1.56,.64,1) .60s both;
+  display:inline-block;
+}
+/* Current streak number pop */
+.pg-streak-num{
+  animation:imNumPop .55s cubic-bezier(.34,1.4,.64,1) .44s both;
+}
+/* Best streak number pop (slightly later) */
+.pg-best-num{
+  animation:imNumPop .55s cubic-bezier(.34,1.4,.64,1) .56s both;
+}
+/* Streak progress bar grow from left */
+.pg-streak-bar{
+  animation:imBarGrow .7s cubic-bezier(.25,.8,.25,1) .72s both;
+  transform-origin:left;
+}
+
+/* ── Weekly volume card + chart ── */
+#sc-progress > div > :nth-child(8){
+  animation:imCardReveal .32s ease-out .40s both;
+}
+#sc-progress #vc{
+  animation:imCanvasFadeIn .5s ease-out .60s both;
+}
+
+/* ── Personal Records card ── */
+#sc-progress > div > :nth-child(10){
+  animation:imCardReveal .32s ease-out .50s both;
+}
+/* PR table rows stagger */
+#sc-progress tbody tr:nth-child(1){animation:imPRRowIn .24s ease-out .55s both;}
+#sc-progress tbody tr:nth-child(2){animation:imPRRowIn .24s ease-out .62s both;}
+#sc-progress tbody tr:nth-child(3){animation:imPRRowIn .24s ease-out .69s both;}
+#sc-progress tbody tr:nth-child(4){animation:imPRRowIn .24s ease-out .76s both;}
+#sc-progress tbody tr:nth-child(5){animation:imPRRowIn .24s ease-out .83s both;}
+#sc-progress tbody tr:nth-child(6){animation:imPRRowIn .24s ease-out .90s both;}
+
+/* ── Cardio card ── */
+#sc-progress > div > :nth-child(12){
+  animation:imCardReveal .32s ease-out .60s both;
+}
+
+/* ── Session history card ── */
+#sc-progress > div > :nth-child(14){
+  animation:imCardReveal .32s ease-out .68s both;
+}
+/* History rows stagger */
+#sc-progress .hr:nth-child(1) {animation:imFadeSlideUp .25s ease-out .72s both;}
+#sc-progress .hr:nth-child(2) {animation:imFadeSlideUp .25s ease-out .78s both;}
+#sc-progress .hr:nth-child(3) {animation:imFadeSlideUp .25s ease-out .84s both;}
+#sc-progress .hr:nth-child(4) {animation:imFadeSlideUp .25s ease-out .90s both;}
+#sc-progress .hr:nth-child(5) {animation:imFadeSlideUp .25s ease-out .96s both;}
+#sc-progress .hr:nth-child(6) {animation:imFadeSlideUp .25s ease-out 1.02s both;}
+#sc-progress .hr:nth-child(7) {animation:imFadeSlideUp .25s ease-out 1.08s both;}
+#sc-progress .hr:nth-child(8) {animation:imFadeSlideUp .25s ease-out 1.14s both;}
+
+/* ── Log PR button pop ── */
+#sc-progress .slbl .btn{
+  animation:imPopScale .35s cubic-bezier(.34,1.56,.64,1) .52s both;
+}
 </style>
 </head>
 <body>
@@ -158,19 +522,26 @@ button{-webkit-user-select:none;user-select:none}
 <div id="sc-auth" class="fullscreen active" style="z-index:500;background:var(--bg);align-items:stretch;padding:0">
   <div style="flex:1;display:flex;flex-direction:column;padding:0 28px;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <!-- Logo -->
-    <div style="padding-top:max(70px,calc(env(safe-area-inset-top) + 40px));text-align:center;margin-bottom:40px">
+    <div class="im-auth-logo" style="padding-top:max(70px,calc(env(safe-area-inset-top) + 40px));text-align:center;margin-bottom:40px">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:6px;line-height:1">IRON<span style="color:var(--ac)">M</span>EN</div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;color:var(--tx3);margin-top:6px;text-transform:uppercase">Train Harder</div>
     </div>
 
+    <!-- Language picker -->
+    <div class="im-auth-lang" style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">
+      <button id="auth-lang-en" onclick="setAuthLang('en')" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--ac);background:var(--ac);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">EN</button>
+      <button id="auth-lang-ro" onclick="setAuthLang('ro')" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">RO</button>
+      <button id="auth-lang-ru" onclick="setAuthLang('ru')" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">RU</button>
+    </div>
+
     <!-- Tabs -->
-    <div style="display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:28px">
+    <div class="im-auth-tabs" style="display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:28px">
       <button id="tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:10px;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;background:var(--ac);color:#fff">LOGIN</button>
       <button id="tab-register" onclick="switchAuthTab('register')" style="flex:1;padding:10px;border:none;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;background:transparent;color:var(--tx3)">REGISTER</button>
     </div>
 
     <!-- Login Form -->
-    <div id="auth-login-form">
+    <div id="auth-login-form" class="im-auth-form">
       <div class="frow">
         <div class="flbl">Email</div>
         <input class="inp" id="auth-lu" type="email" placeholder="your@email.com" autocomplete="email" spellcheck="false">
@@ -183,11 +554,11 @@ button{-webkit-user-select:none;user-select:none}
         </div>
       </div>
       <div id="auth-lerr" style="color:var(--err);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;margin-bottom:12px;min-height:18px"></div>
-      <button class="btn bp" onclick="doLogin()" style="margin-bottom:14px">LOGIN →</button>
+      <button class="btn bp" id="auth-login-btn" onclick="doLogin()" style="margin-bottom:14px">LOGIN →</button>
     </div>
 
     <!-- Register Form -->
-    <div id="auth-register-form" style="display:none">
+    <div id="auth-register-form" class="im-auth-form" style="display:none">
       <div class="frow">
         <div class="flbl">Full Name</div>
         <input class="inp" id="auth-rn" placeholder="e.g. Marcus Reed" maxlength="30">
@@ -204,11 +575,11 @@ button{-webkit-user-select:none;user-select:none}
         </div>
       </div>
       <div id="auth-rerr" style="color:var(--err);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;margin-bottom:12px;min-height:18px"></div>
-      <button class="btn bp" onclick="doRegister()" style="margin-bottom:14px">CREATE ACCOUNT →</button>
+      <button class="btn bp" id="auth-register-btn" onclick="doRegister()" style="margin-bottom:14px">CREATE ACCOUNT →</button>
     </div>
 
   </div>
-  <div style="padding:16px 28px 32px;text-align:center;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px">CREATED BY BEJAN EDGAR · IRONMEN © 2026</div>
+  <div class="im-auth-footer" style="padding:16px 28px 32px;text-align:center;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px">CREATED BY BEJAN EDGAR · IRONMEN © 2026</div>
 </div>
 
 <div id="sc-home" class="screen"></div>
@@ -236,10 +607,10 @@ button{-webkit-user-select:none;user-select:none}
 <!-- CREATE CUSTOM EXERCISE MODAL -->
 <div class="modal" id="m-cex">
   <div class="mbox">
-    <div class="mtop"><div class="mtitle" id="m-cex-title">NEW EXERCISE</div><button class="cbtn" onclick="CM('m-cex')">✕</button></div>
+    <div class="mtop"><div class="mtitle" id="m-cex-title">NEW EXERCISE</div><button class="cbtn" onclick="closeCex()">✕</button></div>
     <input type="hidden" id="cex-id">
-    <div class="frow"><div class="flbl">Exercise Name *</div><input class="inp" id="cex-name" placeholder="e.g. Cable Fly" maxlength="50"></div>
-    <div class="frow"><div class="flbl">Muscle Group *</div>
+    <div class="frow"><div class="flbl" id="lbl-cex-name">Exercise Name *</div><input class="inp" id="cex-name" placeholder="e.g. Cable Fly" maxlength="50"></div>
+    <div class="frow"><div class="flbl" id="lbl-cex-muscle">Muscle Group *</div>
       <select class="inp" id="cex-muscle">
         <option value="Chest">Chest</option><option value="Shoulders">Shoulders</option>
         <option value="Back">Back</option><option value="Biceps">Biceps</option>
@@ -250,19 +621,17 @@ button{-webkit-user-select:none;user-select:none}
         <option value="Other">Other</option>
       </select>
     </div>
-    <div class="frow"><div class="flbl">Equipment Type</div>
+    <div class="frow"><div class="flbl" id="lbl-cex-type">Equipment Type</div>
       <select class="inp" id="cex-type">
         <option value="Barbell">Barbell</option><option value="Dumbbell">Dumbbell</option>
         <option value="Cable">Cable</option><option value="Machine">Machine</option>
         <option value="Bodyweight">Bodyweight</option><option value="Kettlebell">Kettlebell</option>
         <option value="Resistance Band">Resistance Band</option><option value="Other">Other</option>
+
       </select>
     </div>
-    <div class="frow"><div class="flbl">Notes (optional)</div><input class="inp" id="cex-notes" placeholder="e.g. Keep elbows high" maxlength="80"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
-      <button class="btn bg" onclick="CM('m-cex')">CANCEL</button>
-      <button class="btn bp" onclick="saveCustomEx()">SAVE EXERCISE</button>
-    </div>
+    <div class="frow"><div class="flbl" id="lbl-cex-notes">Notes (optional)</div><input class="inp" id="cex-notes" placeholder="e.g. Keep elbows high" maxlength="80"></div>
+    <button class="btn bp" id="m-cex-save" onclick="saveCustomEx()" style="margin-top:6px">SAVE EXERCISE</button>
   </div>
 </div>
 
@@ -280,8 +649,8 @@ button{-webkit-user-select:none;user-select:none}
     </div>
     <div class="frow"><div class="flbl">Muscles / Description</div><input class="inp" id="wmi" placeholder="e.g. Chest · Shoulders · Triceps" maxlength="60"></div>
     <div class="frow">
-      <div class="flbl">Difficulty</div>
-      <select class="inp" id="wli"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option><option>Custom</option></select>
+      <div class="flbl" id="lbl-wk-diff">Difficulty</div>
+      <select class="inp" id="wli"><option value="Beginner">Beginner</option><option value="Intermediate" selected>Intermediate</option><option value="Advanced">Advanced</option><option value="Custom">Custom</option></select>
     </div>
     <div class="frow">
       <div class="flbl">Icon</div>
@@ -296,45 +665,45 @@ button{-webkit-user-select:none;user-select:none}
       <div><div class="flbl">Est. Duration (min)</div><input class="inp" id="wdi" type="number" min="5" max="300" value="45"></div>
       <div><div class="flbl">Est. Calories</div><input class="inp" id="wcali" type="number" min="50" max="2000" value="300"></div>
     </div>
-    <button class="btn bp" onclick="saveWk()">SAVE WORKOUT</button>
+    <button class="btn bp" id="m-wk-save" onclick="saveWk()">SAVE WORKOUT</button>
   </div>
 </div>
 
 <!-- ADD EXERCISE MODAL -->
 <div class="modal" id="m-ex">
   <div class="mbox">
-    <div class="mtop"><div class="mtitle">ADD EXERCISE</div><button class="cbtn" onclick="CM('m-ex')">✕</button></div>
+    <div class="mtop"><div class="mtitle" id="m-ex-title">ADD EXERCISE</div><button class="cbtn" onclick="CM('m-ex')">✕</button></div>
     <input type="hidden" id="aewid">
-    <div class="frow"><div class="flbl">Search Library</div>
+    <div class="frow"><div class="flbl" id="lbl-m-ex-search">Search Library</div>
       <input class="sinput" id="exs" placeholder="&#128269; Search exercises..." oninput="filterEx(this.value)" style="padding-left:14px">
     </div>
     <div class="exlib" id="exlib" style="margin-bottom:14px"></div>
-    <div style="text-align:center;color:var(--tx3);font-size:11px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:14px">— OR CUSTOM EXERCISE —</div>
-    <div class="frow"><div class="flbl">Exercise Name</div><input class="inp" id="cen" placeholder="Custom exercise name"></div>
+    <div id="lbl-m-ex-or" style="text-align:center;color:var(--tx3);font-size:11px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:14px">— OR CUSTOM EXERCISE —</div>
+    <div class="frow"><div class="flbl" id="lbl-m-ex-name">Exercise Name</div><input class="inp" id="cen" placeholder="Custom exercise name"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <div><div class="flbl">Muscle</div>
+      <div><div class="flbl" id="lbl-m-ex-muscle">Muscle</div>
         <select class="inp" id="cem"><option>Chest</option><option>Shoulders</option><option>Back</option><option>Biceps</option><option>Triceps</option><option>Quads</option><option>Hamstrings</option><option>Glutes</option><option>Calves</option><option>Core</option><option>Cardio</option><option>Full Body</option></select>
       </div>
-      <div><div class="flbl">Equipment</div>
-        <select class="inp" id="cet"><option>Barbell</option><option>Dumbbell</option><option>Cable</option><option>Machine</option><option>Bodyweight</option><option>Kettlebell</option><option>Band</option><option>Cardio</option></select>
+      <div><div class="flbl" id="lbl-m-ex-equip">Equipment</div>
+        <select class="inp" id="cet"><option>Barbell</option><option>Dumbbell</option><option>Cable</option><option>Machine</option><option>Bodyweight</option><option>Kettlebell</option><option>Band</option></select>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-      <div><div class="flbl">Sets</div><input class="inp" id="eds" type="number" inputmode="numeric" min="1" max="10" value="3"></div>
-      <div><div class="flbl">Reps</div><input class="inp" id="edr" type="number" inputmode="numeric" min="1" max="100" value="10"></div>
-      <div><div class="flbl">Weight (kg)</div><input class="inp" id="edw" type="number" inputmode="decimal" min="0" max="500" value="20" step="0.5"></div>
+      <div><div class="flbl" id="lbl-m-ex-sets">Sets</div><input class="inp" id="eds" type="number" inputmode="numeric" min="1" max="10" value="3"></div>
+      <div><div class="flbl" id="lbl-m-ex-reps">Reps</div><input class="inp" id="edr" type="number" inputmode="numeric" min="1" max="100" value="10"></div>
+      <div><div class="flbl" id="lbl-m-ex-weight">Weight (kg)</div><input class="inp" id="edw" type="number" inputmode="decimal" min="0" max="500" value="20" step="0.5"></div>
     </div>
-    <button class="btn bp" onclick="addCustEx()">ADD EXERCISE</button>
+    <button class="btn bp" id="m-ex-addbtn" onclick="addCustEx()">ADD EXERCISE</button>
   </div>
 </div>
 
 <!-- CONFIRM MODAL -->
 <div class="modal" id="m-conf">
   <div class="mbox">
-    <div class="mtop"><div class="mtitle">CONFIRM</div><button class="cbtn" onclick="CM('m-conf')">✕</button></div>
+    <div class="mtop"><div class="mtitle" id="m-conf-title">CONFIRM</div><button class="cbtn" onclick="CM('m-conf')">✕</button></div>
     <p id="conf-msg" style="font-size:15px;color:var(--tx2);margin-bottom:20px;line-height:1.6"></p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn bg" onclick="CM('m-conf')">CANCEL</button>
+      <button class="btn bg" id="m-conf-cancel" onclick="CM('m-conf')">CANCEL</button>
       <button class="btn bd2" id="conf-ok">DELETE</button>
     </div>
   </div>
@@ -343,36 +712,36 @@ button{-webkit-user-select:none;user-select:none}
 <!-- EDIT PROFILE MODAL -->
 <div class="modal" id="m-prof">
   <div class="mbox">
-    <div class="mtop"><div class="mtitle">EDIT PROFILE</div><button class="cbtn" onclick="CM('m-prof')">✕</button></div>
+    <div class="mtop"><div class="mtitle" id="m-prof-title">EDIT PROFILE</div><button class="cbtn" onclick="CM('m-prof')">✕</button></div>
     <div class="frow"><div class="flbl">Full Name</div><input class="inp" id="pni" placeholder="Your name" maxlength="30"></div>
     <div class="frow"><div class="flbl">Program Name</div><input class="inp" id="ppi" placeholder="e.g. PPL Program" maxlength="40"></div>
-    <button class="btn bp" onclick="saveProf()">SAVE PROFILE</button>
+    <button class="btn bp" id="m-prof-save" onclick="saveProf()">SAVE PROFILE</button>
   </div>
 </div>
 
 <!-- EDIT GOALS MODAL -->
 <div class="modal" id="m-goals">
   <div class="mbox">
-    <div class="mtop"><div class="mtitle">EDIT GOALS</div><button class="cbtn" onclick="CM('m-goals')">✕</button></div>
+    <div class="mtop"><div class="mtitle" id="m-goals-title">EDIT GOALS</div><button class="cbtn" onclick="CM('m-goals')">✕</button></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div><div class="flbl">Target Weight (kg)</div><input class="inp" id="gtw" type="number" min="30" max="300" step="0.5"></div>
       <div><div class="flbl">Days / Week</div><input class="inp" id="gdw" type="number" min="1" max="7"></div>
     </div>
     <div class="frow"><div class="flbl">Body Fat Goal (%)</div><input class="inp" id="gfat" type="number" min="5" max="50" step="0.1"></div>
-    <button class="btn bp" onclick="saveGoals()">SAVE GOALS</button>
+    <button class="btn bp" id="m-goals-save" onclick="saveGoals()">SAVE GOALS</button>
   </div>
 </div>
 
 <!-- LOG PR MODAL -->
 <div class="modal" id="m-pr">
   <div class="mbox">
-    <div class="mtop"><div class="mtitle">LOG PERSONAL RECORD</div><button class="cbtn" onclick="CM('m-pr')">✕</button></div>
+    <div class="mtop"><div class="mtitle" id="m-pr-title">LOG PERSONAL RECORD</div><button class="cbtn" onclick="CM('m-pr')">✕</button></div>
     <div class="frow"><div class="flbl">Exercise</div><input class="inp" id="prei" placeholder="e.g. Bench Press" list="prlist"><datalist id="prlist"></datalist></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div><div class="flbl">Weight (kg)</div><input class="inp" id="prwi" type="number" min="0" max="1000" step="0.5"></div>
       <div><div class="flbl">Reps at Weight</div><input class="inp" id="prri" type="number" min="1" max="100" value="1"></div>
     </div>
-    <button class="btn bp" onclick="savePR()">SAVE RECORD</button>
+    <button class="btn bp" id="m-pr-save" onclick="savePR()">SAVE RECORD</button>
   </div>
 </div>
 
@@ -381,26 +750,26 @@ button{-webkit-user-select:none;user-select:none}
   <div class="mbox">
     <div style="text-align:center;padding:8px 0 18px">
       <div style="font-size:52px;margin-bottom:10px">🏁</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px">WORKOUT COMPLETE!</div>
+      <div id="m-fin-complete" style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px">WORKOUT COMPLETE!</div>
       <div id="fin-sub" style="font-size:14px;color:var(--tx2);margin-top:6px"></div>
     </div>
     <div id="fin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
     <div id="fin-prs" style="margin-bottom:14px"></div>
     <div id="fin-weight" style="display:none;margin-bottom:14px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);margin-bottom:8px">📊 LOGHEAZĂ GREUTATEA DE AZI</div>
+      <div id="fin-weight-lbl" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);margin-bottom:8px">📊 LOGHEAZĂ GREUTATEA DE AZI</div>
       <div style="display:flex;gap:8px;align-items:center">
         <input id="fin-bw-val" type="number" step="0.1" min="30" max="250" placeholder="kg" style="flex:1;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-size:16px;outline:none">
-        <button class="btn bp bsm" style="white-space:nowrap" onclick="finLogWeight()">SALVEAZĂ</button>
+        <button id="fin-bw-save" class="btn bp bsm" style="white-space:nowrap" onclick="finLogWeight()">SALVEAZĂ</button>
       </div>
     </div>
-    <button class="btn bp" onclick="CM('m-fin');go('home')">BACK TO HOME</button>
-    <button class="btn bg" style="margin-top:8px" onclick="CM('m-fin');go('progress')">VIEW PROGRESS</button>
+    <button class="btn bp" id="m-fin-home" onclick="CM('m-fin');go('home')">BACK TO HOME</button>
+    <button class="btn bg" id="m-fin-prog" style="margin-top:8px" onclick="CM('m-fin');go('progress')">VIEW PROGRESS</button>
   </div>
 </div>
 
 <!-- REST TIMER -->
 <div class="rscreen" id="rscreen">
-  <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:3px;color:var(--tx3);margin-bottom:20px;text-transform:uppercase">Rest Timer</div>
+  <div id="rest-title" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:3px;color:var(--tx3);margin-bottom:20px;text-transform:uppercase">Rest Timer</div>
   <div style="width:200px;height:200px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
     <svg width="200" height="200" viewBox="0 0 200 200" style="position:absolute;inset:0;transform:rotate(-90deg)">
       <circle cx="100" cy="100" r="88" fill="none" stroke="#2a2a2a" stroke-width="8"/>
@@ -408,13 +777,13 @@ button{-webkit-user-select:none;user-select:none}
     </svg>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:72px;letter-spacing:4px;line-height:1;color:var(--ac)" id="rbig">90</div>
   </div>
-  <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;color:var(--tx2);margin-bottom:24px">SECONDS REMAINING</div>
+  <div id="rest-sub" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;color:var(--tx2);margin-bottom:24px">SECONDS REMAINING</div>
   <div style="display:flex;gap:8px;margin-bottom:12px">
     <button class="btn bg bsm" style="width:80px" onclick="adjR(-15)">− 15s</button>
     <button class="btn bg bsm" style="width:80px" onclick="adjR(15)">+ 15s</button>
     <button class="btn bg bsm" style="width:80px" onclick="adjR(30)">+ 30s</button>
   </div>
-  <button class="btn bp" style="width:200px" onclick="endRest()">SKIP REST ›</button>
+  <button id="rest-skip-btn" class="btn bp" style="width:200px" onclick="endRest()">SKIP REST ›</button>
 </div>
 
 <script>
@@ -500,13 +869,13 @@ function switchAuthTab(tab){
 function togglePwd(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
 
 function authErrMsg(msg){
-  if(!msg)return'❌ Something went wrong.';
+  if(!msg)return t('authErrGeneric');
   const m=msg.toLowerCase();
-  if(m.includes('invalid login')||m.includes('invalid credentials'))return'❌ Wrong email or password.';
-  if(m.includes('user already registered')||m.includes('already been registered'))return'❌ This email is already registered. Try Login instead.';
-  if(m.includes('email not confirmed'))return'❌ Disable email confirmation in Supabase (Auth → Providers → Email).';
-  if(m.includes('network')||m.includes('fetch')||m.includes('timed out'))return'❌ Network error. Check your connection.';
-  if(m.includes('password'))return'❌ Password must be at least 6 characters.';
+  if(m.includes('invalid login')||m.includes('invalid credentials'))return t('authErrCredentials');
+  if(m.includes('user already registered')||m.includes('already been registered'))return t('authErrAlreadyReg');
+  if(m.includes('email not confirmed'))return t('authErrConfirm');
+  if(m.includes('network')||m.includes('fetch')||m.includes('timed out'))return t('authErrNetwork');
+  if(m.includes('password'))return t('authErrPassword');
   return'❌ '+msg;
 }
 
@@ -514,9 +883,9 @@ async function doLogin(){
   const email=document.getElementById('auth-lu').value.trim().toLowerCase();
   const password=document.getElementById('auth-lp').value;
   const err=document.getElementById('auth-lerr');
-  if(!email||!password){err.textContent='⚠ Fill in all fields.';return;}
-  const btn=document.querySelector('#auth-login-form .btn.bp');
-  if(btn){btn.textContent='LOADING...';btn.disabled=true;}
+  if(!email||!password){err.textContent=t('fillFields');return;}
+  const btn=document.getElementById('auth-login-btn');
+  if(btn){btn.textContent=t('loading');btn.disabled=true;}
   err.textContent='';
   try{
     const {data,error}=await Promise.race([
@@ -528,7 +897,7 @@ async function doLogin(){
   }catch(e){
     err.textContent=authErrMsg(e.message);
   }finally{
-    if(btn){btn.textContent='LOGIN →';btn.disabled=false;}
+    if(btn){btn.textContent=t('loginBtn');btn.disabled=false;}
   }
 }
 
@@ -537,10 +906,10 @@ async function doRegister(){
   const email=document.getElementById('auth-ru').value.trim().toLowerCase();
   const password=document.getElementById('auth-rp').value;
   const err=document.getElementById('auth-rerr');
-  if(!name||!email||!password){err.textContent='⚠ Fill in all fields.';return;}
-  if(password.length<6){err.textContent='⚠ Password must be at least 6 characters.';return;}
-  const btn=document.querySelector('#auth-register-form .btn.bp');
-  if(btn){btn.textContent='LOADING...';btn.disabled=true;}
+  if(!name||!email||!password){err.textContent=t('fillFields');return;}
+  if(password.length<6){err.textContent=t('passMin');return;}
+  const btn=document.getElementById('auth-register-btn');
+  if(btn){btn.textContent=t('loading');btn.disabled=true;}
   err.textContent='';
   try{
     const {data,error}=await Promise.race([
@@ -556,7 +925,7 @@ async function doRegister(){
   }catch(e){
     err.textContent=authErrMsg(e.message);
   }finally{
-    if(btn){btn.textContent='CREATE ACCOUNT →';btn.disabled=false;}
+    if(btn){btn.textContent=t('createAccountBtn');btn.disabled=false;}
   }
 }
 let _pendingName=null;
@@ -571,6 +940,7 @@ async function bootSession(userId){
   checkNameDefault();
   scheduleReminder();
   subscribeRealtime();
+  updateNavLang();updateModalLang();updateAllSelects();
 }
 
 async function loginAs(userId){
@@ -578,7 +948,7 @@ async function loginAs(userId){
 }
 
 async function doLogout(){
-  if(!confirm('Log out of this account?'))return;
+  if(!confirm(t('logoutConfirm')))return;
   if(_realtimeCh){try{_realtimeCh.unsubscribe();}catch(_){}}_realtimeCh=null;
   await sb.auth.signOut();
   currentUserId=null;S={};
@@ -592,7 +962,7 @@ async function doLogout(){
 
 async function deleteAccount(){
   if(!currentUserId)return;
-  if(!confirm('DELETE account? This cannot be undone.'))return;
+  if(!confirm(t('deleteAccountConfirm')))return;
   localStorage.removeItem(getUserSK(currentUserId));
   await sb.from('user_data').delete().eq('user_id',currentUserId);
   await sb.auth.signOut();
@@ -606,16 +976,489 @@ async function deleteAccount(){
 function showSwitchAccount(){
   const b=document.createElement('div');b.className='modal open';b.style.zIndex=300;
   b.innerHTML=`<div class="mbox">
-    <div class="mtop"><div class="mtitle">ACCOUNT</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
+    <div class="mtop"><div class="mtitle">${t('accountTitle')}</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
     <div style="text-align:center;padding:16px 0">
       <div class="acc-avatar" style="margin:0 auto 12px;width:54px;height:54px;font-size:22px">${(S.user?.name||'A')[0].toUpperCase()}</div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700">${S.user?.name||'Athlete'}</div>
-      <div style="font-size:12px;color:var(--ok);margin-top:4px">● SYNCED TO SUPABASE</div>
+      <div style="font-size:12px;color:var(--ok);margin-top:4px">${t('synced')}</div>
     </div>
     <button class="btn bg" style="margin-top:8px" onclick="this.closest('.modal').remove();doLogout()">🚪 LOG OUT</button>
   </div>`;
   b.addEventListener('click',e=>{if(e.target===b)b.remove();});
   document.body.appendChild(b);
+}
+
+// ═══════════ TRANSLATIONS ═══════════
+const LANGS={
+  en:{
+    login:'LOGIN',register:'REGISTER',
+    loginBtn:'LOGIN →',createAccountBtn:'CREATE ACCOUNT →',
+    fillFields:'⚠ Fill in all fields.',passMin:'⚠ Password must be at least 6 characters.',loading:'LOADING...',
+    home:'Home',library:'Library',progress:'Progress',profile:'Profile',
+    morning:'morning',afternoon:'afternoon',evening:'evening',goodGreet:'Good',
+    thisWeek:'THIS WEEK',todayPlan:"TODAY'S PLAN",changeWk:'CHANGE ›',
+    recentSessions:'RECENT SESSIONS',workoutsLbl:'Workouts',calories:'Calories',volume:'Volume',
+    dayLbl:'DAY',tapToView:'TAP TO VIEW & START ›',noWorkoutSelected:'NO WORKOUT SELECTED',
+    browseLibrary:'BROWSE LIBRARY',noExercisesYet:'No exercises yet',
+    completeFirst:'Complete your first workout!',moreEx:'MORE EXERCISES',exLbl:'EX',minLbl:'MIN',setsLbl:'sets',minAbbr:'min',
+    libraryTitle:'LIBRARY',searchWorkouts:'Search workouts...',noWorkoutsFound:'NO WORKOUTS FOUND',
+    exerciseDatabase:'EXERCISE DATABASE',tapToQuickAdd:'Tap any exercise to quick-add it to a workout.',
+    viewAll:'VIEW ALL',exercisesLbl:'EXERCISES',createBtn:'+ CREATE',todayBadge:'TODAY',
+    allCat:'All',strengthCat:'Strength',cardioCat:'Cardio',hiitCat:'HIIT',mobilityCat:'Mobility',customCat:'Custom',
+    progressTitle:'PROGRESS',sessionsPill:'sessions',bodyWeightLbl:'Body Weight',
+    thisWeekChange:'this week',weeksAgo4:'4 weeks ago',todayLbl:'Today',
+    wkVolumeLabels:['4w ago','3w ago','2w ago','This wk'],
+    logBodyWeight:'LOG BODY WEIGHT',logBtn:'LOG',weeklyVolume:'WEEKLY VOLUME (SETS)',
+    personalRecords:'PERSONAL RECORDS',logPRBtn:'+ LOG PR',sessionHistory:'SESSION HISTORY',
+    noPRs:'No PRs yet — finish a workout or log one manually.',noSessions:'No sessions yet',
+    exCol:'EXERCISE',prCol:'PR',gainCol:'GAIN',firstPR:'FIRST',
+    myGoals:'MY GOALS',editBtn:'EDIT',settingsTitle:'SETTINGS',achievementsTitle:'ACHIEVEMENTS',
+    targetKg:'TARGET KG',daysPerWeek:'DAYS / WEEK',bodyFat:'BODY FAT',
+    wkReminders:'Workout Reminders',dailyAt:'Daily at 7:00 AM',
+    autoLog:'Auto-log Weight',connectHealth:'Connect Health App',
+    workoutMusic:'Workout Music',spotifyInt:'Spotify integration',
+    restTimerSound:'Rest Timer Sound',alertCompletion:'Alert on completion',
+    unitsLbl:'Units',weightDistance:'Weight & distance',
+    currentStreak:'Current Streak',tapEdit:'Tap to edit',daysLbl:'DAYS',
+    bestStreakLbl:'BEST STREAK',
+    languageLbl:'Language',languageSub:'App language',
+    exportExcel:'📊 EXPORT EXCEL',importExcel:'📥 IMPORT EXCEL',
+    resetData:'⚠️ RESET MY DATA',switchAccount:'🔄 SWITCH ACCOUNT',logoutBtn:'🚪 LOG OUT',
+    deleteAccount:'🗑 DELETE THIS ACCOUNT',
+    levelLbl:'LEVEL',dayStreak:'day streak',
+    lvlNames:['','Iron','Bronze','Silver','Gold','Platinum','Diamond','Elite','Legend','Mythic'],
+    finishWorkout:'🏁 FINISH WORKOUT',cancelSession:'CANCEL SESSION',
+    exerciseLabel:'EXERCISE',setsDone:'SETS DONE',weightCol:'WEIGHT',repsCol:'REPS',
+    addSet:'+ SET',elapsed:'ELAPSED',
+    skipRest:'SKIP REST ›',secondsRemaining:'SECONDS REMAINING',restTimer:'Rest Timer',
+    ach_century:'Century',ach_streak10:'Streak 10',ach_beast:'Beast',ach_firstPR:'First PR',
+    cancelBtn:'CANCEL',confirmBtn:'CONFIRM',saveBtn:'SAVE',addBtn:'ADD',
+    synced:'● SYNCED TO SUPABASE',noExResults:'No results',custExSection:'★ My Custom Exercises',
+    muscleGroup:'Muscle Group',equipType:'Equipment Type',
+    exName:'Exercise Name',exNotes:'Notes (optional)',
+    muscleLbl:'Muscle',equipLbl:'Equipment',
+    setsLbl2:'Sets',repsLbl:'Reps',weightLbl2:'Weight (kg)',
+    searchLib:'Search Library',orCustom:'— OR CUSTOM EXERCISE —',
+    newExercise:'NEW EXERCISE',editExercise:'EDIT EXERCISE',saveExercise:'SAVE EXERCISE',
+    newWorkout:'NEW WORKOUT',editWorkout:'EDIT WORKOUT',saveWorkout:'SAVE WORKOUT',
+    addExerciseBtn:'ADD EXERCISE',addExerciseTitle:'ADD EXERCISE',
+    editProfile:'EDIT PROFILE',saveProfile:'SAVE PROFILE',
+    editGoals:'EDIT GOALS',saveGoals:'SAVE GOALS',
+    logPR:'LOG PERSONAL RECORD',saveRecord:'SAVE RECORD',
+    backHome:'BACK TO HOME',viewProgress:'VIEW PROGRESS',
+    accountTitle:'ACCOUNT',editStreak:'EDIT STREAK',streakDays:'Current Streak (days)',
+    cardioTitle:'CARDIO',noCardioYet:'No cardio sessions yet',
+    thisWeekCard:'This Week',thisMonth:'This Month',allTime:'All Time',mostDone:'Most done',
+    noCustomEx:'No custom exercises yet',createFirstEx:'+ CREATE FIRST EXERCISE',
+    deleteConfirmWk:'Delete "{name}"? All exercises and data will be lost.',
+    goalChart:'GOAL',
+    profileSaved:'Profile saved ✓',
+    autoLogOn:'Auto-log active — weight will be requested after workout ✓',autoLogOff:'Auto-log disabled',
+    soundOn:'Sound enabled ✓',soundOff:'Sound disabled',
+    difficultyLbl:'Difficulty',lvlBeginner:'Beginner',lvlIntermediate:'Intermediate',lvlAdvanced:'Advanced',lvlCustom:'Custom',
+    remindersOff:'Reminders disabled',remindersNotSupported:'Notifications not supported by browser',
+    remindersNoPermission:'Permission denied — enable in browser settings',
+    remindersScheduled:'Daily reminder at {time} enabled 🔔',
+    remindersNotifBody:'Good time for a workout! Your session is waiting.',
+    musicOff:'Music disabled',musicConfirm:'Open Spotify?',musicStart:'Start music and return to workout 🎵',
+    minSetAlert:'At least 1 set must remain.',exSetMinNote:'Minimum set required — cannot be deleted',
+    customExDeleted:'Exercise deleted',exUpdated:'Exercise updated ✓',exSaved:'Exercise saved ✓',
+    weightInvalid:'Invalid weight',weightLogged:'Weight logged: ',
+    bwLeft0:'today',bwLeft1:'yesterday',bwLeftDays:' days ago',bwLeftWeek:'1 week ago',bwLeftWeeks:' weeks ago',bwLeftFar:'4 weeks ago',
+    welcomeMsg:'Welcome',exitSessionConfirm:'Cancel this session? Progress will not be saved.',
+    clearHistoryConfirm:'Delete all session history? This cannot be undone.',
+    deleteSessionConfirm:'Delete this session?',
+    sessionDeleted:'Session deleted',
+    prHigherAlert:'Current PR for {ex} is {w}kg. Enter a higher value.',
+    importConfirm:'Data will be restored from the Excel file.\nDo you want to continue?',
+    workoutComplete:'WORKOUT COMPLETE!',
+    logWeightToday:'📊 LOG TODAY\'S WEIGHT',
+    loadingExcelLib:'Loading Excel library…',
+    exLoadErr:'Error: Excel library failed to load.',
+    exportOk:'Export successful ✓',
+    exportErr:'Export error: ',
+    importOk:'Data imported successfully!',
+    importInvalid:'Invalid Excel file or not exported from IRONMEN.',
+    importErr:'Import error: ',
+    loadDataErr:'Error loading data. Check your connection and reload.',
+    loadErr:'Loading error',
+    reloadBtn:'RELOAD',
+    logoutConfirm:'Log out of this account?',
+    deleteAccountConfirm:'DELETE account? This cannot be undone.',
+    resetConfirm:'RESET ALL DATA? This cannot be undone.',
+    authErrGeneric:'❌ Something went wrong.',
+    authErrCredentials:'❌ Wrong email or password.',
+    authErrAlreadyReg:'❌ This email is already registered. Try Login instead.',
+    authErrConfirm:'❌ Disable email confirmation in Supabase (Auth → Providers → Email).',
+    authErrNetwork:'❌ Network error. Check your connection.',
+    authErrPassword:'❌ Password must be at least 6 characters.',
+    setNameTitle:'SET YOUR NAME',
+    setNameGreet:'Hi! What should we call you?',
+    setNameLabel:'Your Name',
+    setNamePlaceholder:'e.g. Alex',
+    setNameEmpty:'Please enter a name.',
+    setNameBtn:'SAVE NAME',
+  },
+  ro:{
+    login:'LOGIN',register:'ÎNREGISTRARE',
+    loginBtn:'INTRĂ →',createAccountBtn:'CREEAZĂ CONT →',
+    fillFields:'⚠ Completează toate câmpurile.',passMin:'⚠ Parola trebuie să aibă cel puțin 6 caractere.',loading:'SE ÎNCARCĂ...',
+    home:'Acasă',library:'Antren.',progress:'Progres',profile:'Profil',
+    morning:'dimineața',afternoon:'ziua',evening:'seara',goodGreet:'Bună',
+    thisWeek:'SĂPTĂMÂNA ACEASTA',todayPlan:'PLANUL DE AZI',changeWk:'SCHIMBĂ ›',
+    recentSessions:'SESIUNI RECENTE',workoutsLbl:'Antrenamente',calories:'Calorii',volume:'Volum',
+    dayLbl:'ZI',tapToView:'APASĂ PENTRU A VEDEA & PORNI ›',noWorkoutSelected:'NICIUN ANTRENAMENT SELECTAT',
+    browseLibrary:'CAUTĂ ÎN BIBLIOTECĂ',noExercisesYet:'Niciun exercițiu',
+    completeFirst:'Completează primul antrenament!',moreEx:'MAI MULTE EXERCIȚII',exLbl:'EX',minLbl:'MIN',setsLbl:'seturi',minAbbr:'min',
+    libraryTitle:'BIBLIOTECĂ',searchWorkouts:'Caută antrenamente...',noWorkoutsFound:'NICIUN ANTRENAMENT GĂSIT',
+    exerciseDatabase:'BAZA DE EXERCIȚII',tapToQuickAdd:'Apasă un exercițiu pentru a-l adăuga rapid.',
+    viewAll:'VEZI TOATE',exercisesLbl:'EXERCIȚII',createBtn:'+ CREEAZĂ',todayBadge:'AZI',
+    allCat:'Toate',strengthCat:'Forță',cardioCat:'Cardio',hiitCat:'HIIT',mobilityCat:'Mobilitate',customCat:'Custom',
+    progressTitle:'PROGRES',sessionsPill:'sesiuni',bodyWeightLbl:'Greutate Corporală',
+    thisWeekChange:'săptămâna aceasta',weeksAgo4:'Acum 4 săpt.',todayLbl:'Azi',
+    wkVolumeLabels:['4s în urmă','3s în urmă','2s în urmă','Săpt. ac.'],
+    logBodyWeight:'LOGHEAZĂ GREUTATEA',logBtn:'LOG',weeklyVolume:'VOLUM SĂPTĂMÂNAL (SETURI)',
+    personalRecords:'RECORDURI PERSONALE',logPRBtn:'+ ADAUGĂ PR',sessionHistory:'ISTORICUL SESIUNILOR',
+    noPRs:'Niciun PR încă — finalizează un antrenament sau adaugă manual.',noSessions:'Nicio sesiune încă',
+    exCol:'EXERCIȚIU',prCol:'PR',gainCol:'CÂȘTIG',firstPR:'PRIMUL',
+    myGoals:'OBIECTIVELE MELE',editBtn:'EDITEAZĂ',settingsTitle:'SETĂRI',achievementsTitle:'REALIZĂRI',
+    targetKg:'KG ȚINTĂ',daysPerWeek:'ZILE / SĂPT.',bodyFat:'GRĂSIME',
+    wkReminders:'Remindere Antrenament',dailyAt:'Zilnic la 7:00',
+    autoLog:'Log Greutate Auto',connectHealth:'Conectează Sănătate',
+    workoutMusic:'Muzică Antrenament',spotifyInt:'Integrare Spotify',
+    restTimerSound:'Sunet Pauză',alertCompletion:'Alertă la final',
+    unitsLbl:'Unități',weightDistance:'Greutate & distanță',
+    currentStreak:'Streak Curent',tapEdit:'Apasă pentru a edita',daysLbl:'ZILE',
+    bestStreakLbl:'CEL MAI BUN',
+    languageLbl:'Limbă',languageSub:'Limba aplicației',
+    exportExcel:'📊 EXPORT EXCEL',importExcel:'📥 IMPORT EXCEL',
+    resetData:'⚠️ RESETEAZĂ DATELE',switchAccount:'🔄 SCHIMBĂ CONTUL',logoutBtn:'🚪 DECONECTARE',
+    deleteAccount:'🗑 ȘTERGE CONTUL',
+    levelLbl:'NIVEL',dayStreak:'zile streak',
+    lvlNames:['','Fier','Bronz','Argint','Aur','Platină','Diamant','Elit','Legendă','Mitic'],
+    finishWorkout:'🏁 FINALIZEAZĂ',cancelSession:'ANULEAZĂ SESIUNEA',
+    exerciseLabel:'EXERCIȚIU',setsDone:'SETURI FĂCUTE',weightCol:'GREUTATE',repsCol:'REPETĂRI',
+    addSet:'+ SET',elapsed:'TRECUT',
+    skipRest:'SARI PAUZA ›',secondsRemaining:'SECUNDE RĂMASE',restTimer:'Pauză',
+    ach_century:'Centurion',ach_streak10:'Streak 10',ach_beast:'Bestie',ach_firstPR:'Primul PR',
+    cancelBtn:'ANULEAZĂ',confirmBtn:'CONFIRMĂ',saveBtn:'SALVEAZĂ',addBtn:'ADAUGĂ',
+    synced:'● SINCRONIZAT CU SUPABASE',noExResults:'Niciun rezultat',custExSection:'★ Exercițiile Mele',
+    muscleGroup:'Grup Muscular',equipType:'Tip Echipament',
+    exName:'Nume Exercițiu',exNotes:'Note (opțional)',
+    muscleLbl:'Mușchi',equipLbl:'Echipament',
+    setsLbl2:'Seturi',repsLbl:'Repetări',weightLbl2:'Greutate (kg)',
+    searchLib:'Caută în Bibliotecă',orCustom:'— SAU EXERCIȚIU PERSONALIZAT —',
+    newExercise:'EXERCIȚIU NOU',editExercise:'EDITEAZĂ EXERCIȚIUL',saveExercise:'SALVEAZĂ EXERCIȚIUL',
+    newWorkout:'ANTRENAMENT NOU',editWorkout:'EDITEAZĂ ANTRENAMENTUL',saveWorkout:'SALVEAZĂ ANTRENAMENTUL',
+    addExerciseBtn:'ADAUGĂ EXERCIȚIU',addExerciseTitle:'ADAUGĂ EXERCIȚIU',
+    editProfile:'EDITEAZĂ PROFILUL',saveProfile:'SALVEAZĂ PROFILUL',
+    editGoals:'EDITEAZĂ OBIECTIVELE',saveGoals:'SALVEAZĂ OBIECTIVELE',
+    logPR:'LOGHEAZĂ RECORDUL PERSONAL',saveRecord:'SALVEAZĂ RECORDUL',
+    backHome:'ÎNAPOI ACASĂ',viewProgress:'VEZI PROGRESUL',
+    accountTitle:'CONT',editStreak:'EDITEAZĂ STREAK',streakDays:'Streak curent (zile)',
+    cardioTitle:'CARDIO',noCardioYet:'Nicio sesiune cardio încă',
+    thisWeekCard:'Săpt. aceasta',thisMonth:'Luna aceasta',allTime:'Total',mostDone:'Cel mai des',
+    noCustomEx:'Niciun exercițiu personalizat',createFirstEx:'+ CREEAZĂ PRIMUL EXERCIȚIU',
+    deleteConfirmWk:'Ștergi "{name}"? Toate exercițiile și datele vor fi pierdute.',
+    goalChart:'OBIECTIV',
+    profileSaved:'Profil salvat ✓',
+    autoLogOn:'Auto-log activ — greutatea se va cere după workout ✓',autoLogOff:'Auto-log dezactivat',
+    soundOn:'Sunet activat ✓',soundOff:'Sunet dezactivat',
+    difficultyLbl:'Dificultate',lvlBeginner:'Începător',lvlIntermediate:'Intermediar',lvlAdvanced:'Avansat',lvlCustom:'Personalizat',
+    remindersOff:'Remindere dezactivate',remindersNotSupported:'Notificările nu sunt suportate de browser',
+    remindersNoPermission:'Permisiune refuzată — activează din setările browserului',
+    remindersScheduled:'Reminder zilnic la {time} activat 🔔',
+    remindersNotifBody:'Zi bună pentru antrenament! Workout-ul te așteaptă.',
+    musicOff:'Muzică dezactivată',musicConfirm:'Deschid Spotify?',musicStart:'Pornește muzica și revino la antrenament 🎵',
+    minSetAlert:'Trebuie să rămână cel puțin 1 set.',exSetMinNote:'Setul minim necesar — nu poate fi șters',
+    customExDeleted:'Exercițiu șters',exUpdated:'Exercițiu actualizat ✓',exSaved:'Exercițiu salvat ✓',
+    weightInvalid:'Greutate invalidă',weightLogged:'Greutate logată: ',
+    bwLeft0:'azi',bwLeft1:'ieri',bwLeftDays:' zile în urmă',bwLeftWeek:'1 săptămână în urmă',bwLeftWeeks:' săptămâni în urmă',bwLeftFar:'4 săptămâni în urmă',
+    welcomeMsg:'Bun venit',exitSessionConfirm:'Anulezi sesiunea? Progresul nu va fi salvat.',
+    clearHistoryConfirm:'Ștergi tot istoricul sesiunilor? Acțiunea nu poate fi anulată.',
+    deleteSessionConfirm:'Ștergi această sesiune?',
+    sessionDeleted:'Sesiune ștearsă',
+    prHigherAlert:'PR-ul curent pentru {ex} este {w}kg. Introdu o valoare mai mare.',
+    importConfirm:'Datele vor fi restaurate din fișierul Excel.\nVrei să continui?',
+    workoutComplete:'ANTRENAMENT FINALIZAT!',
+    logWeightToday:'📊 LOGHEAZĂ GREUTATEA DE AZI',
+    loadingExcelLib:'Se încarcă biblioteca Excel…',
+    exLoadErr:'Eroare: biblioteca Excel nu s-a încărcat.',
+    exportOk:'Export reușit ✓',
+    exportErr:'Eroare export: ',
+    importOk:'Date importate cu succes!',
+    importInvalid:'Fișierul Excel nu este valid sau nu a fost exportat din IRONMEN.',
+    importErr:'Eroare la import: ',
+    loadDataErr:'Eroare la încărcarea datelor. Verifică conexiunea și reîncarcă.',
+    loadErr:'Eroare la încărcare',
+    reloadBtn:'REÎNCARCĂ',
+    logoutConfirm:'Ieși din acest cont?',
+    deleteAccountConfirm:'ȘTERGI contul? Acțiunea nu poate fi anulată.',
+    resetConfirm:'RESETEZI TOATE DATELE? Acțiunea nu poate fi anulată.',
+    authErrGeneric:'❌ Ceva a mers greșit.',
+    authErrCredentials:'❌ Email sau parolă incorectă.',
+    authErrAlreadyReg:'❌ Acest email este deja înregistrat. Încearcă Login.',
+    authErrConfirm:'❌ Dezactivează confirmarea email în Supabase (Auth → Providers → Email).',
+    authErrNetwork:'❌ Eroare de rețea. Verifică conexiunea.',
+    authErrPassword:'❌ Parola trebuie să aibă cel puțin 6 caractere.',
+    setNameTitle:'SETEAZĂ NUMELE',
+    setNameGreet:'Salut! Cum vrei să te numim?',
+    setNameLabel:'Numele tău',
+    setNamePlaceholder:'ex. Alex',
+    setNameEmpty:'Te rog introdu un nume.',
+    setNameBtn:'SALVEAZĂ NUMELE',
+  },
+  ru:{
+    login:'Вход',register:'Регистрация',
+    loginBtn:'Войти →',createAccountBtn:'Создать аккаунт →',
+    fillFields:'⚠ Заполните все поля.',passMin:'⚠ Пароль должен содержать минимум 6 символов.',loading:'Загрузка...',
+    home:'Главная',library:'Трен.',progress:'Прогресс',profile:'Профиль',
+    morning:'день',afternoon:'день',evening:'вечер',goodGreet:'Добрый',
+    thisWeek:'Эта неделя',todayPlan:'План на сегодня',changeWk:'Изменить ›',
+    recentSessions:'Последние тренировки',workoutsLbl:'Тренировки',calories:'Калории',volume:'Объём',
+    dayLbl:'День',tapToView:'Нажмите для просмотра и старта ›',noWorkoutSelected:'Тренировка не выбрана',
+    browseLibrary:'Открыть библиотеку',noExercisesYet:'Нет упражнений',
+    completeFirst:'Завершите первую тренировку!',moreEx:'Ещё упражнений',exLbl:'Упр',minLbl:'Мин',setsLbl:'подходы',minAbbr:'мин',
+    libraryTitle:'Библиотека',searchWorkouts:'Поиск тренировок...',noWorkoutsFound:'Тренировки не найдены',
+    exerciseDatabase:'База упражнений',tapToQuickAdd:'Нажмите на упражнение для быстрого добавления.',
+    viewAll:'Показать все',exercisesLbl:'Упражнений',createBtn:'+ Создать',todayBadge:'Сегодня',
+    allCat:'Все',strengthCat:'Сила',cardioCat:'Кардио',hiitCat:'Виит',mobilityCat:'Мобильность',customCat:'Свои',
+    progressTitle:'Прогресс',sessionsPill:'тренировок',bodyWeightLbl:'Вес тела',
+    thisWeekChange:'за эту неделю',weeksAgo4:'4 недели назад',todayLbl:'Сегодня',
+    wkVolumeLabels:['4н назад','3н назад','2н назад','Эта нед.'],
+    logBodyWeight:'Записать вес',logBtn:'Зап.',weeklyVolume:'Недельный объём (подходы)',
+    personalRecords:'Личные рекорды',logPRBtn:'+ Записать лр',sessionHistory:'История тренировок',
+    noPRs:'Нет рекордов — завершите тренировку или добавьте вручную.',noSessions:'Нет тренировок',
+    exCol:'Упражнение',prCol:'Лр',gainCol:'Прирост',firstPR:'Первый',
+    myGoals:'Мои цели',editBtn:'Изменить',settingsTitle:'Настройки',achievementsTitle:'Достижения',
+    targetKg:'Цель кг',daysPerWeek:'Дн / нед.',bodyFat:'Жир %',
+    wkReminders:'Напоминания',dailyAt:'Ежедневно в 7:00',
+    autoLog:'Авто-запись веса',connectHealth:'Подключить здоровье',
+    workoutMusic:'Музыка',spotifyInt:'Интеграция Spotify',
+    restTimerSound:'Звук отдыха',alertCompletion:'Сигнал по окончании',
+    unitsLbl:'Единицы',weightDistance:'Вес и дистанция',
+    currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'Дней',
+    bestStreakLbl:'Лучший рекорд',
+    languageLbl:'Язык',languageSub:'Язык приложения',
+    exportExcel:'📊 Экспорт Excel',importExcel:'📥 Импорт Excel',
+    resetData:'⚠️ Сбросить данные',switchAccount:'🔄 Сменить аккаунт',logoutBtn:'🚪 Выход',
+    deleteAccount:'🗑 Удалить аккаунт',
+    levelLbl:'Уровень',dayStreak:'дней серия',
+    lvlNames:['','Железный','Бронза','Серебро','Золото','Платина','Алмаз','Элита','Легенда','Мифик'],
+    finishWorkout:'🏁 Завершить',cancelSession:'Отменить сессию',
+    exerciseLabel:'Упражнение',setsDone:'Подходов сделано',weightCol:'Вес',repsCol:'Повторы',
+    addSet:'+ Подход',elapsed:'Прошло',
+    skipRest:'Пропустить отдых ›',secondsRemaining:'Секунд осталось',restTimer:'Отдых',
+    ach_century:'Сотня',ach_streak10:'Серия 10',ach_beast:'Монстр',ach_firstPR:'Первый рекорд',
+    cancelBtn:'Отмена',confirmBtn:'Подтвердить',saveBtn:'Сохранить',addBtn:'Добавить',
+    synced:'● Синхронизировано',noExResults:'Нет результатов',custExSection:'★ Мои упражнения',
+    muscleGroup:'Группа мышц',equipType:'Тип оборудования',
+    exName:'Название упражнения',exNotes:'Заметки (необязательно)',
+    muscleLbl:'Мышца',equipLbl:'Оборудование',
+    setsLbl2:'Подходы',repsLbl:'Повторения',weightLbl2:'Вес (кг)',
+    searchLib:'Поиск упражнений',orCustom:'— Или своё упражнение —',
+    newExercise:'Новое упражнение',editExercise:'Редактировать упражнение',saveExercise:'Сохранить упражнение',
+    newWorkout:'Новая тренировка',editWorkout:'Редактировать тренировку',saveWorkout:'Сохранить тренировку',
+    addExerciseBtn:'Добавить упражнение',addExerciseTitle:'Добавить упражнение',
+    editProfile:'Редактировать профиль',saveProfile:'Сохранить профиль',
+    editGoals:'Редактировать цели',saveGoals:'Сохранить цели',
+    logPR:'Записать личный рекорд',saveRecord:'Сохранить рекорд',
+    backHome:'На главную',viewProgress:'Посмотреть прогресс',
+    accountTitle:'Аккаунт',editStreak:'Изменить серию',streakDays:'Текущая серия (дней)',
+    cardioTitle:'Кардио',noCardioYet:'Нет кардио-тренировок',
+    thisWeekCard:'Эта неделя',thisMonth:'Этот месяц',allTime:'За всё время',mostDone:'Чаще всего',
+    noCustomEx:'Нет пользовательских упражнений',createFirstEx:'+ Создать первое упражнение',
+    deleteConfirmWk:'Удалить «{name}»? Все упражнения и данные будут потеряны.',
+    goalChart:'Цель',
+    profileSaved:'Профиль сохранён ✓',
+    autoLogOn:'Авто-запись активна — вес запросится после тренировки ✓',autoLogOff:'Авто-запись отключена',
+    soundOn:'Звук включён ✓',soundOff:'Звук отключён',
+    difficultyLbl:'Сложность',lvlBeginner:'Начинающий',lvlIntermediate:'Средний',lvlAdvanced:'Продвинутый',lvlCustom:'Свой уровень',
+    remindersOff:'Напоминания отключены',remindersNotSupported:'Уведомления не поддерживаются браузером',
+    remindersNoPermission:'Разрешение отклонено — включите в настройках браузера',
+    remindersScheduled:'Ежедневное напоминание в {time} включено 🔔',
+    remindersNotifBody:'Хорошее время для тренировки! Ваша сессия ждёт.',
+    musicOff:'Музыка отключена',musicConfirm:'Открыть Spotify?',musicStart:'Включите музыку и вернитесь к тренировке 🎵',
+    minSetAlert:'Должен остаться минимум 1 подход.',exSetMinNote:'Минимальный подход — нельзя удалить',
+    customExDeleted:'Упражнение удалено',exUpdated:'Упражнение обновлено ✓',exSaved:'Упражнение сохранено ✓',
+    weightInvalid:'Неверный вес',weightLogged:'Вес записан: ',
+    bwLeft0:'сегодня',bwLeft1:'вчера',bwLeftDays:' дней назад',bwLeftWeek:'1 неделю назад',bwLeftWeeks:' недели назад',bwLeftFar:'4 недели назад',
+    welcomeMsg:'Добро пожаловать',exitSessionConfirm:'Отменить сессию? Прогресс не будет сохранён.',
+    clearHistoryConfirm:'Удалить всю историю тренировок? Это нельзя отменить.',
+    deleteSessionConfirm:'Удалить эту тренировку?',
+    sessionDeleted:'Тренировка удалена',
+    prHigherAlert:'Текущий рекорд для {ex} — {w}кг. Введите большее значение.',
+    importConfirm:'Данные будут восстановлены из файла Excel.\nПродолжить?',
+    workoutComplete:'Тренировка завершена!',
+    logWeightToday:'📊 Записать вес сегодня',
+    loadingExcelLib:'Загрузка библиотеки Excel…',
+    exLoadErr:'Ошибка: библиотека Excel не загрузилась.',
+    exportOk:'Экспорт успешен ✓',
+    exportErr:'Ошибка экспорта: ',
+    importOk:'Данные успешно импортированы!',
+    importInvalid:'Неверный Excel-файл или не экспортирован из IRONMEN.',
+    importErr:'Ошибка импорта: ',
+    loadDataErr:'Ошибка загрузки данных. Проверьте соединение и обновите.',
+    loadErr:'Ошибка загрузки',
+    reloadBtn:'Обновить',
+    logoutConfirm:'Выйти из аккаунта?',
+    deleteAccountConfirm:'Удалить аккаунт? Это нельзя отменить.',
+    resetConfirm:'Сбросить все данные? Это нельзя отменить.',
+    authErrGeneric:'❌ Что-то пошло не так.',
+    authErrCredentials:'❌ Неверный email или пароль.',
+    authErrAlreadyReg:'❌ Этот email уже зарегистрирован. Попробуйте войти.',
+    authErrConfirm:'❌ Отключите подтверждение email в Supabase (Auth → Providers → Email).',
+    authErrNetwork:'❌ Ошибка сети. Проверьте соединение.',
+    authErrPassword:'❌ Пароль должен содержать минимум 6 символов.',
+    setNameTitle:'Укажи имя',
+    setNameGreet:'Привет! Как тебя называть?',
+    setNameLabel:'Твоё имя',
+    setNamePlaceholder:'напр. Алекс',
+    setNameEmpty:'Пожалуйста, введи имя.',
+    setNameBtn:'Сохранить имя',
+}
+};
+let lang='en';
+function t(k){return(LANGS[lang]||LANGS.en)[k]||(LANGS.en[k]||k);}
+function setLang(l){
+  lang=l;if(S.cfg)S.cfg.lang=l;save();
+  renderHome();renderLib();renderProg();renderProf();updateNavLang();updateAuthLangUI();updateModalLang();updateAllSelects();
+}
+function setAuthLang(l){
+  lang=l;
+  ['en','ro','ru'].forEach(code=>{
+    const btn=document.getElementById('auth-lang-'+code);if(!btn)return;
+    btn.style.background=code===l?'var(--ac)':'transparent';
+    btn.style.color=code===l?'#fff':'var(--tx3)';
+    btn.style.borderColor=code===l?'var(--ac)':'var(--bd)';
+  });
+  const tl=document.getElementById('tab-login');if(tl)tl.textContent=t('login');
+  const tr=document.getElementById('tab-register');if(tr)tr.textContent=t('register');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const v=t(el.dataset.i18n);if(v)el.textContent=v;});
+  const lb=document.getElementById('auth-login-btn');if(lb)lb.textContent=t('loginBtn');
+  const rb=document.getElementById('auth-register-btn');if(rb)rb.textContent=t('createAccountBtn');
+}
+function updateNavLang(){
+  const nb=document.getElementById('nb-home');if(nb)nb.querySelector('span').textContent=t('home');
+  const nl=document.getElementById('nb-library');if(nl)nl.querySelector('span').textContent=t('library');
+  const np=document.getElementById('nb-progress');if(np)np.querySelector('span').textContent=t('progress');
+  const nf=document.getElementById('nb-profile');if(nf)nf.querySelector('span').textContent=t('profile');
+}
+
+
+// ── Muscle & Equipment translation maps ──────────────────────────────────────
+const MUSCLES_EN=['Chest','Shoulders','Back','Biceps','Triceps','Quads','Hamstrings','Glutes','Calves','Core','Cardio','Full Body','Other'];
+const MUSCLES={
+  ro:['Piept','Umeri','Spate','Bicepși','Tricepși','Cvadricepși','Ischiogambieri','Fesieri','Gambă','Abdomen','Cardio','Corp întreg','Altele'],
+  ru:['Грудь','Плечи','Спина','Бицепс','Трицепс','Квадрицепс','Бицепс бедра','Ягодицы','Икры','Пресс','Кардио','Всё тело','Другое'],
+};
+const EQUIPS_EN=['Barbell','Dumbbell','Cable','Machine','Bodyweight','Kettlebell','Resistance Band','Band','Other'];
+const EQUIPS={
+  ro:['Bara','Gantere','Scripete','Mașinărie','Greutatea corpului','Kettlebell','Bandă elastică','Bandă','Altele','Cardio'],
+  ru:['Штанга','Гантели','Блок','Тренажёр','Собственный вес','Гиря','Резинка','Лента','Другое','Кардио'],
+};
+function tLvl(l){
+  const map={Beginner:'lvlBeginner',Intermediate:'lvlIntermediate',Advanced:'lvlAdvanced',Custom:'lvlCustom'};
+  return map[l]?t(map[l]):l;
+}
+function tMuscle(m){
+  if(lang==='en')return m;
+  const i=MUSCLES_EN.indexOf(m);
+  return i>=0?(MUSCLES[lang]?.[i]||m):m;
+}
+function tEquip(e){
+  if(lang==='en')return e;
+  const i=EQUIPS_EN.indexOf(e);
+  return i>=0?(EQUIPS[lang]?.[i]||e):e;
+}
+function populateSelect(selId,valuesEN,translatedArr){
+  const sel=document.getElementById(selId);if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML=valuesEN.map((v,i)=>`<option value="${v}">${lang==='en'?v:(translatedArr?.[i]||v)}</option>`).join('');
+  sel.value=cur||valuesEN[0];
+}
+function updateAllSelects(){
+  // Difficulty select
+  const wliSel=document.getElementById('wli');
+  if(wliSel){
+    const cur=wliSel.value;
+    ['Beginner','Intermediate','Advanced','Custom'].forEach(v=>{
+      const opt=wliSel.querySelector('option[value="'+v+'"]');
+      if(opt)opt.textContent=tLvl(v);
+    });
+    wliSel.value=cur;
+  }
+  const ldiff=document.getElementById('lbl-wk-diff');
+  if(ldiff)ldiff.textContent=t('difficultyLbl');
+  _updateAllSelectsOrig();
+}
+function _updateAllSelectsOrig(){
+  // m-cex modal selects
+  populateSelect('cex-muscle',MUSCLES_EN,MUSCLES[lang]);
+  populateSelect('cex-type',EQUIPS_EN,EQUIPS[lang]);
+  // m-ex modal selects
+  populateSelect('cem',MUSCLES_EN.filter(m=>m!=='Other'),
+    lang==='en'?null:(MUSCLES[lang]?.filter((_,i)=>MUSCLES_EN[i]!=='Other')));
+  populateSelect('cet',['Barbell','Dumbbell','Cable','Machine','Bodyweight','Kettlebell','Band'],
+    lang==='en'?null:['Barbell','Dumbbell','Cable','Machine','Bodyweight','Kettlebell','Band'].map(v=>tEquip(v)));
+  // modal labels
+  const lbl={
+    'lbl-cex-muscle':'muscleGroup','lbl-cex-type':'equipType',
+    'lbl-cex-name':'exName','lbl-cex-notes':'exNotes',
+    'lbl-m-ex-name':'exName','lbl-m-ex-muscle':'muscleLbl','lbl-m-ex-equip':'equipLbl',
+    'lbl-m-ex-sets':'setsLbl2','lbl-m-ex-reps':'repsLbl','lbl-m-ex-weight':'weightLbl2',
+    'lbl-m-ex-search':'searchLib','lbl-m-ex-or':'orCustom',
+  };
+  Object.entries(lbl).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=t(key);
+  });
+}
+
+function updateModalLang(){
+  const ids={
+    'm-cex-title':['newExercise'],
+    'm-cex-save':['saveExercise'],
+    'm-wk-save':['saveWorkout'],
+    'm-wk-title':['newWorkout'],
+    'm-ex-title':['addExerciseTitle'],
+    'm-ex-addbtn':['addExerciseBtn'],
+    'm-conf-title':['confirmBtn'],
+    'm-conf-cancel':['cancelBtn'],
+    'm-prof-title':['editProfile'],
+    'm-prof-save':['saveProfile'],
+    'm-goals-title':['editGoals'],
+    'm-goals-save':['saveGoals'],
+    'm-pr-title':['logPR'],
+    'm-pr-save':['saveRecord'],
+    'm-fin-home':['backHome'],
+    'm-fin-prog':['viewProgress'],
+    'm-fin-complete':['workoutComplete'],
+    'lbl-wk-diff':['difficultyLbl'],
+    'fin-weight-lbl':['logWeightToday'],
+    'fin-bw-save':['saveBtn'],
+    'rest-title':['restTimer'],
+    'rest-sub':['secondsRemaining'],
+    'rest-skip-btn':['skipRest'],
+    'tab-login':['login'],
+    'tab-register':['register'],
+  };
+  Object.entries(ids).forEach(([id,[key]])=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=t(key);
+  });
+  // account modal if open
+  document.querySelectorAll('.modal.open .mtitle').forEach(el=>{
+    if(el.textContent==='ACCOUNT'||el.textContent===t('accountTitle'))el.textContent=t('accountTitle');
+  });
+}
+function updateAuthLangUI(){
+  ['en','ro','ru'].forEach(code=>{
+    const btn=document.getElementById('auth-lang-'+code);if(!btn)return;
+    btn.style.background=code===lang?'var(--ac)':'transparent';
+    btn.style.color=code===lang?'#fff':'var(--tx3)';
+    btn.style.borderColor=code===lang?'var(--ac)':'var(--bd)';
+  });
 }
 
 // ═══════════ STATE ═══════════
@@ -653,12 +1496,13 @@ async function initS(){
   SK=getUserSK(currentUserId);
 
   function applyData(loaded){
-    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg'};
+    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg',lang:'en',reminderHour:7,reminderMin:0};
     const defGoals={tw:80,dpw:4,bf:15};
     const defUser={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
     const clean={...loaded};delete clean._sid;
     S=clean;
     S.cfg=Object.assign({},defCfg,clean.cfg||{});
+    if(S.cfg.lang)lang=S.cfg.lang;
     S.goals=Object.assign({},defGoals,clean.goals||{});
     S.user=Object.assign({},defUser,clean.user||{});
     if(!S.user.xp||isNaN(S.user.xp))S.user.xp=0;
@@ -712,7 +1556,7 @@ async function initS(){
   // ── 3. Utilizator complet nou (Supabase ok, fără rând, fără localStorage) ──
   if(sbFailed){
     // Supabase a eșuat — nu creăm date default ca să nu suprascriem nimic
-    showToast('Eroare la încărcarea datelor. Verifică conexiunea și reîncarcă.','err');
+    showToast(t('loadDataErr'),'err');
     S={user:{name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000},streak:0,todayWk:null,
        cfg:{reminders:true,autoLog:false,music:true,restSound:true,units:'kg'},
        goals:{tw:85,dpw:5,bf:15},workouts:[],hist:[],prs:[],bw:[],customExs:[]};
@@ -847,17 +1691,17 @@ function showToast(msg,type='info',dur=3000){
 function checkNameDefault(){
   if(S.user?.name==='Athlete'||!S.user?.name){
     setTimeout(()=>{
-      showQuickModal('SET YOUR NAME',
-        `<div style="margin-bottom:14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:.3px">Salut! Cum vrei să te numim?</div>
-        <div class="frow"><div class="flbl">Your Name</div><input class="inp" id="fni" type="text" placeholder="e.g. Alex" autocomplete="given-name" style="font-size:18px;font-weight:600" autofocus></div>`,
+      showQuickModal(t('setNameTitle'),
+        `<div style="margin-bottom:14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:.3px">${t('setNameGreet')}</div>
+        <div class="frow"><div class="flbl">${t('setNameLabel')}</div><input class="inp" id="fni" type="text" placeholder="${t('setNamePlaceholder')}" autocomplete="given-name" style="font-size:18px;font-weight:600" autofocus></div>`,
         async ()=>{
           const n=document.getElementById('fni').value.trim();
-          if(!n){alert('Te rog introdu un nume.');return;}
+          if(!n){alert(t('setNameEmpty'));return;}
           S.user.name=n;
           await saveNow();
           renderHome();renderProf();
-          showToast(`Bun venit, ${n}! 💪`,'ok');
-        },'SALVEAZĂ NUMELE'
+          showToast(`${t('welcomeMsg')}, ${n}! 💪`,'ok');
+        },t('setNameBtn')
       );
       setTimeout(()=>{try{document.getElementById('fni').focus();}catch(_){}},300);
     },600);
@@ -909,7 +1753,7 @@ document.getElementById('egrid').addEventListener('click',e=>{
 });
 
 // ═══════════ HOME ═══════════
-function greet(){const h=now.getHours();return h<12?'morning':h<17?'afternoon':'evening';}
+function greet(){const h=now.getHours();return h<12?t('morning'):h<17?t('afternoon'):t('evening');}
 function renderHome(){
   try{
   const wkHist=(S.hist||[]).filter(h=>(Date.now()-new Date(h.date).getTime())<7*864e5);
@@ -921,7 +1765,7 @@ function renderHome(){
   const H=Math.floor(totMin/60),M=totMin%60;
   const tStr=H>0?H+'h '+(M>0?M+'m':''):M+'m';
 
-  let exPrev='<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">No exercises yet</div>';
+  let exPrev=`<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">${t('noExercisesYet')}</div>`;
   if(wk&&Array.isArray(wk.exs)&&wk.exs.length){
     try{
       exPrev=wk.exs.slice(0,3).map(e=>{
@@ -932,17 +1776,17 @@ function renderHome(){
           <div style="font-size:11px;color:var(--tx2);margin-top:2px">${e.t||''} · ${e.m||''}</div></div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--tx2)">${slen}×${reps}</div>
         </div>`;
-      }).join('')+(wk.exs.length>3?`<div style="padding:8px 0;color:var(--tx3);font-size:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">+${wk.exs.length-3} MORE EXERCISES</div>`:'');
+      }).join('')+(wk.exs.length>3?`<div style="padding:8px 0;color:var(--tx3);font-size:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">+${wk.exs.length-3} ${t('moreEx')}</div>`:'');
     }catch(ex){console.warn('exPrev error:',ex);}
   }
 
   const recH=rec.length?rec.map(h=>`
     <div class="hr" onclick="openWKD('${h.wid||''}')">
       <div class="hico" style="background:rgba(255,61,0,.1)">${h.em||'🏋️'}</div>
-      <div class="hinfo"><div class="hname">${h.name||'Workout'}</div><div class="hdate">${fdate(h.date)} · ${h.dur||0} min</div></div>
-      <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:20px">${h.sets||0}</div><div style="font-size:11px;color:var(--tx3)">sets</div></div>
+      <div class="hinfo"><div class="hname">${h.name||'Workout'}</div><div class="hdate">${fdate(h.date)} · ${h.dur||0} ${t('minAbbr')}</div></div>
+      <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:20px">${h.sets||0}</div><div style="font-size:11px;color:var(--tx3)">${t('setsLbl')}</div></div>
     </div>`).join('')
-  :'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">Complete your first workout!</div>';
+  :`<div style="padding:20px;text-align:center;color:var(--tx3);font-size:13px">${t('completeFirst')}</div>`;
 
   const wkCard=wk?`
     <div onclick="openWKD('${wk.id}')" style="cursor:pointer">
@@ -953,17 +1797,17 @@ function renderHome(){
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.7);letter-spacing:1px;margin-top:4px">${wk.desc||''}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-          <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${(wk.exs||[]).length} EX</div>
-          <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${wk.dur||0} MIN</div>
+          <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${(wk.exs||[]).length} ${t('exLbl')}</div>
+          <div style="background:rgba(0,0,0,.2);border-radius:6px;padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.85);letter-spacing:1px;font-weight:700">${wk.dur||0} ${t('minLbl')}</div>
         </div>
       </div>
       <div style="padding:4px 18px 0">${exPrev}</div>
-      <div style="padding:10px 18px 14px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px">TAP TO VIEW &amp; START ›</div>
+      <div style="padding:10px 18px 14px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px">${t('tapToView')}</div>
     </div>`
   :`<div style="padding:28px;text-align:center">
       <div style="font-size:36px;margin-bottom:10px">🏋️</div>
-      <div style="color:var(--tx2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:14px">NO WORKOUT SELECTED</div>
-      <button class="btn bp bsm" onclick="go('library')">BROWSE LIBRARY</button>
+      <div style="color:var(--tx2);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:14px">${t('noWorkoutSelected')}</div>
+      <button class="btn bp bsm" onclick="go('library')">${t('browseLibrary')}</button>
     </div>`;
 
   document.getElementById('sc-home').innerHTML=`
@@ -971,24 +1815,24 @@ function renderHome(){
       <div class="top-bar" style="border-bottom:1px solid var(--bd)">
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:5px;line-height:1">IRON<span style="color:var(--ac)">M</span>EN</div>
-          <div style="font-size:14px;color:var(--tx2);margin-top:3px">Good ${greet()}, <strong style="color:var(--tx)">${(S.user?.name||'Athlete').split(' ')[0]}</strong> 💪</div>
+          <div style="font-size:14px;color:var(--tx2);margin-top:3px">${t('goodGreet')} ${greet()}, <strong style="color:var(--tx)">${(S.user?.name||'Athlete').split(' ')[0]}</strong> 💪</div>
         </div>
         <div style="text-align:right">
-          <div onclick="manualStreak()" style="background:var(--ac);padding:6px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🔥 ${S.streak||0} DAY</div>
+          <div onclick="manualStreak()" style="background:var(--ac);padding:6px 14px;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer">🔥 ${S.streak||0} ${t('dayLbl')}</div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--tx3);margin-top:6px">${DAYS[now.getDay()].toUpperCase()}, ${MONS[now.getMonth()].toUpperCase()} ${now.getDate()}</div>
         </div>
       </div>
-      <div class="slbl">THIS WEEK</div>
+      <div class="slbl">${t('thisWeek')}</div>
       <div class="stats-row">
-        <div class="sc"><div class="bn" style="color:var(--ac)">${wkHist.length}</div><div class="lbl">Workouts</div></div>
-        <div class="sc"><div class="bn" style="color:var(--ac2)">${totCal.toLocaleString()}</div><div class="lbl">Calories</div></div>
-        <div class="sc"><div class="bn">${tStr||'0m'}</div><div class="lbl">Volume</div></div>
+        <div class="sc"><div class="bn" style="color:var(--ac)">${wkHist.length}</div><div class="lbl">${t('workoutsLbl')}</div></div>
+        <div class="sc"><div class="bn" style="color:var(--ac2)">${totCal.toLocaleString()}</div><div class="lbl">${t('calories')}</div></div>
+        <div class="sc"><div class="bn">${tStr||'0m'}</div><div class="lbl">${t('volume')}</div></div>
       </div>
-      <div class="slbl">TODAY'S PLAN <span style="font-size:11px;color:var(--ac);cursor:pointer;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-weight:700" onclick="changeTodayWk()">CHANGE ›</span></div>
+      <div class="slbl">${t('todayPlan')} <span style="font-size:11px;color:var(--ac);cursor:pointer;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-weight:700" onclick="changeTodayWk()">${t('changeWk')}</span></div>
       <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;min-height:80px">
         ${wkCard}
       </div>
-      <div class="slbl">RECENT SESSIONS</div>
+      <div class="slbl">${t('recentSessions')}</div>
       <div class="card" style="margin:0 20px">${recH}</div>
       <div style="height:16px"></div>
     </div>`;
@@ -997,8 +1841,8 @@ function renderHome(){
     document.getElementById('sc-home').innerHTML=`
       <div style="flex:1;overflow-y:auto;padding:60px 20px;text-align:center">
         <div style="font-size:36px;margin-bottom:16px">⚠️</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:1px;margin-bottom:20px">${err.message||'Eroare la încărcare'}</div>
-        <button class="btn bp" onclick="location.reload()">REÎNCARCĂ</button>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:1px;margin-bottom:20px">${err.message||t('loadErr')}</div>
+        <button class="btn bp" onclick="location.reload()">${t('reloadBtn')}</button>
       </div>`;
   }
 }
@@ -1006,7 +1850,7 @@ function renderHome(){
 function changeTodayWk(){
   if(!S.workouts.length){alert('Add a workout in the Library first.');return;}
   const opts=S.workouts.map(w=>`<option value="${w.id}"${w.id===S.todayWk?' selected':''}>${w.em} ${w.name}</option>`).join('');
-  showQuickModal('CHANGE TODAY\'S PLAN',
+  showQuickModal(t('todayPlan'),
     `<div class="frow"><div class="flbl">Select Workout</div><select class="inp" id="ctw-sel">${opts}</select></div>`,
     ()=>{S.todayWk=document.getElementById('ctw-sel').value;save();renderHome();}
   );
@@ -1034,56 +1878,56 @@ function renderLibGrid(){
     <div class="wkc" onclick="openWKD('${w.id}')">
       <div style="height:88px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:36px;position:relative">
         ${w.em}
-        ${w.id===S.todayWk?'<div style="position:absolute;top:8px;right:8px"><span class="pill pok" style="font-size:10px">TODAY</span></div>':''}
+        ${w.id===S.todayWk?`<div style="position:absolute;top:8px;right:8px"><span class="pill pok" style="font-size:10px">${t('todayBadge')}</span></div>`:''}
       </div>
       <div style="padding:12px">
         <div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.name}</div>
-        <div style="font-size:12px;color:var(--tx2);margin-top:2px">${w.dur} min · ${w.exs.length} exercises</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">${w.dur} ${t('minAbbr')} · ${w.exs.length} ${t('exercisesLbl').toLowerCase()}</div>
         <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
-          <span class="pill ${w.lvl==='Beginner'?'pok':w.lvl==='Advanced'?'per':'pwn'}">${w.lvl||'Intermediate'}</span>
+          <span class="pill ${w.lvl==='Beginner'?'pok':w.lvl==='Advanced'?'per':'pwn'}">${tLvl(w.lvl||'Intermediate')}</span>
           <span style="font-size:11px;color:var(--tx3)">${w.cal} kcal</span>
         </div>
       </div>
     </div>`).join('')
-  :`<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:10px">🔍</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">NO WORKOUTS FOUND</div></div>`;
+  :`<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:10px">🔍</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">${t('noWorkoutsFound')}</div></div>`;
   const grid=document.getElementById('lib-grid');
   if(grid)grid.innerHTML=wkH;
   document.querySelectorAll('.catbtn[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===libCat));
 }
 function renderLib(){
-  const cats=[{v:'all',l:'All'},{v:'strength',l:'Strength'},{v:'cardio',l:'Cardio'},{v:'hiit',l:'HIIT'},{v:'mobility',l:'Mobility'},{v:'custom',l:'Custom'}];
+  const cats=[{v:'all',l:t('allCat')},{v:'strength',l:t('strengthCat')},{v:'cardio',l:t('cardioCat')},{v:'hiit',l:t('hiitCat')},{v:'mobility',l:t('mobilityCat')},{v:'custom',l:t('customCat')}];
   const catH=cats.map(c=>`<button class="catbtn${c.v===libCat?' active':''}" data-cat="${c.v}" onclick="libCat='${c.v}';renderLibGrid()">${c.l}</button>`).join('');
 
   document.getElementById('sc-library').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
-    <div class="top-bar"><h1>LIBRARY</h1>
+    <div class="top-bar"><h1>${t('libraryTitle')}</h1>
       <button class="bico" onclick="openAddWk()" style="background:var(--ac);border-color:var(--ac);color:#fff;font-size:22px;width:40px;height:40px">+</button>
     </div>
     <div style="padding:0 20px;margin-bottom:12px;position:relative">
       <span style="position:absolute;left:34px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;opacity:.5">🔍</span>
       <input id="lib-search" type="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
         style="background:var(--sf2);border:1px solid var(--bd);border-radius:12px;padding:13px 16px 13px 42px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:16px;outline:none;width:100%;transition:border-color .2s;-webkit-appearance:none"
-        placeholder="Search workouts..." value="${libQ}"
+        placeholder="${t('searchWorkouts')}" value="${libQ}"
         oninput="libQ=this.value.toLowerCase();renderLibGrid()"
         onfocus="this.style.borderColor='var(--ac)'"
         onblur="this.style.borderColor='var(--bd)'">
     </div>
 
     <div id="lib-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px"></div>
-    <div class="slbl" style="margin-top:20px">EXERCISE DATABASE (${EDB.length})</div>
+    <div class="slbl" style="margin-top:20px">${t('exerciseDatabase')} (${EDB.length})</div>
     <div class="card" style="margin:0 20px">
-      <div style="font-size:13px;color:var(--tx2);margin-bottom:12px">Tap any exercise to quick-add it to a workout.</div>
+      <div style="font-size:13px;color:var(--tx2);margin-bottom:12px">${t('tapToQuickAdd')}</div>
       ${EDB.slice(0,8).map(e=>`
       <div class="hr" style="gap:8px">
         <div class="hico" style="background:var(--sf2);font-size:16px;cursor:pointer" onclick="showExGif('${e.n}')">💪</div>
-        <div class="hinfo" onclick="quickAddEx('${e.n}','${e.m}','${e.t}')" style="cursor:pointer"><div class="hname">${e.n}</div><div class="hdate">${e.t} · ${e.m}</div></div>
+        <div class="hinfo" onclick="quickAddEx('${e.n}','${e.m}','${e.t}')" style="cursor:pointer"><div class="hname">${e.n}</div><div class="hdate">${tEquip(e.t)} · ${tMuscle(e.m)}</div></div>
         <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
           ${e.gif?`<button onclick="showExGif('${e.n}')" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Watch GIF">▶</button>`:''}
-          <span class="chip" style="font-size:10px;cursor:pointer" onclick="quickAddEx('${e.n}','${e.m}','${e.t}')">+ ADD</span>
+          <span class="chip" style="font-size:10px;cursor:pointer" onclick="quickAddEx('${e.n}','${e.m}','${e.t}')">+ ${t('addBtn')}</span>
         </div>
       </div>`).join('')}
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px">
-        <button class="btn bg" onclick="showAllEx()">VIEW ALL ${EDB.length+(S.customExs||[]).length} EXERCISES</button>
-        <button class="btn bp bsm" onclick="openCreateEx()" style="white-space:nowrap;padding:10px 14px">+ CREATE</button>
+        <button class="btn bg" onclick="showAllEx()">${t('viewAll')} ${EDB.length+(S.customExs||[]).length} ${t('exercisesLbl')}</button>
+        <button class="btn bp bsm" onclick="openCreateEx()" style="white-space:nowrap;padding:10px 14px">${t('createBtn')}</button>
       </div>
     </div>
     <div style="height:16px"></div>
@@ -1127,10 +1971,12 @@ function showAllEx(){
   const muscles=[...new Set(EDB.map(e=>e.m))];
   const b=document.createElement('div');b.className='modal open';b.id='m-all-ex';b.style.zIndex=300;
   const totalCount=EDB.length+(S.customExs||[]).length;
-  b.innerHTML=`<div class="mbox" style="max-height:95dvh">
-    <div class="mtop"><div class="mtitle">ALL EXERCISES (${totalCount})</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
-    <input style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:14px;outline:none;width:100%;margin-bottom:14px" placeholder="🔍 Search..." oninput="filterAllEx(this.value)">
-    <div id="all-ex-list">${renderExList('')}</div>
+  b.innerHTML=`<div class="mbox" style="max-height:95dvh;display:flex;flex-direction:column;padding:0;overflow:hidden">
+    <div style="padding:20px 20px 0;flex-shrink:0">
+      <div class="mtop"><div class="mtitle">${t('viewAll')} ${t('exercisesLbl')} (${totalCount})</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
+      <input style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:14px;outline:none;width:100%;margin-bottom:14px" placeholder="🔍 Search..." oninput="filterAllEx(this.value)">
+    </div>
+    <div id="all-ex-list" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:0 20px 20px">${renderExList('')}</div>
   </div>`;
   b.addEventListener('click',e=>{if(e.target===b)b.remove();});
   document.body.appendChild(b);
@@ -1139,26 +1985,26 @@ function renderExList(q){
   const customExs=S.customExs||[];
   const fCustom=customExs.filter(e=>!q||e.n.toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
   const filtered=EDB.filter(e=>!q||e.n.toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
-  if(!filtered.length&&!fCustom.length)return '<div style="padding:20px;text-align:center;color:var(--tx3)">No results</div>';
+  if(!filtered.length&&!fCustom.length)return `<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noExResults')}</div>`;
   const byMuscle={};
   filtered.forEach(e=>{if(!byMuscle[e.m])byMuscle[e.m]=[];byMuscle[e.m].push(e);});
   const customSection=fCustom.length?`
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ac);text-transform:uppercase;padding:10px 0 4px">★ My Custom Exercises</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ac);text-transform:uppercase;padding:10px 0 4px">${t('custExSection')}</div>
     ${fCustom.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;gap:6px;border-left:2px solid var(--ac);padding-left:8px">
-      <div style="flex:1;min-width:0"><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${e.t} · ${e.m}</div></div>
+      <div style="flex:1;min-width:0"><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${tEquip(e.t)} · ${tMuscle(e.m)}</div></div>
       <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
-        <button class="btn bok bsm" style="padding:6px 10px" onclick="quickAddEx('${e.n.replace(/'/g,"\'")}','${e.m}','${e.t}')">+ ADD</button>
-        <button style="width:30px;height:30px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="editCustomEx('${e.id}');this.closest('.modal').remove()">✏️</button>
+        <button class="btn bok bsm" style="padding:6px 10px" onclick="quickAddEx('${e.n.replace(/'/g,"\'")}','${e.m}','${e.t}')">+ ${t('addBtn')}</button>
+        <button style="width:30px;height:30px;border-radius:7px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="this.closest('#m-all-ex').remove();editCustomEx('${e.id}',true)">✏️</button>
         <button style="width:30px;height:30px;border-radius:7px;border:none;background:transparent;color:var(--tx3);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'" onclick="deleteCustomExFromModal('${e.id}',this)">✕</button>
       </div>
     </div>`).join('')}`:'';
   const stdSection=Object.entries(byMuscle).map(([m,exs])=>`
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;padding:10px 0 4px">${m}</div>
     ${exs.map(e=>`<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;gap:6px">
-      <div style="flex:1;min-width:0"><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${e.t}</div></div>
+      <div style="flex:1;min-width:0"><div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div><div style="font-size:12px;color:var(--tx2)">${tEquip(e.t)}</div></div>
       <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
         ${e.gif?`<button onclick="showExGif('${e.n}')" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Watch GIF">▶</button>`:''}
-        <button class="btn bok bsm" onclick="quickAddEx('${e.n}','${e.m}','${e.t}')">+ ADD</button>
+        <button class="btn bok bsm" onclick="quickAddEx('${e.n}','${e.m}','${e.t}')">+ ${t('addBtn')}</button>
       </div>
     </div>`).join('')}`).join('');
   return customSection+stdSection;
@@ -1191,7 +2037,7 @@ function showExGif(name){
 }
 
 function openAddWk(id){
-  document.getElementById('m-wk-title').textContent=id?'EDIT WORKOUT':'NEW WORKOUT';
+  document.getElementById('m-wk-title').textContent=id?t('editWorkout'):t('newWorkout');
   document.getElementById('ewid').value=id||'';
   if(id){
     const w=S.workouts.find(x=>x.id===id);
@@ -1244,7 +2090,7 @@ function renderWKD(id){
           </div>
           <div style="min-width:0">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.n}</div>
-            <div style="font-size:12px;color:var(--tx2);margin-top:2px">${e.t} · ${e.m}</div>
+            <div style="font-size:12px;color:var(--tx2);margin-top:2px">${tEquip(e.t)} · ${tMuscle(e.m)}</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -1264,7 +2110,7 @@ function renderWKD(id){
         <div style="background:transparent;border:1px dashed var(--bd);border-radius:6px;padding:6px 10px;text-align:center;min-width:52px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx3)" onclick="addSetToWk('${id}','${e.id}')">+</div>
       </div>
     </div>`).join('')+`</div>`
-  :`<div style="padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:12px">🏋️</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">NO EXERCISES YET</div><button class="btn bp" onclick="openAddEx('${id}')">+ ADD YOUR FIRST EXERCISE</button></div>`;
+  :`<div style="padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:12px">🏋️</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">${t('noExercisesYet').toUpperCase()}</div><button class="btn bp" onclick="openAddEx('${id}')">+ ${t('addBtn')}</button></div>`;
 
   document.getElementById('sc-wkd').innerHTML=`
     <div style="background:var(--sf);border-bottom:1px solid var(--bd);padding:max(48px,calc(env(safe-area-inset-top)+14px)) 16px 16px;position:sticky;top:0;z-index:10">
@@ -1278,18 +2124,18 @@ function renderWKD(id){
         <button class="bico" onclick="delWk('${id}')" title="Delete" style="color:var(--err)">🗑</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <span class="chip">⏱ ${w.dur} min</span><span class="chip">🔥 ${w.cal} kcal</span>
-        <span class="chip">💪 ${w.exs.length} exercises</span>
-        ${isToday?'<span class="pill pok">TODAY\'S PLAN</span>':''}
+        <span class="chip">⏱ ${w.dur} ${t('minAbbr')}</span><span class="chip">🔥 ${w.cal} kcal</span>
+        <span class="chip">💪 ${w.exs.length} ${t('exercisesLbl').toLowerCase()}</span>
+        ${isToday?`<span class="pill pok">${t('todayBadge')}</span>`:''}
       </div>
     </div>
     <div style="padding:12px 16px;display:flex;gap:10px">
-      <button class="btn bp" onclick="startActive('${id}')" style="flex:2">▶ START WORKOUT</button>
-      ${!isToday?`<button class="btn bg bsm" style="flex:1;padding:13px" onclick="S.todayWk='${id}';save();go('home')">SET TODAY</button>`:''}
+      <button class="btn bp" onclick="startActive('${id}')" style="flex:2">▶ START</button>
+      ${!isToday?`<button class="btn bg bsm" style="flex:1;padding:13px" onclick="S.todayWk='${id}';save();go('home')">${t('todayBadge')}</button>`:''}
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:12px">
-      <div class="slbl" style="margin:0">EXERCISES (${w.exs.length})</div>
-      <button class="btn bok bsm" onclick="openAddEx('${id}')">+ ADD EXERCISE</button>
+      <div class="slbl" style="margin:0">${t('exercisesLbl')} (${w.exs.length})</div>
+      <button class="btn bok bsm" onclick="openAddEx('${id}')">+ ${t('addBtn')}</button>
     </div>
     <div style="padding:0 16px">${exsH}</div>
     <div style="height:16px"></div>`;
@@ -1298,7 +2144,7 @@ function renderWKD(id){
 
 function delWk(id){
   const w=S.workouts.find(x=>x.id===id);
-  document.getElementById('conf-msg').textContent=`Delete "${w?.name}"? All exercises and data will be lost.`;
+  document.getElementById('conf-msg').textContent=t('deleteConfirmWk').replace('{name}',w?.name||'');
   document.getElementById('conf-ok').onclick=()=>{
     S.workouts=S.workouts.filter(x=>x.id!==id);
     if(S.todayWk===id)S.todayWk=S.workouts[0]?.id||null;
@@ -1320,12 +2166,12 @@ function editSet(wid,eid,si,curW,curR){
       <div><div class="flbl">Weight (kg)</div><input class="inp" id="esw" type="number" inputmode="decimal" value="${curW}" min="0" max="999" step="0.5" style="font-family:'Bebas Neue',sans-serif;font-size:26px;text-align:center"></div>
       <div><div class="flbl">Reps</div><input class="inp" id="esr" type="number" inputmode="numeric" value="${curR}" min="1" max="100" style="font-family:'Bebas Neue',sans-serif;font-size:26px;text-align:center"></div>
     </div>
-    ${canDelete?`<button class="btn bd2" style="margin-top:12px" onclick="delSetFromWk('${wid}','${eid}',${si});this.closest('.modal').remove()">🗑 ȘTERGE SETUL ${si+1}</button>`:'<div style="margin-top:10px;font-family:\'Barlow Condensed\',sans-serif;font-size:11px;letter-spacing:1px;color:var(--tx3);text-align:center">Setul minim necesar — nu poate fi șters</div>'}`,
+    ${canDelete?`<button class="btn bd2" style="margin-top:12px" onclick="delSetFromWk('${wid}','${eid}',${si});this.closest('.modal').remove()">🗑 ${t('saveBtn')} SET ${si+1}</button>`:`<div style="margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:var(--tx3);text-align:center">${t('exSetMinNote')}</div>`}`,
     ()=>{
       const w=S.workouts.find(x=>x.id===wid),e=w?.exs.find(x=>x.id===eid);
       if(e&&e.sets[si]){e.sets[si].w=+document.getElementById('esw').value;e.sets[si].r=+document.getElementById('esr').value;}
       save();renderWKD(wid);
-    },'SALVEAZĂ'
+    },t('saveBtn')
   );
 }
 function addSetToWk(wid,eid){
@@ -1338,7 +2184,7 @@ function addSetToWk(wid,eid){
 function delSetFromWk(wid,eid,si){
   const w=S.workouts.find(x=>x.id===wid),e=w?.exs.find(x=>x.id===eid);
   if(!e)return;
-  if(e.sets.length<=1){alert('Trebuie să rămână cel puțin 1 set.');return;}
+  if(e.sets.length<=1){alert(t('minSetAlert'));return;}
   e.sets.splice(si,1);save();renderWKD(wid);
 }
 
@@ -1362,7 +2208,7 @@ function filterEx(q){
       <div style="flex:1;min-width:0" onclick="addExFromLib('${e.n}','${e.m}','${e.t}')"><strong>${e.n}</strong><small>${e.t} · ${e.m}</small></div>
       ${e.gif?`<button onclick="event.stopPropagation();showExGif('${e.n}')" style="width:30px;height:30px;border-radius:8px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>`:''}
     </div>`).join('');
-  list.innerHTML=(customH+stdH)||'<div style="padding:14px;text-align:center;color:var(--tx3);font-size:13px">No results</div>';
+  list.innerHTML=(customH+stdH)||`<div style="padding:14px;text-align:center;color:var(--tx3);font-size:13px">${t('noExResults')}</div>`;
 }
 function addExFromLib(n,m,t){
   const wid=document.getElementById('aewid').value;
@@ -1382,18 +2228,18 @@ function renderCustomExList(){
   const exs=S.customExs||[];
   if(!exs.length)return `<div style="padding:20px;text-align:center;color:var(--tx3)">
     <div style="font-size:28px;margin-bottom:8px">🏗️</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:13px;margin-bottom:14px">No custom exercises yet</div>
-    <button class="btn bp bsm" onclick="openCreateEx()">+ CREATE FIRST EXERCISE</button>
+    <div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:13px;margin-bottom:14px">${t('noCustomEx')}</div>
+    <button class="btn bp bsm" onclick="openCreateEx()">${t('createFirstEx')}</button>
   </div>`;
   return exs.map(e=>`
     <div class="hr" style="align-items:center">
       <div class="hico" style="background:rgba(255,61,0,.12);font-size:16px">⭐</div>
       <div class="hinfo">
         <div class="hname">${e.n}</div>
-        <div class="hdate">${e.t} · ${e.m}${e.notes?' · '+e.notes:''}</div>
+        <div class="hdate">${tEquip(e.t)} · ${tMuscle(e.m)}${e.notes?' · '+e.notes:''}</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn bok bsm" onclick="quickAddEx('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}')">+ ADD</button>
+        <button class="btn bok bsm" style="white-space:nowrap" onclick="quickAddEx('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}')">${'+'+' '+t('addBtn')}</button>
         <button onclick="editCustomEx('${e.id}')" style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--tx2)">✏️</button>
         <button onclick="deleteCustomEx('${e.id}')" style="background:none;border:none;color:var(--tx3);font-size:18px;cursor:pointer;padding:4px;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:color .15s" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
       </div>
@@ -1401,7 +2247,8 @@ function renderCustomExList(){
 }
 
 function openCreateEx(){
-  document.getElementById('m-cex-title').textContent='NEW EXERCISE';
+  _cexFromAllEx=false;
+  document.getElementById('m-cex-title').textContent=t('newExercise');
   document.getElementById('cex-id').value='';
   document.getElementById('cex-name').value='';
   document.getElementById('cex-muscle').value='Chest';
@@ -1411,9 +2258,16 @@ function openCreateEx(){
   setTimeout(()=>{try{document.getElementById('cex-name').focus();}catch(_){}},300);
 }
 
-function editCustomEx(id){
+let _cexFromAllEx=false;
+function closeCex(){
+  CM('m-cex');
+  if(_cexFromAllEx){_cexFromAllEx=false;showAllEx();}
+}
+
+function editCustomEx(id,fromAllEx){
   const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
-  document.getElementById('m-cex-title').textContent='EDIT EXERCISE';
+  _cexFromAllEx=!!fromAllEx;
+  document.getElementById('m-cex-title').textContent=t('editExercise');
   document.getElementById('cex-id').value=id;
   document.getElementById('cex-name').value=e.n;
   document.getElementById('cex-muscle').value=e.m;
@@ -1442,20 +2296,22 @@ function saveCustomEx(){
   const cc=document.getElementById('cex-count');if(cc)cc.textContent='('+S.customExs.length+')';
   // Also refresh the exercise picker list if open
   filterEx(document.getElementById('exs')?.value||'');
-  showToast(id?'Exercise updated ✓':'Exercise saved ✓','ok');
+  showToast(id?t('exUpdated'):t('exSaved'),'ok');
+  // Dacă venea din View All Exercises, revine la el
+  if(_cexFromAllEx){_cexFromAllEx=false;showAllEx();}
 }
 
 function deleteCustomEx(id){
   const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
-  if(!confirm(`Ștergi "${e.n}"?`))return;
+  if(!confirm(`${t('deleteConfirmWk').replace('{name}',e.n)}`))return;
   S.customExs=S.customExs.filter(x=>x.id!==id);
   save();
   renderLib();
-  showToast('Exercițiu șters','info');
+  showToast(t('customExDeleted'),'info');
 }
 function deleteCustomExFromModal(id,btn){
   const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
-  if(!confirm(`Ștergi "${e.n}"?`))return;
+  if(!confirm(`${t('deleteConfirmWk').replace('{name}',e.n)}`))return;
   S.customExs=S.customExs.filter(x=>x.id!==id);
   save();
   // Ștergem rândul din modal fără să închidem modalul
@@ -1466,7 +2322,7 @@ function deleteCustomExFromModal(id,btn){
     const el=document.getElementById('all-ex-list');
     if(el)el.innerHTML=renderExList('');
   }
-  showToast('Exercițiu șters','info');
+  showToast(t('customExDeleted'),'info');
 }
 
 // ═══════════ ACTIVE WORKOUT ═══════════
@@ -1485,13 +2341,13 @@ function buildActive(id){
       <div style="font-size:12px;color:var(--tx2)">${w.desc}</div></div>
       <div style="text-align:right">
         <div id="wk-el" style="font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--ac);letter-spacing:2px">0:00</div>
-        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px">ELAPSED</div>
+        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1.5px">${t('elapsed')}</div>
       </div>
     </div>
-    <div id="aex-wrap" style="padding:14px 0"></div>
+    <div id="aex-wrap" style="padding:14px 0;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch"></div>
     <div style="padding:16px;display:grid;gap:10px">
-      <button class="btn bp" onclick="finishActive('${id}')">🏁 FINISH WORKOUT</button>
-      <button class="btn bg" onclick="exitActive()">CANCEL SESSION</button>
+      <button class="btn bp" onclick="finishActive('${id}')">${t('finishWorkout')}</button>
+      <button class="btn bg" onclick="exitActive()">${t('cancelSession')}</button>
     </div>`;
 
   const wrap=document.getElementById('aex-wrap');
@@ -1529,26 +2385,26 @@ function buildAEx(e,i){
         <div></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-align:center">TIME (MIN)</div><div></div><div></div>
       </div>`
     :`<div style="display:grid;grid-template-columns:26px 1fr 12px 1fr 36px 28px;gap:6px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--bd)">
-        <div></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-align:center">WEIGHT</div>
-        <div></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-align:center">REPS</div><div></div><div></div>
+        <div></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-align:center">${t('weightCol')}</div>
+        <div></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-align:center">${t('repsCol')}</div><div></div><div></div>
       </div>`;
 
   const footerBtns=isCardio
     ?`<button class="btn bg bsm" style="flex:1" onclick="addASet(${i})">+ ROUND</button>
        <button class="btn bg bsm" style="flex:1" onclick="startRest(60,${i})">⏱ 1min</button>
        <button class="btn bg bsm" style="flex:1" onclick="startRest(300,${i})">⏱ 5min</button>`
-    :`<button class="btn bg bsm" style="flex:1" onclick="addASet(${i})">+ SET</button>
+    :`<button class="btn bg bsm" style="flex:1" onclick="addASet(${i})">${t('addSet')}</button>
        <button class="btn bg bsm" style="flex:1" onclick="startRest(90,${i})">⏱ 90s</button>
        <button class="btn bg bsm" style="flex:1" onclick="startRest(120,${i})">⏱ 2min</button>
        <button class="btn bg bsm" style="flex:1" onclick="startRest(180,${i})">⏱ 3min</button>`;
 
-  const doneLbl=isCardio?'ROUNDS DONE':'SETS DONE';
+  const doneLbl=isCardio?'ROUNDS DONE':t('setsDone');
 
   return `<div class="aexc${allDone?' alld':''}" id="aex-${i}">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-      <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3)">EXERCISE ${i+1}</div>
+      <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3)">${t('exerciseLabel')} ${i+1}</div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;letter-spacing:.5px;margin-top:2px">${e.n}</div>
-      <div style="font-size:12px;color:var(--tx2);margin-top:2px">${e.t} · ${e.m}</div></div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:2px">${tEquip(e.t)} · ${tMuscle(e.m)}</div></div>
       <div style="text-align:right">
         <div id="acnt-${i}" style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${allDone?'var(--ok)':'var(--tx3)'}">${done}/${total}</div>
         <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">${doneLbl}</div>
@@ -1606,7 +2462,7 @@ function addASet(i){
 }
 
 function delASet(i,j){
-  if(asets[i].length<=1){alert('A minimum of 1 set is required.');return;}
+  if(asets[i].length<=1){alert(t('minSetAlert'));return;}
   asets[i].splice(j,1);
   // rebuild this exercise
   const w=S.workouts.find(x=>x.id===activeWid);if(!w)return;
@@ -1619,7 +2475,7 @@ function delASet(i,j){
   }
 }
 
-function exitActive(){if(!confirm('Cancel this session? Progress will not be saved.'))return;clearInterval(wkT);go('home');}
+function exitActive(){if(!confirm(t('exitSessionConfirm')))return;clearInterval(wkT);go('home');}
 
 function finishActive(wid){
   clearInterval(wkT);
@@ -1646,15 +2502,15 @@ function finishActive(wid){
   S.streak=calcStreak();S.user.xp=Math.min(S.user.mxp,(S.user.xp||0)+Math.round(totalSets*15+dur*2));
   if(S.user.xp>=S.user.mxp){S.user.lvl++;S.user.xp=0;S.user.mxp=Math.round(S.user.mxp*1.4);}
   save();
-  document.getElementById('fin-sub').textContent=`Awesome, ${S.user.name.split(' ')[0]}! ${S.streak}-day streak 🔥`;
+  document.getElementById('fin-sub').textContent=`${S.user.name.split(' ')[0]}! ${S.streak} ${t('dayStreak')} 🔥`;
   document.getElementById('fin-stats').innerHTML=`
-    <div class="sc"><div class="bn" style="color:var(--ac)">${dur}m</div><div class="lbl">Duration</div></div>
-    <div class="sc"><div class="bn">${totalSets}</div><div class="lbl">Sets</div></div>
-    <div class="sc"><div class="bn" style="color:var(--ac2)">${cal}</div><div class="lbl">kcal</div></div>`;
+    <div class="sc"><div class="bn" style="color:var(--ac)">${dur}${t('minAbbr')}</div><div class="lbl">${t('minLbl')}</div></div>
+    <div class="sc"><div class="bn">${totalSets}</div><div class="lbl">${t('setsLbl').toUpperCase()}</div></div>
+    <div class="sc"><div class="bn" style="color:var(--ac2)">${cal}</div><div class="lbl">KCAL</div></div>`;
   document.getElementById('fin-prs').innerHTML=newPRs.length?`
     <div style="background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.2);border-radius:10px;padding:12px 14px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ac2);font-weight:700;margin-bottom:8px">🏆 NEW PERSONAL RECORDS!</div>
-      ${newPRs.map(p=>`<div style="font-size:14px;color:var(--tx2);margin-top:4px">${p.ex}: <strong style="color:var(--tx)">${p.w}kg</strong>${p.prev?' (was '+p.prev+'kg)':' — first PR!'}</div>`).join('')}
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ac2);font-weight:700;margin-bottom:8px">🏆 ${t('personalRecords')}!</div>
+      ${newPRs.map(p=>`<div style="font-size:14px;color:var(--tx2);margin-top:4px">${p.ex}: <strong style="color:var(--tx)">${p.w}kg</strong>${p.prev?' (was '+p.prev+'kg)':''}</div>`).join('')}
     </div>`:'';
   OM('m-fin');
   // Auto-log weight prompt
@@ -1665,12 +2521,12 @@ function finishActive(wid){
 }
 function finLogWeight(){
   const v=parseFloat(document.getElementById('fin-bw-val').value);
-  if(!v||v<30||v>250){showToast('Greutate invalidă','err');return;}
+  if(!v||v<30||v>250){showToast(t('weightInvalid'),'err');return;}
   const ex=S.bw.find(b=>b.date===td());
   if(ex)ex.w=v;else S.bw.push({date:td(),w:v});
   save();
   document.getElementById('fin-weight').style.display='none';
-  showToast('Greutate logată: '+v+' kg ✓','ok');
+  showToast(t('weightLogged')+v+' kg ✓','ok');
 }
 
 // ═══════════ REST TIMER ═══════════
@@ -1678,6 +2534,9 @@ let rInt=null,rLeft=0,rTotal=0;
 function startRest(secs,exIdx){
   clearInterval(rInt);rLeft=secs;rTotal=secs;
   updR();document.getElementById('rscreen').classList.add('open');
+  const _rt=document.getElementById('rest-title');if(_rt)_rt.textContent=t('restTimer').toUpperCase();
+  const _rs=document.getElementById('rest-sub');if(_rs)_rs.textContent=t('secondsRemaining');
+  const _rsk=document.getElementById('rest-skip-btn');if(_rsk)_rsk.textContent=t('skipRest');
   rInt=setInterval(()=>{rLeft--;updR();if(rLeft<=0){clearInterval(rInt);endRest();}},1e3);
 }
 function updR(){
@@ -1710,19 +2569,31 @@ function playRestBeep(){
 
 // ═══════════ PROGRESS ═══════════
 function renderProg(){
+  // ── Best streak (all-time) ──
+  let bestStreak=0;
+  if(S.hist&&S.hist.length){
+    const dates=[...new Set(S.hist.map(h=>h.date))].sort();
+    let cur=1,mx=1;
+    for(let i=1;i<dates.length;i++){
+      const diff=Math.round((new Date(dates[i]+'T12:00:00')-new Date(dates[i-1]+'T12:00:00'))/864e5);
+      if(diff===1){cur++;mx=Math.max(mx,cur);}else{cur=1;}
+    }
+    bestStreak=mx;
+  }
+  bestStreak=Math.max(bestStreak,S.streak||0);
   const bw=S.bw.slice(-28);
   const lat=bw.length?bw[bw.length-1].w:0;
   const prev=bw.length>7?bw[bw.length-8].w:lat;
   // Eticheta stanga grafic — calculata din data reala a primului punct vizibil
   function bwLeftLabel(){
-    if(!bw.length)return '4 weeks ago';
+    if(!bw.length)return t('bwLeftFar');
     const oldest=new Date(bw[0].date+'T12:00:00');
     const diffDays=Math.round((Date.now()-oldest.getTime())/864e5);
-    if(diffDays===0)return 'today';
-    if(diffDays===1)return 'yesterday';
-    if(diffDays<14)return diffDays+' days ago';
+    if(diffDays===0)return t('bwLeft0');
+    if(diffDays===1)return t('bwLeft1');
+    if(diffDays<14)return diffDays+t('bwLeftDays');
     const weeks=Math.round(diffDays/7);
-    return weeks===1?'1 week ago':weeks+' weeks ago';
+    return weeks===1?t('bwLeftWeek'):weeks+t('bwLeftWeeks');
   }
   const _bwLeft=bwLeftLabel();
   const ch=(lat-prev).toFixed(1);const up=parseFloat(ch)>0;
@@ -1751,7 +2622,7 @@ function renderProg(){
       </td>
       <td style="padding:11px 0;border-bottom:1px solid var(--bd);font-family:'Bebas Neue',sans-serif;font-size:22px;text-align:right">${p.w}kg</td>
       <td style="padding:11px 0;border-bottom:1px solid var(--bd);text-align:right;padding-left:8px">
-        ${p.prev?'<span style="color:var(--ok);font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:700">▲ '+(p.w-p.prev).toFixed(1)+'</span>':'<span style="color:var(--tx3);font-size:11px">FIRST</span>'}
+        ${p.prev?'<span style="color:var(--ok);font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:700">▲ '+(p.w-p.prev).toFixed(1)+'</span>':'<span style="color:var(--tx3);font-size:11px">'+t('firstPR')+'</span>'}
       </td>
       <td style="padding:11px 0;border-bottom:1px solid var(--bd);padding-left:4px">
         <button onclick="delPR('${p.ex}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:8px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:color .15s" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
@@ -1759,15 +2630,15 @@ function renderProg(){
     </tr>`):'';
 
   document.getElementById('sc-progress').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
-    <div class="top-bar"><h1>PROGRESS</h1><span class="pill pok">${S.hist.length} sessions</span></div>
+    <div class="top-bar"><h1>${t('progressTitle')}</h1><span class="pill pok">${S.hist.length} ${t('sessionsPill')}</span></div>
 
     <div class="card" style="margin:0 20px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
         <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">Body Weight</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">${t('bodyWeightLbl')}</div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;line-height:1">${lat} <span style="font-size:20px;color:var(--tx2)">kg</span></div>
           <div style="display:inline-flex;align-items:center;gap:5px;margin-top:6px">
-            <span style="color:${up?'var(--err)':'var(--ok)'};font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700">${up?'▲':'▼'} ${Math.abs(ch)} kg this week</span>
+            <span style="color:${up?'var(--err)':'var(--ok)'};font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700">${up?'▲':'▼'} ${Math.abs(ch)} kg ${t('thisWeekChange')}</span>
           </div>
         </div>
         <div style="text-align:right">
@@ -1777,77 +2648,98 @@ function renderProg(){
       </div>
       <canvas id="bwc" height="80" style="width:100%;display:block;margin-bottom:4px"></canvas>
       <div style="display:flex;justify-content:space-between">
-        <span style="font-size:11px;color:var(--tx3)">${_bwLeft}</span><span style="font-size:11px;color:var(--tx3)">Today</span>
+        <span style="font-size:11px;color:var(--tx3)">${_bwLeft}</span><span style="font-size:11px;color:var(--tx3)">${t('todayLbl')}</span>
       </div>
     </div>
 
-    <div class="slbl">LOG BODY WEIGHT</div>
+    <div class="slbl">${t('logBodyWeight')}</div>
     <div class="card" style="margin:0 20px">
       <div style="display:flex;gap:10px;align-items:center">
         <input type="number" id="bwi" class="inp" value="${lat}" min="30" max="300" step="0.1" inputmode="decimal" style="flex:1;font-family:'Bebas Neue',sans-serif;font-size:26px;text-align:center">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--tx2);font-weight:700">KG</div>
-        <button class="btn bp bsm" style="flex:0" onclick="logBW()">LOG</button>
+        <button class="btn bp bsm" style="flex:0" onclick="logBW()">${t('logBtn')}</button>
       </div>
-      <div id="bwc2" style="display:none;margin-top:10px;color:var(--ok);font-size:13px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">✓ WEIGHT LOGGED!</div>
+      <div id="bwc2" style="display:none;margin-top:10px;color:var(--ok);font-size:13px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">✓ ${t('logBodyWeight')}!</div>
     </div>
 
-    <div class="slbl">WEEKLY VOLUME (SETS)</div>
+    <div class="slbl">${t('currentStreak')}</div>
+    <div class="card" style="margin:0 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+        <div style="text-align:center;padding:10px 0 6px">
+          <div class="pg-fire" style="font-size:28px;line-height:1;margin-bottom:6px">🔥</div>
+          <div class="pg-streak-num" style="font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;line-height:1;color:var(--ac)">${S.streak||0}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-top:6px">${t('daysLbl')}</div>
+        </div>
+        <div style="text-align:center;padding:10px 0 6px;border-left:1px solid var(--bd)">
+          <div class="pg-trophy" style="font-size:28px;line-height:1;margin-bottom:6px">🏆</div>
+          <div class="pg-best-num" style="font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;line-height:1;color:var(--ac2)">${bestStreak}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-top:6px">${t('bestStreakLbl')}</div>
+        </div>
+      </div>
+      ${bestStreak>0?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">
+        <div class="barb"><div class="barf pg-streak-bar" style="width:${Math.min(100,bestStreak>0?Math.round((S.streak||0)/bestStreak*100):0)}%"></div></div>
+        <div style="text-align:right;font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--tx3);margin-top:5px">${S.streak||0} / ${bestStreak} ${t('daysLbl').toLowerCase()}</div>
+      </div>`:''}
+    </div>
+
+    <div class="slbl">${t('weeklyVolume')}</div>
     <div class="card" style="margin:0 20px">
       <canvas id="vc" height="80" style="width:100%;display:block"></canvas>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:6px">
-        ${['4w ago','3w ago','2w ago','This wk'].map(l=>`<div style="text-align:center;font-size:11px;color:var(--tx3)">${l}</div>`).join('')}
+        ${t('wkVolumeLabels').map(l=>`<div style="text-align:center;font-size:11px;color:var(--tx3)">${l}</div>`).join('')}
       </div>
     </div>
 
-    <div class="slbl">PERSONAL RECORDS <button class="btn bok bsm" onclick="OM('m-pr')">+ LOG PR</button></div>
+    <div class="slbl">${t('personalRecords')} <button class="btn bok bsm" onclick="OM('m-pr')">${t('logPRBtn')}</button></div>
     <div class="card" style="margin:0 20px">
       ${S.prs.length?`<table style="width:100%;border-collapse:collapse">
         <thead><tr>
-          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:left;padding-bottom:10px;border-bottom:1px solid var(--bd)">EXERCISE</th>
-          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:right;padding-bottom:10px;border-bottom:1px solid var(--bd)">PR</th>
-          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:right;padding-bottom:10px;border-bottom:1px solid var(--bd);padding-left:8px">GAIN</th>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:left;padding-bottom:10px;border-bottom:1px solid var(--bd)">${t('exCol')}</th>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:right;padding-bottom:10px;border-bottom:1px solid var(--bd)">${t('prCol')}</th>
+          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:right;padding-bottom:10px;border-bottom:1px solid var(--bd);padding-left:8px">${t('gainCol')}</th>
           <th style="padding-bottom:10px;border-bottom:1px solid var(--bd)"></th>
         </tr></thead>
         <tbody>${prRows}</tbody></table>`
-      :'<div style="padding:20px;text-align:center;color:var(--tx3)">No PRs yet — finish a workout or log one manually.</div>'}
+      :`<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noPRs')}</div>`}
     </div>
 
-    <div class="slbl">CARDIO</div>
+    <div class="slbl">${t('cardioTitle')}</div>
     ${cardioSessions.length?`
     <div class="card" style="margin:0 20px">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:${topCardio?'14px':'0'}">
         <div style="text-align:center">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--ok)">${fMin(cardioWeekMin)}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">This Week</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">${t('thisWeekCard')}</div>
         </div>
         <div style="text-align:center;border-left:1px solid var(--bd);border-right:1px solid var(--bd)">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--ac2)">${fMin(cardioMonthMin)}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">This Month</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">${t('thisMonth')}</div>
         </div>
         <div style="text-align:center">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px">${fMin(cardioTotalMin)}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">All Time</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">${t('allTime')}</div>
         </div>
       </div>
       ${topCardio?`<div style="border-top:1px solid var(--bd);padding-top:12px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase">Most done</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase">${t('mostDone')}</div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700">${topCardio[0]}</span>
           <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--ac);background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.2);border-radius:6px;padding:2px 8px">${topCardio[1]}×</span>
         </div>
       </div>`:''}
     </div>`
-    :'<div class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">No cardio sessions yet</div>'}
+    :`<div class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">${t('noCardioYet')}</div>`}
 
-    <div class="slbl">SESSION HISTORY</div>
+    <div class="slbl">${t('sessionHistory')}</div>
     <div class="card" style="margin:0 20px">
       ${S.hist.length?[...S.hist].slice(0,20).map(h=>`
-        <div class="hr">
+        <div class="hr" style="gap:8px">
           <div class="hico" style="background:rgba(255,61,0,.1)">${h.em}</div>
-          <div class="hinfo"><div class="hname">${h.name}</div><div class="hdate">${fdate(h.date)} · ${h.dur} min · ${h.sets} sets</div></div>
-          <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px">${h.cal}</div><div style="font-size:10px;color:var(--tx3)">kcal</div></div>
+          <div class="hinfo"><div class="hname">${h.name}</div><div class="hdate">${fdate(h.date)} · ${h.dur} ${t('minAbbr')} · ${h.sets} ${t('setsLbl')}</div></div>
+          <div style="text-align:right;flex-shrink:0"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px">${h.cal}</div><div style="font-size:10px;color:var(--tx3)">kcal</div></div>
+          <button onclick="deleteSession('${h.id}')" style="width:30px;height:30px;border-radius:50%;border:none;background:transparent;color:var(--tx3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .15s" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
         </div>`).join('')
-      :'<div style="padding:20px;text-align:center;color:var(--tx3)">No sessions yet</div>'}
+      :`<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noSessions')}</div>`}
     </div>
     <div style="height:16px"></div>
   </div>`;
@@ -1856,9 +2748,15 @@ function renderProg(){
 }
 
 function resetSessionHistory(){
-  if(!confirm('Ștergi tot istoricul sesiunilor? Acțiunea nu poate fi anulată.'))return;
+  if(!confirm(t('clearHistoryConfirm')))return;
   S.hist=[];S.streak=0;save();renderProg();
-  showToast('Istoric șters','ok');
+  showToast(t('sessionDeleted'),'ok');
+}
+function deleteSession(id){
+  if(!confirm(t('deleteSessionConfirm')))return;
+  S.hist=S.hist.filter(h=>h.id!==id);
+  save();renderProg();
+  showToast(t('sessionDeleted'),'ok');
 }
 function logBW(){
   const v=parseFloat(document.getElementById('bwi').value);
@@ -1873,7 +2771,7 @@ function savePR(){
   const w=parseFloat(document.getElementById('prwi').value);if(isNaN(w)||w<0){alert('Invalid weight.');return;}
   const r=parseInt(document.getElementById('prri').value)||1;
   const pr=S.prs.find(p=>p.ex===ex);
-  if(pr){if(w>pr.w){const pv=pr.w;pr.w=w;pr.r=r;pr.date=td();pr.prev=pv;}else{alert(`Current PR for ${ex} is ${pr.w}kg. Enter a higher value.`);return;}}
+  if(pr){if(w>pr.w){const pv=pr.w;pr.w=w;pr.r=r;pr.date=td();pr.prev=pv;}else{alert(t('prHigherAlert').replace('{ex}',ex).replace('{w}',pr.w));return;}}
   else{S.prs.push({ex,w,r,date:td(),prev:null});}
   save();CM('m-pr');renderProg();
 }
@@ -1937,7 +2835,7 @@ function drawBW(data){
     ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);
     ctx.strokeStyle='rgba(255,184,0,.4)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
     ctx.fillStyle='rgba(255,184,0,.8)';ctx.font='bold 10px Barlow Condensed,sans-serif';
-    ctx.textAlign='right';ctx.fillText('GOAL',W-4,gy-3);
+    ctx.textAlign='right';ctx.fillText(t('goalChart'),W-4,gy-3);
   }
 }
 function drawVol(data){
@@ -1964,54 +2862,52 @@ function renderProf(){
   const xp=u.xp||0,mxp=u.mxp||1000;
   const name=u.name||'Athlete';
   const initials=name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2)||'?';
-  const lvlNames=['','Iron','Bronze','Silver','Gold','Platinum','Diamond','Elite','Legend','Mythic'];
-
   document.getElementById('sc-profile').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
     <div style="padding:max(50px,calc(env(safe-area-inset-top)+20px)) 20px 20px;text-align:center;background:var(--sf);border-bottom:1px solid var(--bd)">
       <div onclick="openProf()" style="width:88px;height:88px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin:0 auto 14px;cursor:pointer;border:3px solid rgba(255,61,0,.5)">${initials}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;cursor:pointer" onclick="openProf()">${name}</div>
       <div style="font-size:13px;color:var(--tx2);margin-top:4px;cursor:pointer" onclick="openProf()">${u.prog||'My Program'} ✏️</div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap">
-        <span class="chip">🔥 ${S.streak||0} day streak</span>
-        <span class="chip">💪 ${totWk} workouts</span>
+        <span class="chip">🔥 ${S.streak||0} ${t('dayStreak')}</span>
+        <span class="chip">💪 ${totWk} ${t('workoutsLbl').toLowerCase()}</span>
         <span class="chip">🔥 ${totCal.toLocaleString()} kcal</span>
       </div>
     </div>
 
     <div style="margin:16px 20px">
       <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--tx2)">LEVEL ${u.lvl||1} · ${lvlNames[Math.min(u.lvl||1,9)]||'Mythic'}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--tx2)">${t('levelLbl')} ${u.lvl||1} · ${t('lvlNames')[Math.min(u.lvl||1,9)]||'Mythic'}</span>
         <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--ac)">${xp.toLocaleString()} / ${mxp.toLocaleString()} XP</span>
       </div>
       <div class="barb"><div class="barf" style="width:${Math.round(xp/mxp*100)}%"></div></div>
     </div>
 
-    <div class="slbl">MY GOALS <button class="btn bok bsm" onclick="OM('m-goals')">EDIT</button></div>
+    <div class="slbl">${t('myGoals')} <button class="btn bok bsm" onclick="OM('m-goals')">${t('editBtn')}</button></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 20px">
       <div class="gc" onclick="OM('m-goals')"><div style="font-size:22px;margin-bottom:6px">⚖️</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ac2)">${g.tw}</div>
-        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">TARGET KG</div>
+        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('targetKg')}</div>
       </div>
       <div class="gc" onclick="OM('m-goals')"><div style="font-size:22px;margin-bottom:6px">📅</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ac)">${g.dpw}</div>
-        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">DAYS / WEEK</div>
+        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('daysPerWeek')}</div>
       </div>
       <div class="gc" onclick="OM('m-goals')"><div style="font-size:22px;margin-bottom:6px">💧</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ok)">${g.bf}%</div>
-        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">BODY FAT</div>
+        <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('bodyFat')}</div>
       </div>
     </div>
 
-    <div class="slbl">SETTINGS</div>
+    <div class="slbl">${t('settingsTitle')}</div>
     <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r)">
-      ${sr('🔔','Workout Reminders','Daily at 7:00 AM','reminders',cfg.reminders)}
-      ${sr('📊','Auto-log Weight','Connect Health App','autoLog',cfg.autoLog)}
-      ${sr('🎵','Workout Music','Spotify integration','music',cfg.music)}
-      ${sr('⏱','Rest Timer Sound','Alert on completion','restSound',cfg.restSound)}
+      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1"><div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🔔</div><div><div style="font-size:15px;font-weight:500">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2)">${sub}</div></div></div><div style="display:flex;align-items:center;gap:10px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:10px;padding:8px 14px;color:${cfg.reminders?'var(--tx)':'var(--tx3)'};font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;min-width:72px">${tv}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
+      ${sr('📊',t('autoLog'),t('connectHealth'),'autoLog',cfg.autoLog)}
+      ${sr('🎵',t('workoutMusic'),t('spotifyInt'),'music',cfg.music)}
+      ${sr('⏱',t('restTimerSound'),t('alertCompletion'),'restSound',cfg.restSound)}
       <div class="srow">
         <div style="display:flex;align-items:center;gap:14px">
           <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">📏</div>
-          <div><div style="font-size:15px;font-weight:500">Units</div><div style="font-size:12px;color:var(--tx2)">Weight & distance</div></div>
+          <div><div style="font-size:15px;font-weight:500">${t('unitsLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('weightDistance')}</div></div>
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn bsm ${cfg.units==='kg'?'bp':'bg'}" style="width:50px" onclick="setU('kg')">KG</button>
@@ -2021,33 +2917,44 @@ function renderProf(){
       <div class="srow" style="cursor:pointer" onclick="manualStreak()">
         <div style="display:flex;align-items:center;gap:14px">
           <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,184,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🔥</div>
-          <div><div style="font-size:15px;font-weight:500">Current Streak</div><div style="font-size:12px;color:var(--tx2)">Tap to edit</div></div>
+          <div><div style="font-size:15px;font-weight:500">${t('currentStreak')}</div><div style="font-size:12px;color:var(--tx2)">${t('tapEdit')}</div></div>
         </div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--ac)">${S.streak||0} DAYS</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--ac)">${S.streak||0} ${t('daysLbl')}</div>
+      </div>
+      <div class="srow">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🌐</div>
+          <div><div style="font-size:15px;font-weight:500">${t('languageLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('languageSub')}</div></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bsm ${lang==='en'?'bp':'bg'}" style="min-width:42px" onclick="setLang('en')">EN</button>
+          <button class="btn bsm ${lang==='ro'?'bp':'bg'}" style="min-width:42px" onclick="setLang('ro')">RO</button>
+          <button class="btn bsm ${lang==='ru'?'bp':'bg'}" style="min-width:42px" onclick="setLang('ru')">RU</button>
+        </div>
       </div>
     </div>
 
-    <div class="slbl">ACHIEVEMENTS</div>
+    <div class="slbl">${t('achievementsTitle')}</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 20px">
-      ${ach('🏅','Century',totWk>=10,'10 sessions')}
-      ${ach('🔥','Streak 10',(S.streak||0)>=10,'10 day streak')}
-      ${ach('💀','Beast',prs.length>=4,'4+ PRs')}
-      ${ach('🥇','First PR',prs.length>=1,'Log a PR')}
+      ${ach('🏅',t('ach_century'),totWk>=10,'10 sessions')}
+      ${ach('🔥',t('ach_streak10'),(S.streak||0)>=10,'10 day streak')}
+      ${ach('💀',t('ach_beast'),prs.length>=4,'4+ PRs')}
+      ${ach('🥇',t('ach_firstPR'),prs.length>=1,'Log a PR')}
     </div>
 
     <div style="margin:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn bg" onclick="exportExcel()">📊 EXPORT EXCEL</button>
-      <button class="btn bg" onclick="document.getElementById('xl-import-input').value='';document.getElementById('xl-import-input').click()">📥 IMPORT EXCEL</button>
+      <button class="btn bg" onclick="exportExcel()">${t('exportExcel')}</button>
+      <button class="btn bg" onclick="document.getElementById('xl-import-input').value='';document.getElementById('xl-import-input').click()">${t('importExcel')}</button>
     </div>
     <div style="margin:0 20px 20px">
-      <button class="btn bd2" onclick="if(confirm('RESET ALL DATA? This cannot be undone.')){localStorage.removeItem(SK);initUserData();renderProf();renderHome();}">⚠️ RESET MY DATA</button>
+      <button class="btn bd2" onclick="if(confirm(t('resetConfirm'))){localStorage.removeItem(SK);initUserData();renderProf();renderHome();}">${t('resetData')}</button>
     </div>
     <div style="margin:0 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <button class="btn bg" onclick="showSwitchAccount()">🔄 SWITCH ACCOUNT</button>
-      <button class="btn bg" onclick="doLogout()">🚪 LOG OUT</button>
+      <button class="btn bg" onclick="showSwitchAccount()">${t('switchAccount')}</button>
+      <button class="btn bg" onclick="doLogout()">${t('logoutBtn')}</button>
     </div>
     <div style="margin:0 20px 30px">
-      <button class="btn bd2" style="font-size:11px" onclick="deleteAccount()">🗑 DELETE THIS ACCOUNT</button>
+      <button class="btn bd2" style="font-size:11px" onclick="deleteAccount()">${t('deleteAccount')}</button>
     </div>
   </div>`;
 }
@@ -2073,44 +2980,119 @@ function tglCfg(k,el){
   save();
   if(k==='reminders')handleRemindersToggle(S.cfg[k]);
   else if(k==='music')handleMusicToggle(S.cfg[k]);
-  else if(k==='autoLog')showToast(S.cfg[k]?'Auto-log activ — greutatea se va cere după workout ✓':'Auto-log dezactivat','info');
-  else if(k==='restSound')showToast(S.cfg[k]?'Sunet activat ✓':'Sunet dezactivat','info');
+  else if(k==='autoLog')showToast(S.cfg[k]?t('autoLogOn'):t('autoLogOff'),'info');
+  else if(k==='restSound')showToast(S.cfg[k]?t('soundOn'):t('soundOff'),'info');
 }
 
 // ── Workout Reminders ──
 async function handleRemindersToggle(on){
-  if(!on){clearTimeout(window._remTO);showToast('Remindere dezactivate','info');return;}
+  if(!on){clearTimeout(window._remTO);showToast(t('remindersOff'),'info');renderProf();return;}
   if(!('Notification' in window)){
-    showToast('Notificările nu sunt suportate de browser','err');
+    showToast(t('remindersNotSupported'),'err');
     S.cfg.reminders=false;save();renderProf();return;
   }
   const perm=Notification.permission==='granted'?'granted':await Notification.requestPermission();
   if(perm!=='granted'){
-    showToast('Permisiune refuzată — activează din setările browserului','err');
+    showToast(t('remindersNoPermission'),'err');
     S.cfg.reminders=false;save();renderProf();return;
   }
   scheduleReminder();
-  showToast('Reminder zilnic la 7:00 AM activat 🔔','ok');
+  showToast(t('remindersScheduled').replace('{time}',fmtReminderTime()),'ok');
+  renderProf();
 }
 function scheduleReminder(){
   if(!S.cfg?.reminders||Notification.permission!=='granted')return;
+  const rh=S.cfg?.reminderHour??7,rm=S.cfg?.reminderMin??0;
   const now=new Date(),next=new Date();
-  next.setHours(7,0,0,0);
+  next.setHours(rh,rm,0,0);
   if(next<=now)next.setDate(next.getDate()+1);
   clearTimeout(window._remTO);
   window._remTO=setTimeout(()=>{
-    new Notification('IRONMEN 💪',{body:'Zi bună pentru antrenament! Workout-ul te așteaptă.',icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2228%22 font-size=%2228%22>💪</text></svg>'});
+    new Notification('IRONMEN 💪',{body:t('remindersNotifBody'),icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2228%22 font-size=%2228%22>💪</text></svg>'});
     scheduleReminder();
   },next-now);
 }
 
+function openTimePicker(){
+  const h=S.cfg?.reminderHour??7,m=S.cfg?.reminderMin??0;
+  window._tpH=h;window._tpM=m;
+  const titles={en:'Set Reminder Time',ro:'Setează ora',ru:'Время напоминания'};
+  const saveLbls={en:'SET REMINDER',ro:'SETEAZĂ',ru:'СОХРАНИТЬ'};
+  const presets=['06:00','07:00','08:00','09:00','12:00','18:00','20:00','22:00'];
+  const modal=document.createElement('div');
+  modal.className='modal open';modal.style.zIndex=400;
+  modal.innerHTML=`<div class="mbox" style="padding-bottom:max(32px,env(safe-area-inset-bottom))">
+    <div class="mtop"><div class="mtitle">${titles[lang]||titles.en}</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:28px 0 24px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <button id="tp-hu" ontouchstart="_tpStartRepeat('h',1,this)" ontouchend="_tpStopRepeat()" onmousedown="_tpStartRepeat('h',1,this)" onmouseup="_tpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:14px 14px 0 0;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-bottom:1px solid var(--bd)">▲</button>
+        <div id="tp-h" style="width:80px;height:80px;background:var(--sf3);border-left:1px solid var(--bd);border-right:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:58px;letter-spacing:2px;color:var(--ac);line-height:1;-webkit-user-select:none;user-select:none">${String(h).padStart(2,'0')}</div>
+        <button id="tp-hd" ontouchstart="_tpStartRepeat('h',-1,this)" ontouchend="_tpStopRepeat()" onmousedown="_tpStartRepeat('h',-1,this)" onmouseup="_tpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:0 0 14px 14px;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-top:1px solid var(--bd)">▼</button>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:58px;color:var(--tx3);line-height:1;padding-bottom:8px;-webkit-user-select:none;user-select:none">:</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <button id="tp-mu" ontouchstart="_tpStartRepeat('m',5,this)" ontouchend="_tpStopRepeat()" onmousedown="_tpStartRepeat('m',5,this)" onmouseup="_tpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:14px 14px 0 0;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-bottom:1px solid var(--bd)">▲</button>
+        <div id="tp-m" style="width:80px;height:80px;background:var(--sf3);border-left:1px solid var(--bd);border-right:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:58px;letter-spacing:2px;color:var(--ac);line-height:1;-webkit-user-select:none;user-select:none">${String(m).padStart(2,'0')}</div>
+        <button id="tp-md" ontouchstart="_tpStartRepeat('m',-5,this)" ontouchend="_tpStopRepeat()" onmousedown="_tpStartRepeat('m',-5,this)" onmouseup="_tpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:0 0 14px 14px;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-top:1px solid var(--bd)">▼</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:22px">
+      ${presets.map(p=>`<button onclick="_tpPreset('${p}')" style="padding:7px 13px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .12s" onmouseenter="this.style.borderColor='var(--ac)';this.style.color='var(--tx)'" onmouseleave="this.style.borderColor='var(--bd)';this.style.color='var(--tx2)'">${p}</button>`).join('')}
+    </div>
+    <button class="btn bp" onclick="_tpSave()">${saveLbls[lang]||saveLbls.en}</button>
+  </div>`;
+  window._tpModal=modal;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+}
+window._tpRepTimer=null;
+window._tpRepInterval=null;
+window._tpAdj=function(field,dir){
+  if(field==='h'){window._tpH=(window._tpH+dir+24)%24;const el=document.getElementById('tp-h');if(el)el.textContent=String(window._tpH).padStart(2,'0');}
+  else{window._tpM=(window._tpM+dir+60)%60;const el=document.getElementById('tp-m');if(el)el.textContent=String(window._tpM).padStart(2,'0');}
+};
+window._tpStartRepeat=function(field,dir,btn){
+  window._tpAdj(field,dir);
+  if(btn)btn.style.background='var(--sf3)';
+  clearTimeout(window._tpRepTimer);clearInterval(window._tpRepInterval);
+  window._tpRepTimer=setTimeout(()=>{window._tpRepInterval=setInterval(()=>window._tpAdj(field,dir),120);},400);
+};
+window._tpStopRepeat=function(){
+  clearTimeout(window._tpRepTimer);clearInterval(window._tpRepInterval);
+  ['tp-hu','tp-hd','tp-mu','tp-md'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background='var(--sf2)';});
+};
+window._tpPreset=function(val){
+  const parts=val.split(':');
+  window._tpH=parseInt(parts[0]);window._tpM=parseInt(parts[1]);
+  const eh=document.getElementById('tp-h'),em=document.getElementById('tp-m');
+  if(eh)eh.textContent=String(window._tpH).padStart(2,'0');
+  if(em)em.textContent=String(window._tpM).padStart(2,'0');
+};
+window._tpSave=function(){
+  setReminderTime(String(window._tpH).padStart(2,'0')+':'+String(window._tpM).padStart(2,'0'));
+  if(window._tpModal)window._tpModal.remove();
+};
+
+function fmtReminderTime(){
+  const h=S.cfg?.reminderHour??7,m=S.cfg?.reminderMin??0;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+function setReminderTime(val){
+  const parts=(val||'07:00').split(':');
+  S.cfg.reminderHour=parseInt(parts[0])||0;
+  S.cfg.reminderMin=parseInt(parts[1])||0;
+  save();
+  renderProf();
+  if(S.cfg.reminders&&Notification.permission==='granted')scheduleReminder();
+}
+
 // ── Workout Music ──
 function handleMusicToggle(on){
-  if(!on){showToast('Muzică dezactivată','info');return;}
-  if(confirm('Deschid Spotify?')){
+  if(!on){showToast(t('musicOff'),'info');return;}
+  if(confirm(t('musicConfirm'))){
     window.open('https://open.spotify.com','_blank');
   }
-  showToast('Pornește muzica și revino la antrenament 🎵','ok');
+  showToast(t('musicStart'),'ok');
 }
 function setU(u){S.cfg.units=u;save();renderProf();}
 function openProf(){OM('m-prof');}
@@ -2118,7 +3100,7 @@ async function saveProf(){
   const n=document.getElementById('pni').value.trim();if(!n){alert('Enter your name.');return;}
   S.user.name=n;S.user.prog=document.getElementById('ppi').value.trim()||S.user.prog;
   await saveNow();CM('m-prof');renderProf();renderHome();
-  showToast('Profil salvat ✓','ok');
+  showToast(t('profileSaved'),'ok');
 }
 function saveGoals(){
   S.goals.tw=parseFloat(document.getElementById('gtw').value)||S.goals.tw;
@@ -2127,18 +3109,18 @@ function saveGoals(){
   save();CM('m-goals');renderProf();
 }
 function manualStreak(){
-  showQuickModal('EDIT STREAK',
-    `<div class="frow"><div class="flbl">Current Streak (days)</div><input class="inp" id="msi" type="number" min="0" max="3650" value="${S.streak||0}" style="font-family:'Bebas Neue',sans-serif;font-size:30px;text-align:center"></div>`,
-    ()=>{const v=parseInt(document.getElementById('msi').value);if(!isNaN(v)&&v>=0){S.streak=v;save();renderProf();}},'SAVE'
+  showQuickModal(t('editStreak'),
+    `<div class="frow"><div class="flbl">${t('streakDays')}</div><input class="inp" id="msi" type="number" min="0" max="3650" value="${S.streak||0}" style="font-family:'Bebas Neue',sans-serif;font-size:30px;text-align:center"></div>`,
+    ()=>{const v=parseInt(document.getElementById('msi').value);if(!isNaN(v)&&v>=0){S.streak=v;save();renderProf();}},t('saveBtn')
   );
 }
 async function exportExcel(){
   try{
     // Check ExcelJS is loaded
     if(typeof ExcelJS==='undefined'){
-      showToast('Se încarcă biblioteca Excel…','info');
+      showToast(t('loadingExcelLib'),'info');
       await new Promise(r=>setTimeout(r,2000));
-      if(typeof ExcelJS==='undefined'){showToast('Eroare: biblioteca Excel nu s-a încărcat','err');return;}
+      if(typeof ExcelJS==='undefined'){showToast(t('exLoadErr'),'err');return;}
     }
 
     const wb=new ExcelJS.Workbook();
@@ -2296,11 +3278,11 @@ async function exportExcel(){
     const a=document.createElement('a');a.href=url;a.download='ironmen-data.xlsx';
     document.body.appendChild(a);a.click();
     document.body.removeChild(a);URL.revokeObjectURL(url);
-    showToast('Export reușit ✓','ok');
+    showToast(t('exportOk'),'ok');
 
   }catch(err){
     console.error('Export error:',err);
-    showToast('Eroare export: '+err.message,'err');
+    showToast(t('exportErr')+err.message,'err');
   }
 }
 
@@ -2318,18 +3300,18 @@ function handleImportFile(input){
         if(rows[1]&&rows[1][0]){
           const parsed=JSON.parse(rows[1][0]);
           if(parsed&&parsed.user&&parsed.workouts){
-            if(confirm('Datele vor fi restaurate din fișierul Excel.\nVrei să continui?')){
+            if(confirm(t('importConfirm'))){
               S=parsed;save();
-              alert('✅ Date importate cu succes!');
+              alert('✅ '+t('importOk'));
               renderProf();renderHome();
             }
             return;
           }
         }
       }
-      alert('❌ Fișierul Excel nu este valid sau nu a fost exportat din IRONMEN.');
+      alert('❌ '+t('importInvalid'));
     }catch(err){
-      alert('❌ Eroare la import: '+err.message);
+      alert('❌ '+t('importErr')+err.message);
     }
   };
   reader.readAsArrayBuffer(file);

@@ -91,6 +91,7 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
     inset 0 -1px 0 rgba(0,0,0,0.20);
   display:flex;justify-content:space-around;align-items:center;
   z-index:40;padding:0 6px;
+  overflow:hidden;
 }
 .nb{
   display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -103,8 +104,6 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
 .nb:active{transform:scale(.88);opacity:.8}
 .nb.active{
   color:var(--ac);
-  background:rgba(255,61,0,0.13);
-  box-shadow:inset 0 0 0 1px rgba(255,61,0,0.18);
 }
 .nb svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nb.active svg{stroke-width:2.2}
@@ -342,18 +341,91 @@ button{-webkit-user-select:none;user-select:none}
 /* ── 6. Nav icon bounce on activate ── */
 .nb svg{
   animation:none;
-  transition:stroke .15s;
+  transition:stroke .2s,color .2s;
 }
 .nb.active svg{
   animation:imNavBounce .38s cubic-bezier(.34,1.56,.64,1) both;
 }
-/* Liquid glass active pill fade-in */
-@keyframes imNavPillIn{
-  from{opacity:0;transform:scale(.7)}
-  to{opacity:1;transform:scale(1)}
+
+/* ── Liquid Glass Pill ── */
+#nav-pill{
+  position:absolute;
+  pointer-events:none;
+  border-radius:22px;
+  opacity:0;
+  will-change:left,width,transform;
+  /* Spring transitions */
+  transition:
+    left .52s cubic-bezier(.34,1.32,.64,1),
+    width .52s cubic-bezier(.34,1.32,.64,1),
+    top .52s cubic-bezier(.34,1.32,.64,1),
+    height .52s cubic-bezier(.34,1.32,.64,1),
+    opacity .18s ease;
+  /* Warm glass fill */
+  background:linear-gradient(
+    158deg,
+    rgba(255,160,100,.20) 0%,
+    rgba(255,80,20,.14) 55%,
+    rgba(180,40,0,.10) 100%
+  );
+  box-shadow:
+    /* Specular top edge */
+    inset 0 1.5px 0 rgba(255,255,255,.40),
+    /* Bottom shadow edge */
+    inset 0 -1px 0 rgba(0,0,0,.18),
+    /* Side micro-highlights */
+    inset 1px 0 0 rgba(255,255,255,.12),
+    inset -1px 0 0 rgba(255,255,255,.12),
+    /* Outer border glow */
+    0 0 0 1px rgba(255,90,30,.28),
+    /* Warm ambient glow */
+    0 3px 18px rgba(255,61,0,.20),
+    0 1px 4px rgba(0,0,0,.25);
 }
+/* Specular shimmer — top half gloss */
+#nav-pill::before{
+  content:'';
+  position:absolute;
+  left:4px;right:4px;top:0;height:50%;
+  border-radius:22px 22px 60% 60%;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.26) 0%,
+    rgba(255,255,255,.04) 100%
+  );
+  pointer-events:none;
+}
+/* Inner warm reflection */
+#nav-pill::after{
+  content:'';
+  position:absolute;
+  inset:2px;
+  border-radius:20px;
+  background:linear-gradient(
+    135deg,
+    rgba(255,200,160,.10) 0%,
+    transparent 55%
+  );
+  pointer-events:none;
+}
+/* .nb.active — only color, pill handles bg */
 .nb.active{
-  animation:imNavPillIn .22s cubic-bezier(.34,1.4,.64,1) both;
+  color:var(--ac);
+  background:none !important;
+  box-shadow:none !important;
+  animation:none;
+}
+.nb.active span{
+  color:var(--ac);
+  text-shadow:0 0 12px rgba(255,61,0,.45);
+}
+/* Animate icon color + label on activation */
+@keyframes imNavLabelIn{
+  from{opacity:0;transform:translateY(3px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.nb.active span{
+  animation:imNavLabelIn .28s cubic-bezier(.34,1.4,.64,1) both;
 }
 
 /* ── 7. Set done checkmark bounce ── */
@@ -671,6 +743,7 @@ button{-webkit-user-select:none;user-select:none}
 <div id="sc-active" class="fullscreen"></div>
 
 <nav class="nav" id="main-nav" style="display:none">
+  <div id="nav-pill" aria-hidden="true"></div>
   <button class="nb active" id="nb-home" onclick="go('home')">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
   </button>
@@ -4251,6 +4324,66 @@ function checkNameDefault(){
 
 // ═══════════ NAV ═══════════
 let curSc='home',activeWid=null;
+
+/* ── Liquid Glass Pill ── */
+let _pillSc='home',_pillReady=false;
+function moveNavPill(sc,instant){
+  const pill=document.getElementById('nav-pill');
+  const btn=document.getElementById('nb-'+sc);
+  const nav=document.getElementById('main-nav');
+  if(!pill||!btn||!nav)return;
+
+  const bR=btn.getBoundingClientRect();
+  const nR=nav.getBoundingClientRect();
+  const targetL=bR.left-nR.left;
+  const targetW=bR.width;
+  const targetT=bR.top-nR.top;
+  const targetH=bR.height;
+
+  // First time: skip transition entirely
+  if(instant||!_pillReady){
+    pill.style.transition='none';
+    pill.style.left=targetL+'px';
+    pill.style.width=targetW+'px';
+    pill.style.top=targetT+'px';
+    pill.style.height=targetH+'px';
+    pill.style.opacity='1';
+    requestAnimationFrame(()=>{ pill.style.transition=''; });
+    _pillSc=sc;_pillReady=true;
+    return;
+  }
+
+  // Stretch morph: pill expands toward destination then snaps
+  const prevBtn=document.getElementById('nb-'+_pillSc);
+  if(prevBtn&&sc!==_pillSc){
+    const pR=prevBtn.getBoundingClientRect();
+    const prevL=pR.left-nR.left;
+    const movingRight=targetL>prevL;
+    const stretchL=movingRight?prevL:targetL;
+    const stretchW=(movingRight?(targetL+targetW):(prevL+pR.width))-stretchL;
+
+    // Phase 1: stretch (instant-ish, 60ms)
+    pill.style.transition='left 60ms linear,width 60ms linear,top .52s cubic-bezier(.34,1.32,.64,1),height .52s cubic-bezier(.34,1.32,.64,1)';
+    pill.style.left=stretchL+'px';
+    pill.style.width=stretchW+'px';
+
+    // Phase 2: snap to target with spring
+    setTimeout(()=>{
+      pill.style.transition='';
+      pill.style.left=targetL+'px';
+      pill.style.width=targetW+'px';
+      pill.style.top=targetT+'px';
+      pill.style.height=targetH+'px';
+    },55);
+  } else {
+    pill.style.left=targetL+'px';
+    pill.style.width=targetW+'px';
+    pill.style.top=targetT+'px';
+    pill.style.height=targetH+'px';
+  }
+  _pillSc=sc;
+}
+
 function go(sc){
   const fromFullscreen=curSc==='active'||curSc==='wkd';
   curSc=sc;
@@ -4259,6 +4392,7 @@ function go(sc){
   const nb=document.getElementById('nb-'+sc);if(nb)nb.classList.add('active');
   const el=document.getElementById('sc-'+sc);if(el)el.classList.add('active');
   document.getElementById('main-nav').style.display='flex';
+  moveNavPill(sc);
   // Daca venim dintr-un fullscreen, dam un tick suplimentar pentru layout
   const delay=fromFullscreen?50:0;
   if(sc==='home')setTimeout(()=>renderHome(),delay);

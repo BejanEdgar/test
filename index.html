@@ -41,7 +41,7 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
 .fullscreen{display:none;flex-direction:column;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:50;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
 .fullscreen.active{display:flex}
 ::-webkit-scrollbar{width:0;height:0}
-.top-bar{padding:max(48px,calc(var(--sat) + 14px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;background:var(--bg)}
+.top-bar{padding:max(56px,calc(var(--sat) + 18px)) 20px 14px;display:flex;justify-content:space-between;align-items:flex-end;background:var(--bg)}
 .top-bar h1{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1.5px;line-height:1}
 .slbl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--tx3);margin:20px 20px 10px;display:flex;justify-content:space-between;align-items:center}
 .card{background:var(--sf);border-radius:var(--r);border:1px solid var(--bd);padding:16px}
@@ -167,6 +167,18 @@ select.inp{cursor:pointer}option{background:#1a1a1a}
 .set-del-mini:active{background:rgba(255,45,85,.18);color:var(--err)}
 /* ── Prevent text selection on buttons ── */
 button{-webkit-user-select:none;user-select:none}
+/* ── WKD: bottom-sheet modal (like showAllEx) ── */
+#sc-wkd{
+  top:0;
+  background:rgba(0,0,0,.82);
+  overflow:hidden;
+  justify-content:flex-end;
+  align-items:stretch;
+}
+/* ── Active workout: start below status bar ── */
+#sc-active{
+  top:env(safe-area-inset-top);
+}
 /* ── iOS keyboard-aware scrolling ── */
 @supports(padding:max(0px)){
   .mbox{padding-bottom:max(24px,env(safe-area-inset-bottom));}
@@ -260,8 +272,12 @@ button{-webkit-user-select:none;user-select:none}
 .screen.active{
   animation:imFadeSlideUp .22s cubic-bezier(.25,.8,.25,1) both;
 }
-/* Fullscreen panels (WKD, Active): slide in from right */
-#sc-wkd.active,#sc-active.active{
+/* WKD: overlay fades in (inner card animates via inline style) */
+#sc-wkd.active{
+  animation:imBackdropFade .25s ease-out both;
+}
+/* Active workout: slide in from right */
+#sc-active.active{
   animation:imSlideInRight .26s cubic-bezier(.25,.8,.25,1) both;
 }
 
@@ -466,8 +482,11 @@ button{-webkit-user-select:none;user-select:none}
   100%{opacity:1;transform:scale(1)}
 }
 
-/* ── Hidden state before entering viewport ── */
-[data-pg-reveal]:not(.pg-anim){opacity:0}
+/* ── Hidden state before entering / after leaving viewport ── */
+[data-pg-reveal]:not(.pg-anim){
+  opacity:0;
+  transition:opacity .18s ease-out, transform .18s ease-out;
+}
 
 /* ── Reveal animations by type ── */
 [data-pg-reveal="top"].pg-anim{
@@ -511,6 +530,25 @@ button{-webkit-user-select:none;user-select:none}
 [data-pg-reveal="card"].pg-anim .pg-streak-bar{
   animation:imBarGrow .7s cubic-bezier(.25,.8,.25,1) .36s both;
   transform-origin:left;
+}
+
+/* ── Cardio ring fill animation ── */
+@keyframes imRingFill{
+  from{stroke-dasharray:0 202}
+  to{stroke-dasharray:var(--rd,0) 202}
+}
+.pg-ring-fill{stroke-dasharray:0 202}
+[data-pg-reveal="card"].pg-anim .pg-ring-fill{
+  animation:imRingFill .9s cubic-bezier(.25,.8,.25,1) .15s both;
+}
+/* ── Cardio day bars grow-up animation ── */
+@keyframes imBarUp{
+  from{height:0}
+  to{height:var(--bh,0)}
+}
+.pg-cardio-bar{height:0;flex-shrink:0}
+[data-pg-reveal="card"].pg-anim .pg-cardio-bar{
+  animation:imBarUp .55s cubic-bezier(.34,1.1,.64,1) var(--bdelay,.05s) both;
 }
 
 /* ── PR Pie chart — fire when card enters viewport ── */
@@ -2157,32 +2195,38 @@ function renderWKD(id){
   :`<div style="padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:12px">🏋️</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">${t('noExercisesYet').toUpperCase()}</div><button class="btn bp" onclick="openAddEx('${id}')">+ ${t('addBtn')}</button></div>`;
 
   document.getElementById('sc-wkd').innerHTML=`
-    <div style="background:var(--sf);border-bottom:1px solid var(--bd);padding:max(48px,calc(env(safe-area-inset-top)+14px)) 16px 16px;position:sticky;top:0;z-index:10">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-        <button class="bbtn" onclick="go('library')">‹</button>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:24px;margin-bottom:2px">${w.em}</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.name}</div>
+    <div style="flex:1" onclick="go('library')"></div>
+    <div style="background:var(--sf);border-radius:20px 20px 0 0;border:1px solid var(--bd);border-bottom:none;width:100%;max-height:95dvh;display:flex;flex-direction:column;overflow:hidden;animation:imModalSlideUp .3s cubic-bezier(.34,1.08,.64,1) both">
+      <div style="padding:20px 20px 0;flex-shrink:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <button class="cbtn" onclick="go('library')">‹</button>
+          <div style="display:flex;gap:8px">
+            <button class="cbtn" onclick="openAddWk('${id}')">✏️</button>
+            <button class="cbtn" onclick="delWk('${id}')" style="color:var(--err)">🗑</button>
+          </div>
         </div>
-        <button class="bico" onclick="openAddWk('${id}')" title="Edit">✏️</button>
-        <button class="bico" onclick="delWk('${id}')" title="Delete" style="color:var(--err)">🗑</button>
+        <div style="margin-bottom:12px">
+          <div style="font-size:20px;line-height:1;margin-bottom:5px">${w.em}</div>
+          <div class="mtitle" style="line-height:1">${w.name}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <span class="chip">⏱ ${w.dur} ${t('minAbbr')}</span><span class="chip">🔥 ${w.cal} kcal</span>
+          <span class="chip">💪 ${w.exs.length} ${t('exercisesLbl').toLowerCase()}</span>
+          ${isToday?`<span class="pill pok">${t('todayBadge')}</span>`:''}
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <button class="btn bp" onclick="startActive('${id}')" style="flex:2">▶ START</button>
+          ${!isToday?`<button class="btn bg bsm" style="flex:1;padding:13px" onclick="S.todayWk='${id}';save();go('home')">${t('todayBadge')}</button>`:''}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div class="slbl" style="margin:0">${t('exercisesLbl')} (${w.exs.length})</div>
+          <button class="btn bok bsm" onclick="openAddEx('${id}')">+ ${t('addBtn')}</button>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <span class="chip">⏱ ${w.dur} ${t('minAbbr')}</span><span class="chip">🔥 ${w.cal} kcal</span>
-        <span class="chip">💪 ${w.exs.length} ${t('exercisesLbl').toLowerCase()}</span>
-        ${isToday?`<span class="pill pok">${t('todayBadge')}</span>`:''}
+      <div style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:8px 20px;padding-bottom:max(24px,env(safe-area-inset-bottom))">
+        ${exsH}
       </div>
-    </div>
-    <div style="padding:12px 16px;display:flex;gap:10px">
-      <button class="btn bp" onclick="startActive('${id}')" style="flex:2">▶ START</button>
-      ${!isToday?`<button class="btn bg bsm" style="flex:1;padding:13px" onclick="S.todayWk='${id}';save();go('home')">${t('todayBadge')}</button>`:''}
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:12px">
-      <div class="slbl" style="margin:0">${t('exercisesLbl')} (${w.exs.length})</div>
-      <button class="btn bok bsm" onclick="openAddEx('${id}')">+ ${t('addBtn')}</button>
-    </div>
-    <div style="padding:0 16px">${exsH}</div>
-    <div style="height:16px"></div>`;
+    </div>`;
   initExDrag(id);
 }
 
@@ -2379,7 +2423,7 @@ function buildActive(id){
   wkT=setInterval(()=>{const el=document.getElementById('wk-el');if(el){const s=Math.floor((Date.now()-wkSt)/1e3);el.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}},1e3);
 
   document.getElementById('sc-active').innerHTML=`
-    <div style="background:var(--sf);padding:max(48px,calc(env(safe-area-inset-top)+14px)) 16px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10">
+    <div style="background:var(--sf);padding:18px 16px 14px;border-radius:16px 16px 0 0;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10">
       <button class="bbtn" onclick="exitActive()">✕</button>
       <div style="flex:1"><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px">${w.name}</div>
       <div style="font-size:12px;color:var(--tx2)">${w.desc}</div></div>
@@ -2658,6 +2702,72 @@ function buildPRPie(prs){
   </div>`;
 }
 
+// ═══════════ CARDIO CHART BUILDER ═══════════
+function buildCardioCard(cardioWeekMin,cardioMonthMin,cardioTotalMin,cardioSessions,topCardio){
+  function fMin(m){if(m<=0)return '0m';return m>=60?Math.floor(m/60)+'h'+(m%60>0?' '+(m%60)+'m':''):m+'m';}
+  const circ=2*Math.PI*32; // r=32 → circ≈201.06
+
+  function ring(min,color,labelKey){
+    const pct=cardioTotalMin>0?Math.min(min/cardioTotalMin,1):0;
+    const dash=(pct*circ).toFixed(2);
+    const off=(circ/4).toFixed(2); // start from top
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+      <svg viewBox="0 0 80 80" width="76" height="76" style="overflow:visible">
+        <circle cx="40" cy="40" r="32" fill="none" stroke="var(--sf3)" stroke-width="7"/>
+        <circle class="pg-ring-fill" cx="40" cy="40" r="32" fill="none"
+          stroke="${color}" stroke-width="7" stroke-linecap="round"
+          style="--rd:${dash};stroke-dashoffset:${off}"/>
+        <text x="40" y="37" text-anchor="middle" font-family="Bebas Neue,sans-serif"
+          font-size="12" fill="var(--tx)" letter-spacing=".5">${fMin(min)}</text>
+        <text x="40" y="50" text-anchor="middle" font-family="Barlow Condensed,sans-serif"
+          font-size="7" fill="var(--tx3)" letter-spacing="1" text-transform="uppercase">${t(labelKey).toUpperCase()}</text>
+      </svg>
+    </div>`;
+  }
+
+  // Last 7 days — use browser locale from language setting
+  const localeMap={en:'en-US',ro:'ro-RO',ru:'ru-RU'};
+  const loc=localeMap[(S.cfg&&S.cfg.lang)||'en']||'en-US';
+  const last7=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const mins=cardioSessions.filter(h=>h.date===ds).reduce((a,h)=>a+h.dur,0);
+    const lbl=d.toLocaleDateString(loc,{weekday:'narrow'});
+    last7.push({mins,lbl,today:i===0});
+  }
+  const maxD=Math.max(...last7.map(d=>d.mins),1);
+
+  const bars=last7.map((d,i)=>{
+    const px=d.mins>0?Math.max(Math.round(d.mins/maxD*46),5):0;
+    const delay=`${(.04+i*.055).toFixed(3)}s`;
+    const col=d.today?'var(--ok)':'rgba(0,201,106,0.32)';
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:0">
+      <div style="width:100%;height:46px;display:flex;align-items:flex-end;border-radius:4px;overflow:hidden">
+        <div class="pg-cardio-bar" style="--bh:${px}px;--bdelay:${delay};width:100%;background:${col};border-radius:3px 3px 2px 2px"></div>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:.5px;font-weight:700;color:${d.today?'var(--tx)':'var(--tx3)'}">${d.lbl}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:16px">
+      ${ring(cardioWeekMin,'var(--ok)','thisWeekCard')}
+      ${ring(cardioMonthMin,'var(--ac2)','thisMonth')}
+      ${ring(cardioTotalMin,'var(--ac)','allTime')}
+    </div>
+    <div style="border-top:1px solid var(--bd);padding-top:14px">
+      <div style="display:flex;gap:3px;align-items:flex-end">${bars}</div>
+    </div>
+    ${topCardio?`<div style="margin-top:13px;padding-top:12px;border-top:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase">${t('mostDone')}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${topCardio[0]}</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--ac);background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.2);border-radius:6px;padding:2px 8px">${topCardio[1]}×</span>
+      </div>
+    </div>`:''}`;
+}
+
 // ═══════════ PROGRESS ═══════════
 function renderProg(){
   try{
@@ -2704,7 +2814,6 @@ function renderProg(){
   const exCount={};
   cardioSessions.forEach(h=>{const wk=S.workouts.find(w=>w.id===h.wid);if(wk)wk.exs.filter(e=>e.m==='Cardio').forEach(e=>{exCount[e.n]=(exCount[e.n]||0)+1;});});
   const topCardio=Object.entries(exCount).sort((a,b)=>b[1]-a[1])[0];
-  function fMin(m){return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m';}
 
   const prRows=null; // table removed — pie chart only
 
@@ -2777,27 +2886,7 @@ function renderProg(){
     <div data-pg-reveal="label" class="slbl">${t('cardioTitle')}</div>
     ${cardioSessions.length?`
     <div data-pg-reveal="card" class="card" style="margin:0 20px">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:${topCardio?'14px':'0'}">
-        <div style="text-align:center">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--ok)">${fMin(cardioWeekMin)}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">${t('thisWeekCard')}</div>
-        </div>
-        <div style="text-align:center;border-left:1px solid var(--bd);border-right:1px solid var(--bd)">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--ac2)">${fMin(cardioMonthMin)}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">${t('thisMonth')}</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px">${fMin(cardioTotalMin)}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);text-transform:uppercase;margin-top:3px">${t('allTime')}</div>
-        </div>
-      </div>
-      ${topCardio?`<div style="border-top:1px solid var(--bd);padding-top:12px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase">${t('mostDone')}</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700">${topCardio[0]}</span>
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--ac);background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.2);border-radius:6px;padding:2px 8px">${topCardio[1]}×</span>
-        </div>
-      </div>`:''}
+      ${buildCardioCard(cardioWeekMin,cardioMonthMin,cardioTotalMin,cardioSessions,topCardio)}
     </div>`
     :`<div data-pg-reveal="card" class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">${t('noCardioYet')}</div>`}
 
@@ -2831,24 +2920,28 @@ function renderProg(){
   }
 }
 
-// ── Scroll-reveal for Progress screen ──
+// ── Scroll-reveal for Progress screen (bi-directional) ──
 function initProgReveal(){
   const sc=document.querySelector('#sc-progress>div');
   if(!sc)return;
-  // Double rAF garanteaza ca layout-ul e complet calculat inainte de IO
+  if(window._pgIO){try{window._pgIO.disconnect();}catch(_){}}
   requestAnimationFrame(()=>{requestAnimationFrame(()=>{
     const items=sc.querySelectorAll('[data-pg-reveal]');
     const scRect=sc.getBoundingClientRect();
-    // Fallback: daca root e 0 inaltime (layout nefinalizat) → facem totul vizibil imediat
     if(scRect.height===0){items.forEach(el=>el.classList.add('pg-anim'));return;}
-    const io=new IntersectionObserver(entries=>{
+    window._pgIO=new IntersectionObserver(entries=>{
       entries.forEach(e=>{
-        if(e.isIntersecting){e.target.classList.add('pg-anim');io.unobserve(e.target);}
+        if(e.isIntersecting){
+          e.target.classList.remove('pg-anim');
+          void e.target.offsetWidth;
+          e.target.classList.add('pg-anim');
+        }else{
+          e.target.classList.remove('pg-anim');
+        }
       });
-    },{root:sc,threshold:0.05,rootMargin:'0px 0px -10px 0px'});
-    items.forEach(el=>io.observe(el));
-    // Fallback final: dupa 600ms, orice element neanimat devine vizibil
-    setTimeout(()=>{items.forEach(el=>{if(!el.classList.contains('pg-anim'))el.classList.add('pg-anim');});},600);
+    },{root:sc,threshold:0.08,rootMargin:'0px 0px -20px 0px'});
+    items.forEach(el=>window._pgIO.observe(el));
+    setTimeout(()=>{items.forEach(el=>{if(!el.classList.contains('pg-anim'))el.classList.add('pg-anim');});},700);
   });});
 }
 
@@ -3034,7 +3127,7 @@ function renderProf(){
 
     <div class="slbl">${t('settingsTitle')}</div>
     <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r)">
-      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'Задать'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1"><div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🔔</div><div><div style="font-size:15px;font-weight:500">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2)">${sub}</div></div></div><div style="display:flex;align-items:center;gap:10px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 12px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
+      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'Задать'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0"><div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔔</div><div style="min-width:0"><div style="font-size:15px;font-weight:500">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2)">${sub}</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 10px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
       ${sr('📊',t('autoLog'),t('connectHealth'),'autoLog',cfg.autoLog)}
       ${sr('🎵',t('workoutMusic'),t('spotifyInt'),'music',cfg.music)}
       ${sr('⏱',t('restTimerSound'),t('alertCompletion'),'restSound',cfg.restSound)}

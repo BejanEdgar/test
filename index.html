@@ -6064,22 +6064,32 @@ let _spPoll=null;
 let _spTrack=null;
 
 function spCid(){return localStorage.getItem('sp_client_id')||'';}
-function spRedirect(){return window.location.href.split('#')[0].split('?')[0];}
+function spCustomRedirect(){return localStorage.getItem('sp_redirect_uri')||'';}
+function spRedirect(){
+  const custom=spCustomRedirect();
+  if(custom)return custom;
+  const loc=window.location.href.split('#')[0].split('?')[0];
+  return loc.startsWith('file://')?'':loc;
+}
 function spAuthed(){return!!_spToken&&Date.now()<_spExpiry;}
 
 function spLogin(){
   const cid=spCid();
   if(!cid){showToast('Enter your Spotify Client ID first','err');return;}
-  const p=new URLSearchParams({client_id:cid,response_type:'token',redirect_uri:spRedirect(),scope:SP_SCOPES});
+  const uri=spRedirect();
+  if(!uri){showToast('Set a Redirect URI — file:// is not supported by Spotify','err');return;}
+  const p=new URLSearchParams({client_id:cid,response_type:'token',redirect_uri:uri,scope:SP_SCOPES});
   window.location.href='https://accounts.spotify.com/authorize?'+p;
 }
 
 function spSaveCid(){
   const inp=document.getElementById('sp-cid-inp');
+  const rinp=document.getElementById('sp-ruri-inp');
   if(!inp)return;
   const v=inp.value.trim();
   if(v.length<10){showToast('Invalid Client ID','err');return;}
   localStorage.setItem('sp_client_id',v);
+  if(rinp){const rv=rinp.value.trim();if(rv)localStorage.setItem('sp_redirect_uri',rv);else localStorage.removeItem('sp_redirect_uri');}
   renderHome();
 }
 
@@ -6134,23 +6144,40 @@ function startSpPoll(){clearInterval(_spPoll);_spPoll=setInterval(updateSpWidget
 function _spL(){
   const lang=S?.cfg?.lang||'en';
   return({
-    en:{setup:'Connect Spotify',s1:'1. Go to developer.spotify.com → create a new app',s2:'2. Add this exact Redirect URI to your app:',s3:'3. Copy & paste your Client ID here',ph:'Paste Client ID…',save:'SAVE & CONNECT',login:'LOGIN WITH SPOTIFY',lsub:'Tap to authorise with your Spotify account',nothing:'Nothing playing right now',disc:'Disconnect'},
-    ro:{setup:'Conectează Spotify',s1:'1. Mergi la developer.spotify.com → creează o aplicație nouă',s2:'2. Adaugă exact acest Redirect URI în aplicația ta:',s3:'3. Copiază și lipește Client ID-ul tău',ph:'Lipește Client ID…',save:'SALVEAZĂ & CONECTEAZĂ',login:'INTRĂ CU SPOTIFY',lsub:'Apasă pentru a autoriza cu contul Spotify',nothing:'Nimic nu se redă acum',disc:'Deconectare'},
-    ru:{setup:'Подключить Spotify',s1:'1. Зайди на developer.spotify.com → создай новое приложение',s2:'2. Добавь этот точный Redirect URI в своё приложение:',s3:'3. Скопируй и вставь свой Client ID',ph:'Вставь Client ID…',save:'СОХРАНИТЬ И ПОДКЛЮЧИТЬ',login:'ВОЙТИ ЧЕРЕЗ SPOTIFY',lsub:'Нажмите для авторизации через Spotify',nothing:'Сейчас ничего не играет',disc:'Отключить'}
+    en:{setup:'Connect Spotify',
+      warn:'⚠️ This app is opened as a local file. To use Spotify, host the file online (e.g. GitHub Pages) and paste the URL below.',
+      s0:'0. Host this file online and paste its URL as Redirect URI:',
+      ruriPh:'https://yourname.github.io/ironmen/ironmen-fixed.html',
+      s1:'1. Go to developer.spotify.com → create a new app',s2:'2. Add the same URL as Redirect URI in your Spotify app settings',s3:'3. Paste your Client ID here',ph:'Paste Client ID…',save:'SAVE & CONNECT',login:'LOGIN WITH SPOTIFY',lsub:'Tap to authorise with your Spotify account',nothing:'Nothing playing right now',disc:'Disconnect'},
+    ro:{setup:'Conectează Spotify',
+      warn:'⚠️ Aplicația e deschisă ca fișier local. Pentru Spotify, hostează fișierul online (ex. GitHub Pages) și lipește URL-ul mai jos.',
+      s0:'0. Hostează fișierul online și lipește URL-ul ca Redirect URI:',
+      ruriPh:'https://numetau.github.io/ironmen/ironmen-fixed.html',
+      s1:'1. Mergi la developer.spotify.com → creează o aplicație nouă',s2:'2. Adaugă același URL ca Redirect URI în setările aplicației Spotify',s3:'3. Lipește Client ID-ul tău',ph:'Lipește Client ID…',save:'SALVEAZĂ & CONECTEAZĂ',login:'INTRĂ CU SPOTIFY',lsub:'Apasă pentru a autoriza cu contul Spotify',nothing:'Nimic nu se redă acum',disc:'Deconectare'},
+    ru:{setup:'Подключить Spotify',
+      warn:'⚠️ Приложение открыто как локальный файл. Для Spotify нужно разместить файл онлайн (напр. GitHub Pages) и вставить URL ниже.',
+      s0:'0. Размести файл онлайн и вставь URL как Redirect URI:',
+      ruriPh:'https://твойник.github.io/ironmen/ironmen-fixed.html',
+      s1:'1. Зайди на developer.spotify.com → создай новое приложение',s2:'2. Добавь тот же URL как Redirect URI в настройках приложения Spotify',s3:'3. Вставь свой Client ID',ph:'Вставь Client ID…',save:'СОХРАНИТЬ И ПОДКЛЮЧИТЬ',login:'ВОЙТИ ЧЕРЕЗ SPOTIFY',lsub:'Нажмите для авторизации через Spotify',nothing:'Сейчас ничего не играет',disc:'Отключить'}
   })[lang]||{};
 }
 
 function renderSpSetup(){
-  const L=_spL();const uri=spRedirect();
+  const L=_spL();
+  const isLocal=window.location.href.startsWith('file://');
+  const savedUri=spCustomRedirect();
+  const displayUri=savedUri||(isLocal?'':spRedirect());
   return`<div style="padding:16px 18px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="#1DB954"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.623.623 0 01-.857.207c-2.348-1.435-5.304-1.759-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.456-1.49c3.632-1.11 8.147-.573 11.236 1.328a.78.78 0 01.257 1.071zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.793c3.532-1.072 9.404-.866 13.115 1.337a.937.937 0 01-.955 1.613z"/></svg>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px">${L.setup}</div>
     </div>
-    <div style="font-size:12px;color:var(--tx2);line-height:1.8;margin-bottom:12px">
+    ${isLocal?`<div style="background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.25);border-radius:8px;padding:9px 12px;font-size:11px;color:#FFB800;line-height:1.6;margin-bottom:12px">${L.warn}</div>`:''}
+    <div style="font-size:12px;color:var(--tx2);line-height:1.8;margin-bottom:8px">
+      <div style="margin-bottom:4px">${L.s0}</div>
+      <input id="sp-ruri-inp" class="inp" style="font-size:12px;width:100%;margin-bottom:10px;font-family:monospace" placeholder="${L.ruriPh}" value="${displayUri}">
       <div>${L.s1}</div>
       <div>${L.s2}</div>
-      <div style="background:var(--sf3);border-radius:6px;padding:7px 10px;font-family:monospace;font-size:11px;color:var(--ac);word-break:break-all;margin:4px 0;cursor:pointer" onclick="navigator.clipboard?.writeText('${uri}').then(()=>showToast('Copied!','ok'))">${uri} 📋</div>
       <div>${L.s3}</div>
     </div>
     <div style="display:flex;gap:8px">

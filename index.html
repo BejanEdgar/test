@@ -4377,16 +4377,10 @@ function renderHome(){
       <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;min-height:80px">
         ${wkCard}
       </div>
-      ${S.cfg?.music!==false?`
-      <div class="slbl">${({en:'NOW PLAYING',ro:'ACUM REDĂ',ru:'СЕЙЧАС ИГРАЕТ'})[S.cfg?.lang||'en']||'NOW PLAYING'}</div>
-      <div id="sp-widget" style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden">
-        ${!spCid()?renderSpSetup():!spAuthed()?renderSpLogin():renderSpInner(_spTrack)}
-      </div>`:''}
       <div class="slbl">${t('recentSessions')}</div>
       <div class="card" style="margin:0 20px">${recH}</div>
       <div style="height:16px"></div>
     </div>`;
-    if(S.cfg?.music!==false&&spAuthed())startSpPoll();
   }catch(err){
     console.error('renderHome failed:',err);
     document.getElementById('sc-home').innerHTML=`

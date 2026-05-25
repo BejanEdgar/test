@@ -27,12 +27,12 @@
   --sal:env(safe-area-inset-left);
   --sar:env(safe-area-inset-right);
 }
-html{height:100%;height:-webkit-fill-available}
+html{height:100%;height:-webkit-fill-available;height:100svh}
 body{
   background:var(--bg);color:var(--tx);font-family:'Barlow',sans-serif;
   -webkit-font-smoothing:antialiased;overflow:hidden;
   display:flex;flex-direction:column;max-width:430px;margin:0 auto;
-  position:relative;height:100dvh;height:-webkit-fill-available;
+  position:relative;height:100svh;height:-webkit-fill-available;height:calc(var(--vh,1svh)*100);
   overscroll-behavior:none;-webkit-user-select:none;user-select:none;
 }
 input,textarea,select{-webkit-user-select:auto;user-select:auto}
@@ -182,8 +182,8 @@ button{-webkit-user-select:none;user-select:none}
   to  {background:rgba(0,0,0,.8)}
 }
 @keyframes imRestIn{
-  from{opacity:0;transform:scale(.94)}
-  to  {opacity:1;transform:scale(1)}
+  from{opacity:0;transform:translateX(-50%) scale(.94)}
+  to  {opacity:1;transform:translateX(-50%) scale(1)}
 }
 @keyframes imTimerPulse{
   0%,100%{transform:scale(1)}
@@ -337,6 +337,26 @@ button{-webkit-user-select:none;user-select:none}
 /* ── 14. Barf progress fill — add origin ── */
 .barf{transform-origin:left}
 
+/* ── BW Chart pulse dot ── */
+@keyframes imBWPulse{
+  0%  {transform:translate(-50%,-50%) scale(1);opacity:.75}
+  100%{transform:translate(-50%,-50%) scale(3.8);opacity:0}
+}
+.bwpd{
+  position:absolute;
+  width:7px;height:7px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+}
+.bwpr{
+  position:absolute;
+  width:10px;height:10px;
+  border-radius:50%;
+  border:2px solid;
+  animation:imBWPulse 2s ease-out infinite;
+}
+.bwpr2{animation-delay:1s}
+
 /* ── reduce motion: respect user preference ── */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{
@@ -347,8 +367,9 @@ button{-webkit-user-select:none;user-select:none}
 }
 
 /* ════════════════════════════════════════
-   PROGRESS SCREEN — ANIMATIONS
-   Scoped to #sc-progress — language-independent
+   PROGRESS SCREEN — SCROLL-REVEAL ANIMATIONS
+   Triggered by IntersectionObserver per element.
+   Language-independent, no layout side-effects.
    ════════════════════════════════════════ */
 
 /* ── Extra keyframes ── */
@@ -360,158 +381,132 @@ button{-webkit-user-select:none;user-select:none}
   from{opacity:0;transform:translateX(-16px)}
   to  {opacity:1;transform:translateX(0)}
 }
-@keyframes imPopScale{
-  0%  {opacity:0;transform:scale(.65)}
-  60% {opacity:1;transform:scale(1.1)}
-  80% {transform:scale(.95)}
-  100%{opacity:1;transform:scale(1)}
-}
 @keyframes imNumPop{
   0%  {opacity:0;transform:scale(.4) translateY(10px)}
   55% {opacity:1;transform:scale(1.14) translateY(-3px)}
   78% {transform:scale(.93) translateY(1px)}
-  100%{opacity:1;transform:scale(1)   translateY(0)}
+  100%{opacity:1;transform:scale(1) translateY(0)}
 }
 @keyframes imFireWiggle{
   0%,100%{transform:rotate(0) scale(1)}
-  15%    {transform:rotate(-12deg) scale(1.2)}
-  35%    {transform:rotate(10deg)  scale(1.25)}
-  55%    {transform:rotate(-8deg)  scale(1.15)}
-  75%    {transform:rotate(6deg)   scale(1.08)}
-  90%    {transform:rotate(-3deg)  scale(1.03)}
+  15%{transform:rotate(-12deg) scale(1.2)}
+  35%{transform:rotate(10deg) scale(1.25)}
+  55%{transform:rotate(-8deg) scale(1.15)}
+  75%{transform:rotate(6deg) scale(1.08)}
+  90%{transform:rotate(-3deg) scale(1.03)}
 }
 @keyframes imTrophyBounce{
-  0%  {opacity:0;transform:scale(0) rotate(-20deg)}
-  50% {opacity:1;transform:scale(1.2) rotate(8deg)}
-  70% {transform:scale(.9)  rotate(-4deg)}
-  85% {transform:scale(1.06) rotate(2deg)}
-  100%{opacity:1;transform:scale(1)   rotate(0)}
+  0%{opacity:0;transform:scale(0) rotate(-20deg)}
+  50%{opacity:1;transform:scale(1.2) rotate(8deg)}
+  70%{transform:scale(.9) rotate(-4deg)}
+  85%{transform:scale(1.06) rotate(2deg)}
+  100%{opacity:1;transform:scale(1) rotate(0)}
 }
 @keyframes imBarGrow{
   from{transform:scaleX(0)}
-  to  {transform:scaleX(1)}
-}
-@keyframes imPRRowIn{
-  from{opacity:0;transform:translateX(-12px)}
-  to  {opacity:1;transform:translateX(0)}
+  to{transform:scaleX(1)}
 }
 @keyframes imPillPop{
-  0%  {opacity:0;transform:scale(.5) translateX(8px)}
-  60% {opacity:1;transform:scale(1.12) translateX(-2px)}
-  100%{opacity:1;transform:scale(1)    translateX(0)}
+  0%{opacity:0;transform:scale(.5) translateX(8px)}
+  60%{opacity:1;transform:scale(1.12) translateX(-2px)}
+  100%{opacity:1;transform:scale(1) translateX(0)}
 }
 @keyframes imCardReveal{
   from{opacity:0;transform:translateY(16px) scale(.98)}
-  to  {opacity:1;transform:translateY(0)    scale(1)}
+  to{opacity:1;transform:translateY(0) scale(1)}
 }
 @keyframes imCanvasFadeIn{
   from{opacity:0}
-  to  {opacity:1}
+  to{opacity:1}
+}
+@keyframes imPieSliceIn{
+  from{opacity:0;transform:scale(0)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes imPieLegIn{
+  from{opacity:0;transform:translateX(-14px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes imPieCenterPop{
+  0%{opacity:0;transform:scale(.3)}
+  65%{opacity:1;transform:scale(1.08)}
+  100%{opacity:1;transform:scale(1)}
 }
 
-/* ── Top bar ── */
-#sc-progress > div > :nth-child(1){
-  animation:imSlideFromTop .3s ease-out .04s both;
+/* ── Hidden state before entering viewport ── */
+[data-pg-reveal]:not(.pg-anim){opacity:0}
+
+/* ── Reveal animations by type ── */
+[data-pg-reveal="top"].pg-anim{
+  animation:imSlideFromTop .3s ease-out both;
+}
+[data-pg-reveal="label"].pg-anim{
+  animation:imSlideFromLeft .28s ease-out both;
+}
+[data-pg-reveal="card"].pg-anim{
+  animation:imCardReveal .38s cubic-bezier(.25,.8,.25,1) both;
 }
 
-/* ── Sessions pill ── */
-#sc-progress .top-bar .pill{
-  animation:imPillPop .4s cubic-bezier(.34,1.56,.64,1) .18s both;
+/* Sessions pill — inside top bar */
+[data-pg-reveal="top"].pg-anim .pill{
+  animation:imPillPop .42s cubic-bezier(.34,1.56,.64,1) .12s both;
 }
 
-/* ── Body weight card ── */
-#sc-progress > div > :nth-child(2){
-  animation:imCardReveal .35s ease-out .10s both;
+/* Canvas charts fade in after card appears */
+[data-pg-reveal="card"].pg-anim #bwc{
+  animation:imCanvasFadeIn .45s ease-out .22s both;
 }
-/* Chart canvas fade in after card */
-#sc-progress #bwc{
-  animation:imCanvasFadeIn .5s ease-out .35s both;
-}
-
-/* ── Section labels: slide from left ── */
-#sc-progress > div > :nth-child(3){animation:imSlideFromLeft .28s ease-out .18s both;}
-#sc-progress > div > :nth-child(5){animation:imSlideFromLeft .28s ease-out .28s both;}
-#sc-progress > div > :nth-child(7){animation:imSlideFromLeft .28s ease-out .38s both;}
-#sc-progress > div > :nth-child(9){animation:imSlideFromLeft .28s ease-out .48s both;}
-#sc-progress > div > :nth-child(11){animation:imSlideFromLeft .28s ease-out .58s both;}
-#sc-progress > div > :nth-child(13){animation:imSlideFromLeft .28s ease-out .68s both;}
-
-/* ── Log body weight card ── */
-#sc-progress > div > :nth-child(4){
-  animation:imCardReveal .32s ease-out .22s both;
+[data-pg-reveal="card"].pg-anim #vc{
+  animation:imCanvasFadeIn .45s ease-out .22s both;
 }
 
-/* ── Streak card ── */
-#sc-progress > div > :nth-child(6){
-  animation:imCardReveal .38s cubic-bezier(.34,1.1,.64,1) .30s both;
+/* ── Streak card inner elements ── */
+.pg-fire{display:inline-block}
+.pg-trophy{display:inline-block}
+[data-pg-reveal="card"].pg-anim .pg-fire{
+  animation:imFireWiggle .9s cubic-bezier(.34,1.2,.64,1) .14s both;
 }
-/* 🔥 fire emoji wiggle */
-.pg-fire{
-  animation:imFireWiggle .9s cubic-bezier(.34,1.2,.64,1) .50s both;
-  display:inline-block;
+[data-pg-reveal="card"].pg-anim .pg-trophy{
+  animation:imTrophyBounce .7s cubic-bezier(.34,1.56,.64,1) .26s both;
 }
-/* 🏆 trophy bounce-in */
-.pg-trophy{
-  animation:imTrophyBounce .7s cubic-bezier(.34,1.56,.64,1) .60s both;
-  display:inline-block;
+[data-pg-reveal="card"].pg-anim .pg-streak-num{
+  animation:imNumPop .55s cubic-bezier(.34,1.4,.64,1) .08s both;
 }
-/* Current streak number pop */
-.pg-streak-num{
-  animation:imNumPop .55s cubic-bezier(.34,1.4,.64,1) .44s both;
+[data-pg-reveal="card"].pg-anim .pg-best-num{
+  animation:imNumPop .55s cubic-bezier(.34,1.4,.64,1) .20s both;
 }
-/* Best streak number pop (slightly later) */
-.pg-best-num{
-  animation:imNumPop .55s cubic-bezier(.34,1.4,.64,1) .56s both;
-}
-/* Streak progress bar grow from left */
-.pg-streak-bar{
-  animation:imBarGrow .7s cubic-bezier(.25,.8,.25,1) .72s both;
+[data-pg-reveal="card"].pg-anim .pg-streak-bar{
+  animation:imBarGrow .7s cubic-bezier(.25,.8,.25,1) .36s both;
   transform-origin:left;
 }
 
-/* ── Weekly volume card + chart ── */
-#sc-progress > div > :nth-child(8){
-  animation:imCardReveal .32s ease-out .40s both;
+/* ── PR Pie chart — fire when card enters viewport ── */
+.pg-pie-leg{
+  display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--bd);
 }
-#sc-progress #vc{
-  animation:imCanvasFadeIn .5s ease-out .60s both;
+.pg-pie-leg:last-child{border-bottom:none}
+[data-pg-reveal="card"].pg-anim .pg-pie-slice{
+  animation:imPieSliceIn .48s cubic-bezier(.34,1.18,.64,1) var(--pd,0s) both;
+  transform-origin:100px 100px;
 }
-
-/* ── Personal Records card ── */
-#sc-progress > div > :nth-child(10){
-  animation:imCardReveal .32s ease-out .50s both;
+[data-pg-reveal="card"].pg-anim .pg-pie-center{
+  animation:imPieCenterPop .55s cubic-bezier(.34,1.4,.64,1) .08s both;
+  transform-origin:100px 100px;
 }
-/* PR table rows stagger */
-#sc-progress tbody tr:nth-child(1){animation:imPRRowIn .24s ease-out .55s both;}
-#sc-progress tbody tr:nth-child(2){animation:imPRRowIn .24s ease-out .62s both;}
-#sc-progress tbody tr:nth-child(3){animation:imPRRowIn .24s ease-out .69s both;}
-#sc-progress tbody tr:nth-child(4){animation:imPRRowIn .24s ease-out .76s both;}
-#sc-progress tbody tr:nth-child(5){animation:imPRRowIn .24s ease-out .83s both;}
-#sc-progress tbody tr:nth-child(6){animation:imPRRowIn .24s ease-out .90s both;}
-
-/* ── Cardio card ── */
-#sc-progress > div > :nth-child(12){
-  animation:imCardReveal .32s ease-out .60s both;
+[data-pg-reveal="card"].pg-anim .pg-pie-leg{
+  animation:imPieLegIn .3s ease-out var(--pd,0s) both;
 }
 
-/* ── Session history card ── */
-#sc-progress > div > :nth-child(14){
-  animation:imCardReveal .32s ease-out .68s both;
-}
-/* History rows stagger */
-#sc-progress .hr:nth-child(1) {animation:imFadeSlideUp .25s ease-out .72s both;}
-#sc-progress .hr:nth-child(2) {animation:imFadeSlideUp .25s ease-out .78s both;}
-#sc-progress .hr:nth-child(3) {animation:imFadeSlideUp .25s ease-out .84s both;}
-#sc-progress .hr:nth-child(4) {animation:imFadeSlideUp .25s ease-out .90s both;}
-#sc-progress .hr:nth-child(5) {animation:imFadeSlideUp .25s ease-out .96s both;}
-#sc-progress .hr:nth-child(6) {animation:imFadeSlideUp .25s ease-out 1.02s both;}
-#sc-progress .hr:nth-child(7) {animation:imFadeSlideUp .25s ease-out 1.08s both;}
-#sc-progress .hr:nth-child(8) {animation:imFadeSlideUp .25s ease-out 1.14s both;}
-
-/* ── Log PR button pop ── */
-#sc-progress .slbl .btn{
-  animation:imPopScale .35s cubic-bezier(.34,1.56,.64,1) .52s both;
-}
+/* ── Session history rows stagger ── */
+[data-pg-reveal="card"].pg-anim .hr:nth-child(1){animation:imFadeSlideUp .25s ease-out .04s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(2){animation:imFadeSlideUp .25s ease-out .10s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(3){animation:imFadeSlideUp .25s ease-out .16s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(4){animation:imFadeSlideUp .25s ease-out .22s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(5){animation:imFadeSlideUp .25s ease-out .28s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(6){animation:imFadeSlideUp .25s ease-out .34s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(7){animation:imFadeSlideUp .25s ease-out .40s both}
+[data-pg-reveal="card"].pg-anim .hr:nth-child(8){animation:imFadeSlideUp .25s ease-out .46s both}
 </style>
 </head>
 <body>
@@ -1378,6 +1373,18 @@ function populateSelect(selId,valuesEN,translatedArr){
   sel.value=cur||valuesEN[0];
 }
 function updateAllSelects(){
+  // Category select (wci)
+  const wciSel=document.getElementById('wci');
+  if(wciSel){
+    const curCat=wciSel.value;
+    const catMap={strength:'strengthCat',cardio:'cardioCat',hiit:'hiitCat',mobility:'mobilityCat',custom:'customCat'};
+    const catEmoji={strength:'💪',cardio:'🏃',hiit:'⚡',mobility:'🧘',custom:'🔧'};
+    Object.entries(catMap).forEach(([val,key])=>{
+      const opt=wciSel.querySelector('option[value="'+val+'"]');
+      if(opt)opt.textContent=catEmoji[val]+' '+t(key);
+    });
+    wciSel.value=curCat;
+  }
   // Difficulty select
   const wliSel=document.getElementById('wli');
   if(wliSel){
@@ -1711,16 +1718,19 @@ function checkNameDefault(){
 // ═══════════ NAV ═══════════
 let curSc='home',activeWid=null;
 function go(sc){
+  const fromFullscreen=curSc==='active'||curSc==='wkd';
   curSc=sc;
   document.querySelectorAll('.screen,.fullscreen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const nb=document.getElementById('nb-'+sc);if(nb)nb.classList.add('active');
   const el=document.getElementById('sc-'+sc);if(el)el.classList.add('active');
   document.getElementById('main-nav').style.display='flex';
-  if(sc==='home')renderHome();
-  else if(sc==='library')renderLib();
-  else if(sc==='progress')renderProg();
-  else if(sc==='profile')renderProf();
+  // Daca venim dintr-un fullscreen, dam un tick suplimentar pentru layout
+  const delay=fromFullscreen?50:0;
+  if(sc==='home')setTimeout(()=>renderHome(),delay);
+  else if(sc==='library')setTimeout(()=>renderLib(),delay);
+  else if(sc==='progress')setTimeout(()=>renderProg(),delay);
+  else if(sc==='profile')setTimeout(()=>renderProf(),delay);
 }
 function openWKD(id){
   curSc='wkd';
@@ -2039,6 +2049,7 @@ function showExGif(name){
 function openAddWk(id){
   document.getElementById('m-wk-title').textContent=id?t('editWorkout'):t('newWorkout');
   document.getElementById('ewid').value=id||'';
+  updateAllSelects(); // asigura traducerea categoriilor si dificultatii
   if(id){
     const w=S.workouts.find(x=>x.id===id);
     if(w){document.getElementById('wni').value=w.name;document.getElementById('wci').value=w.cat;
@@ -2567,8 +2578,56 @@ function playRestBeep(){
   }catch(_){}
 }
 
+// ═══════════ PR PIE CHART ═══════════
+function buildPRPie(prs){
+  if(!prs.length)return'';
+  const COLORS=['#FF3D00','#00C96A','#FFB300','#00B4D8','#AB47BC','#EC407A','#26A69A','#FF7043','#42A5F5','#D4E157'];
+  const cx=100,cy=100,ro=88,ri=44;
+  const total=prs.reduce((s,p)=>s+p.w,0);
+  let angle=-Math.PI/2,paths='',legs='';
+  prs.forEach((p,i)=>{
+    const frac=p.w/total;
+    const sweep=frac*Math.PI*2;
+    const large=sweep>Math.PI?1:0;
+    const c=COLORS[i%COLORS.length];
+    const delay=(i*.13).toFixed(2);
+    const x1=cx+ro*Math.cos(angle),y1=cy+ro*Math.sin(angle);
+    const x2=cx+ro*Math.cos(angle+sweep),y2=cy+ro*Math.sin(angle+sweep);
+    const ix1=cx+ri*Math.cos(angle+sweep),iy1=cy+ri*Math.sin(angle+sweep);
+    const ix2=cx+ri*Math.cos(angle),iy2=cy+ri*Math.sin(angle);
+    const f=n=>n.toFixed(2);
+    paths+=`<path class="pg-pie-slice" style="--pd:${delay}s;fill:${c}" d="M${f(x1)},${f(y1)} A${ro},${ro},0,${large},1,${f(x2)},${f(y2)} L${f(ix1)},${f(iy1)} A${ri},${ri},0,${large},0,${f(ix2)},${f(iy2)} Z"/>`;
+    const pct=Math.round(frac*100);
+    const gain=p.prev?`<span style="color:var(--ok);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700">▲ ${(p.w-p.prev).toFixed(1)}</span>`:`<span style="color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:10px">${t('firstPR')}</span>`;
+    const escEx=p.ex.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    legs+=`<div class="pg-pie-leg" style="--pd:${(i*.13+.28).toFixed(2)}s">
+      <span style="width:10px;height:10px;border-radius:3px;background:${c};flex-shrink:0;display:inline-block"></span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;flex:1;line-height:1.2">${p.ex}<br><span style="font-size:10px;color:var(--tx3);font-weight:400">${p.date}</span></span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:${c};flex-shrink:0">${p.w}kg</span>
+      <span style="min-width:34px;text-align:right;flex-shrink:0">${gain}</span>
+      <button onclick="delPR('${escEx}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:6px;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:color .15s;flex-shrink:0" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
+    </div>`;
+    angle+=sweep;
+  });
+  const top=prs.reduce((m,p)=>p.w>m.w?p:m,prs[0]);
+  const lbl=top.ex.length>11?top.ex.substring(0,11)+'…':top.ex;
+  return `<div style="display:flex;flex-direction:column;align-items:center">
+    <svg viewBox="0 0 200 200" width="190" height="190" style="overflow:visible;display:block">
+      <g class="pg-pie-center">
+        <circle cx="${cx}" cy="${cy}" r="${ri-1}" fill="var(--sf)" stroke="var(--bd)" stroke-width="1"/>
+        <text x="${cx}" y="${cy-8}" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="22" fill="var(--tx)">${top.w}kg</text>
+        <text x="${cx}" y="${cy+8}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" fill="var(--tx2)" letter-spacing="1">${lbl}</text>
+        <text x="${cx}" y="${cy+19}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="8" fill="var(--tx3)" letter-spacing="0.5">BEST PR</text>
+      </g>
+      ${paths}
+    </svg>
+    <div style="width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)">${legs}</div>
+  </div>`;
+}
+
 // ═══════════ PROGRESS ═══════════
 function renderProg(){
+  try{
   // ── Best streak (all-time) ──
   let bestStreak=0;
   if(S.hist&&S.hist.length){
@@ -2614,25 +2673,12 @@ function renderProg(){
   const topCardio=Object.entries(exCount).sort((a,b)=>b[1]-a[1])[0];
   function fMin(m){return m>=60?Math.floor(m/60)+'h '+(m%60)+'m':m+'m';}
 
-  const prRows=S.prs.length?S.prs.map(p=>`
-    <tr>
-      <td style="padding:11px 0;border-bottom:1px solid var(--bd)">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">${p.ex}</div>
-        <div style="font-size:11px;color:var(--tx2)">${p.date}</div>
-      </td>
-      <td style="padding:11px 0;border-bottom:1px solid var(--bd);font-family:'Bebas Neue',sans-serif;font-size:22px;text-align:right">${p.w}kg</td>
-      <td style="padding:11px 0;border-bottom:1px solid var(--bd);text-align:right;padding-left:8px">
-        ${p.prev?'<span style="color:var(--ok);font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:700">▲ '+(p.w-p.prev).toFixed(1)+'</span>':'<span style="color:var(--tx3);font-size:11px">'+t('firstPR')+'</span>'}
-      </td>
-      <td style="padding:11px 0;border-bottom:1px solid var(--bd);padding-left:4px">
-        <button onclick="delPR('${p.ex}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:8px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:color .15s" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
-      </td>
-    </tr>`):'';
+  const prRows=null; // table removed — pie chart only
 
   document.getElementById('sc-progress').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
-    <div class="top-bar"><h1>${t('progressTitle')}</h1><span class="pill pok">${S.hist.length} ${t('sessionsPill')}</span></div>
+    <div data-pg-reveal="top" class="top-bar"><h1>${t('progressTitle')}</h1><span class="pill pok">${S.hist.length} ${t('sessionsPill')}</span></div>
 
-    <div class="card" style="margin:0 20px">
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
         <div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">${t('bodyWeightLbl')}</div>
@@ -2652,8 +2698,8 @@ function renderProg(){
       </div>
     </div>
 
-    <div class="slbl">${t('logBodyWeight')}</div>
-    <div class="card" style="margin:0 20px">
+    <div data-pg-reveal="label" class="slbl">${t('logBodyWeight')}</div>
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:flex;gap:10px;align-items:center">
         <input type="number" id="bwi" class="inp" value="${lat}" min="30" max="300" step="0.1" inputmode="decimal" style="flex:1;font-family:'Bebas Neue',sans-serif;font-size:26px;text-align:center">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--tx2);font-weight:700">KG</div>
@@ -2662,8 +2708,8 @@ function renderProg(){
       <div id="bwc2" style="display:none;margin-top:10px;color:var(--ok);font-size:13px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">✓ ${t('logBodyWeight')}!</div>
     </div>
 
-    <div class="slbl">${t('currentStreak')}</div>
-    <div class="card" style="margin:0 20px">
+    <div data-pg-reveal="label" class="slbl">${t('currentStreak')}</div>
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
         <div style="text-align:center;padding:10px 0 6px">
           <div class="pg-fire" style="font-size:28px;line-height:1;margin-bottom:6px">🔥</div>
@@ -2682,30 +2728,22 @@ function renderProg(){
       </div>`:''}
     </div>
 
-    <div class="slbl">${t('weeklyVolume')}</div>
-    <div class="card" style="margin:0 20px">
+    <div data-pg-reveal="label" class="slbl">${t('weeklyVolume')}</div>
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
       <canvas id="vc" height="80" style="width:100%;display:block"></canvas>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:6px">
         ${t('wkVolumeLabels').map(l=>`<div style="text-align:center;font-size:11px;color:var(--tx3)">${l}</div>`).join('')}
       </div>
     </div>
 
-    <div class="slbl">${t('personalRecords')} <button class="btn bok bsm" onclick="OM('m-pr')">${t('logPRBtn')}</button></div>
-    <div class="card" style="margin:0 20px">
-      ${S.prs.length?`<table style="width:100%;border-collapse:collapse">
-        <thead><tr>
-          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:left;padding-bottom:10px;border-bottom:1px solid var(--bd)">${t('exCol')}</th>
-          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:right;padding-bottom:10px;border-bottom:1px solid var(--bd)">${t('prCol')}</th>
-          <th style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);font-weight:700;text-align:right;padding-bottom:10px;border-bottom:1px solid var(--bd);padding-left:8px">${t('gainCol')}</th>
-          <th style="padding-bottom:10px;border-bottom:1px solid var(--bd)"></th>
-        </tr></thead>
-        <tbody>${prRows}</tbody></table>`
-      :`<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noPRs')}</div>`}
+    <div data-pg-reveal="label" class="slbl">${t('personalRecords')} <button class="btn bok bsm" onclick="OM('m-pr')">${t('logPRBtn')}</button></div>
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+      ${S.prs.length?buildPRPie(S.prs):`<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noPRs')}</div>`}
     </div>
 
-    <div class="slbl">${t('cardioTitle')}</div>
+    <div data-pg-reveal="label" class="slbl">${t('cardioTitle')}</div>
     ${cardioSessions.length?`
-    <div class="card" style="margin:0 20px">
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:${topCardio?'14px':'0'}">
         <div style="text-align:center">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:var(--ok)">${fMin(cardioWeekMin)}</div>
@@ -2728,10 +2766,10 @@ function renderProg(){
         </div>
       </div>`:''}
     </div>`
-    :`<div class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">${t('noCardioYet')}</div>`}
+    :`<div data-pg-reveal="card" class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">${t('noCardioYet')}</div>`}
 
-    <div class="slbl">${t('sessionHistory')}</div>
-    <div class="card" style="margin:0 20px">
+    <div data-pg-reveal="label" class="slbl">${t('sessionHistory')}</div>
+    <div data-pg-reveal="card" class="card" style="margin:0 20px">
       ${S.hist.length?[...S.hist].slice(0,20).map(h=>`
         <div class="hr" style="gap:8px">
           <div class="hico" style="background:rgba(255,61,0,.1)">${h.em}</div>
@@ -2744,7 +2782,41 @@ function renderProg(){
     <div style="height:16px"></div>
   </div>`;
 
-  setTimeout(()=>{drawBW(bw);drawVol(wkVol);},60);
+  setTimeout(()=>{
+    try{drawBW(bw);}catch(e){console.warn('drawBW:',e);}
+    try{drawVol(wkVol);}catch(e){console.warn('drawVol:',e);}
+    initProgReveal();
+  },150);
+  }catch(err){
+    console.error('renderProg failed:',err);
+    document.getElementById('sc-progress').innerHTML=`
+      <div style="flex:1;overflow-y:auto;padding:60px 20px;text-align:center">
+        <div style="font-size:36px;margin-bottom:16px">⚠️</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--tx2);letter-spacing:1px;margin-bottom:20px">${err.message||t('loadErr')}</div>
+        <button class="btn bp" onclick="renderProg()">${t('reloadBtn')}</button>
+      </div>`;
+  }
+}
+
+// ── Scroll-reveal for Progress screen ──
+function initProgReveal(){
+  const sc=document.querySelector('#sc-progress>div');
+  if(!sc)return;
+  // Double rAF garanteaza ca layout-ul e complet calculat inainte de IO
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+    const items=sc.querySelectorAll('[data-pg-reveal]');
+    const scRect=sc.getBoundingClientRect();
+    // Fallback: daca root e 0 inaltime (layout nefinalizat) → facem totul vizibil imediat
+    if(scRect.height===0){items.forEach(el=>el.classList.add('pg-anim'));return;}
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){e.target.classList.add('pg-anim');io.unobserve(e.target);}
+      });
+    },{root:sc,threshold:0.05,rootMargin:'0px 0px -10px 0px'});
+    items.forEach(el=>io.observe(el));
+    // Fallback final: dupa 600ms, orice element neanimat devine vizibil
+    setTimeout(()=>{items.forEach(el=>{if(!el.classList.contains('pg-anim'))el.classList.add('pg-anim');});},600);
+  });});
 }
 
 function resetSessionHistory(){
@@ -2781,6 +2853,33 @@ function delPR(ex){
   OM('m-conf');
 }
 
+// ── Body weight pulse overlay ──
+function addBWPulse(canvas,x,y,color){
+  // Wrap canvas in a relative-positioned container (idempotent)
+  let wrap=canvas.parentNode;
+  if(wrap.id!=='bwc-wrap'){
+    const w=document.createElement('div');
+    w.id='bwc-wrap';
+    w.style.cssText='position:relative;display:block;margin-bottom:4px';
+    canvas.style.marginBottom='0';
+    canvas.style.display='block';
+    wrap.insertBefore(w,canvas);
+    w.appendChild(canvas);
+    wrap=w;
+  }
+  // Remove old pulse
+  const old=document.getElementById('bw-pulse');
+  if(old)old.remove();
+  // Create new pulse
+  const p=document.createElement('div');
+  p.id='bw-pulse';
+  p.style.cssText=`position:absolute;left:${x}px;top:${y}px;pointer-events:none`;
+  p.innerHTML=`<div class="bwpd" style="background:${color}"></div>`+
+    `<div class="bwpr" style="border-color:${color}"></div>`+
+    `<div class="bwpr bwpr2" style="border-color:${color}"></div>`;
+  wrap.appendChild(p);
+}
+
 function drawBW(data){
   const c=document.getElementById('bwc');if(!c)return;
   const dpr=window.devicePixelRatio||1,W=c.clientWidth,H=80;
@@ -2804,6 +2903,7 @@ function drawBW(data){
     ctx.fillStyle='#FF3D00';ctx.fill();
     ctx.fillStyle='rgba(150,140,135,.5)';ctx.font='bold 10px Barlow Condensed,sans-serif';
     ctx.textAlign='center';ctx.fillText('LOG MORE ENTRIES TO SEE CURVE',cx,cy+22);
+    addBWPulse(c,cx,cy,'#FF3D00');
     return;
   }
 
@@ -2829,6 +2929,7 @@ function drawBW(data){
   // dot pe ultimul punct
   const lx=4+(data.length-1)*xS,ly=H-6-(data[data.length-1].w-mn)*yS;
   ctx.beginPath();ctx.arc(lx,ly,3.5,0,Math.PI*2);ctx.fillStyle=lineClr;ctx.fill();
+  addBWPulse(c,lx,ly,lineClr);
   // linie goal
   if(S.goals.tw>mn&&S.goals.tw<mx){
     const gy=H-6-(S.goals.tw-mn)*yS;
@@ -2900,7 +3001,7 @@ function renderProf(){
 
     <div class="slbl">${t('settingsTitle')}</div>
     <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r)">
-      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1"><div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🔔</div><div><div style="font-size:15px;font-weight:500">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2)">${sub}</div></div></div><div style="display:flex;align-items:center;gap:10px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:10px;padding:8px 14px;color:${cfg.reminders?'var(--tx)':'var(--tx3)'};font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;min-width:72px">${tv}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
+      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'ЗАДАТЬ'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1"><div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🔔</div><div><div style="font-size:15px;font-weight:500">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2)">${sub}</div></div></div><div style="display:flex;align-items:center;gap:10px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 12px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
       ${sr('📊',t('autoLog'),t('connectHealth'),'autoLog',cfg.autoLog)}
       ${sr('🎵',t('workoutMusic'),t('spotifyInt'),'music',cfg.music)}
       ${sr('⏱',t('restTimerSound'),t('alertCompletion'),'restSound',cfg.restSound)}
@@ -3324,6 +3425,7 @@ async function exportData(){await exportExcel();}
 function setVH(){document.documentElement.style.setProperty('--vh',''+window.innerHeight*.01+'px');}
 setVH();
 window.addEventListener('resize',setVH,{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(setVH,100),{passive:true});
 
 // Swipe-back gesture on workout detail & active screens
 (function(){

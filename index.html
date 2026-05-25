@@ -6056,10 +6056,11 @@ document.addEventListener('focusin',e=>{
   }
 },{passive:true});
 
-// ═══════════ SPOTIFY INTEGRATION ═══════════
+// ═══════════ SPOTIFY INTEGRATION (PKCE) ═══════════
 const SP_SCOPES='user-read-currently-playing user-read-playback-state user-modify-playback-state';
 let _spToken=localStorage.getItem('sp_token')||null;
 let _spExpiry=parseInt(localStorage.getItem('sp_expiry')||'0');
+let _spRefresh=localStorage.getItem('sp_refresh')||null;
 let _spPoll=null;
 let _spTrack=null;
 
@@ -6071,15 +6072,71 @@ function spRedirect(){
   const loc=window.location.href.split('#')[0].split('?')[0];
   return loc.startsWith('file://')?'':loc;
 }
-function spAuthed(){return!!_spToken&&Date.now()<_spExpiry;}
+function spAuthed(){return!!_spToken&&Date.now()<_spExpiry-30000;}
 
-function spLogin(){
+// ── PKCE helpers ──
+function _spRandStr(len){
+  const arr=new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  return Array.from(arr,b=>('0'+b.toString(16)).slice(-2)).join('').slice(0,len);
+}
+async function _spChallenge(verifier){
+  const enc=new TextEncoder().encode(verifier);
+  const hash=await crypto.subtle.digest('SHA-256',enc);
+  return btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+
+async function spLogin(){
   const cid=spCid();
   if(!cid){showToast('Enter your Spotify Client ID first','err');return;}
   const uri=spRedirect();
-  if(!uri){showToast('Set a Redirect URI — file:// is not supported by Spotify','err');return;}
-  const p=new URLSearchParams({client_id:cid,response_type:'token',redirect_uri:uri,scope:SP_SCOPES});
+  if(!uri){showToast('Set a Redirect URI first','err');return;}
+  const verifier=_spRandStr(64);
+  sessionStorage.setItem('sp_verifier',verifier);
+  const challenge=await _spChallenge(verifier);
+  const p=new URLSearchParams({
+    client_id:cid,response_type:'code',redirect_uri:uri,scope:SP_SCOPES,
+    code_challenge_method:'S256',code_challenge:challenge
+  });
   window.location.href='https://accounts.spotify.com/authorize?'+p;
+}
+
+async function spExchangeCode(code){
+  const cid=spCid(),uri=spRedirect();
+  const verifier=sessionStorage.getItem('sp_verifier')||'';
+  sessionStorage.removeItem('sp_verifier');
+  const r=await fetch('https://accounts.spotify.com/api/token',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:new URLSearchParams({grant_type:'authorization_code',code,redirect_uri:uri,client_id:cid,code_verifier:verifier})
+  });
+  if(!r.ok)return;
+  const d=await r.json();
+  _spSetTokens(d);
+}
+
+async function spRefreshToken(){
+  if(!_spRefresh||!spCid())return false;
+  try{
+    const r=await fetch('https://accounts.spotify.com/api/token',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams({grant_type:'refresh_token',refresh_token:_spRefresh,client_id:spCid()})
+    });
+    if(!r.ok)return false;
+    const d=await r.json();
+    _spSetTokens(d);
+    return true;
+  }catch(e){return false;}
+}
+
+function _spSetTokens(d){
+  _spToken=d.access_token;
+  _spExpiry=Date.now()+(d.expires_in||3600)*1000;
+  if(d.refresh_token){_spRefresh=d.refresh_token;localStorage.setItem('sp_refresh',_spRefresh);}
+  localStorage.setItem('sp_token',_spToken);
+  localStorage.setItem('sp_expiry',String(_spExpiry));
 }
 
 function spSaveCid(){
@@ -6094,29 +6151,52 @@ function spSaveCid(){
 }
 
 function spLogout(){
-  _spToken=null;_spTrack=null;
-  localStorage.removeItem('sp_token');localStorage.removeItem('sp_expiry');
+  _spToken=null;_spTrack=null;_spRefresh=null;
+  localStorage.removeItem('sp_token');localStorage.removeItem('sp_expiry');localStorage.removeItem('sp_refresh');
   clearInterval(_spPoll);_spPoll=null;
   renderHome();
 }
 
-function spHandleCallback(){
-  const hash=window.location.hash.slice(1);if(!hash)return;
-  const p=new URLSearchParams(hash);
-  const tok=p.get('access_token'),exp=p.get('expires_in');
-  if(tok){
-    _spToken=tok;_spExpiry=Date.now()+parseInt(exp||'3600')*1000;
-    localStorage.setItem('sp_token',tok);localStorage.setItem('sp_expiry',String(_spExpiry));
-    history.replaceState({},'',window.location.pathname+window.location.search);
+async function spHandleCallback(){
+  // PKCE: code in query params
+  const params=new URLSearchParams(window.location.search);
+  const code=params.get('code');
+  if(code){
+    history.replaceState({},'',window.location.pathname);
+    await spExchangeCode(code);
     renderHome();startSpPoll();
+    return;
+  }
+  // Legacy implicit (fallback, probably won't fire anymore)
+  const hash=window.location.hash.slice(1);
+  if(hash){
+    const p=new URLSearchParams(hash);
+    const tok=p.get('access_token'),exp=p.get('expires_in');
+    if(tok){
+      _spToken=tok;_spExpiry=Date.now()+parseInt(exp||'3600')*1000;
+      localStorage.setItem('sp_token',tok);localStorage.setItem('sp_expiry',String(_spExpiry));
+      history.replaceState({},'',window.location.pathname+window.location.search);
+      renderHome();startSpPoll();
+    }
   }
 }
 
 async function spFetch(url,method='GET'){
-  if(!spAuthed())return null;
+  if(!_spToken)return null;
+  if(!spAuthed()){
+    const ok=await spRefreshToken();
+    if(!ok){spLogout();return null;}
+  }
   try{
     const r=await fetch(url,{method,headers:{Authorization:'Bearer '+_spToken}});
-    if(r.status===401){spLogout();return null;}
+    if(r.status===401){
+      const ok=await spRefreshToken();
+      if(!ok){spLogout();return null;}
+      const r2=await fetch(url,{method,headers:{Authorization:'Bearer '+_spToken}});
+      if(!r2.ok)return null;
+      if(r2.status===204||r2.status===202)return{ok:true};
+      return await r2.json();
+    }
     if(r.status===204||r.status===202||(r.status===200&&method!=='GET'))return{ok:true};
     if(!r.ok)return null;
     return await r.json();
@@ -6253,11 +6333,11 @@ function renderSpInner(data){
   const {data:{session}}=await sb.auth.getSession();
   if(session){
     await bootSession(session.user.id);
-    spHandleCallback();
+    await spHandleCallback();
     return;
   }
-  // Nu e sesiune activă — verificăm dacă e callback OAuth Spotify (token în hash)
-  spHandleCallback();
+  // Nu e sesiune activă — verificăm dacă e callback OAuth Spotify (code în query params)
+  await spHandleCallback();
   document.getElementById('main-nav').style.display='none';
 })();
 </script>

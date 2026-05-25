@@ -621,10 +621,10 @@ button{-webkit-user-select:none;user-select:none}
 
 /* ── Cardio ring fill animation ── */
 @keyframes imRingFill{
-  from{stroke-dasharray:0 202}
-  to{stroke-dasharray:var(--rd,0) 202}
+  from{stroke-dasharray:0 252}
+  to{stroke-dasharray:var(--rd,0) 252}
 }
-.pg-ring-fill{stroke-dasharray:0 202}
+.pg-ring-fill{stroke-dasharray:0 252}
 [data-pg-reveal="card"].pg-anim .pg-ring-fill{
   animation:imRingFill .9s cubic-bezier(.25,.8,.25,1) .15s both;
 }
@@ -5309,23 +5309,55 @@ function buildPRPie(prs){
 // ═══════════ CARDIO CHART BUILDER ═══════════
 function buildCardioCard(cardioWeekMin,cardioMonthMin,cardioTotalMin,cardioSessions,topCardio){
   function fMin(m){if(m<=0)return '0m';return m>=60?Math.floor(m/60)+'h'+(m%60>0?' '+(m%60)+'m':''):m+'m';}
-  const circ=2*Math.PI*32; // r=32 → circ≈201.06
+  const r=40,circ=2*Math.PI*r;
 
-  function ring(min,color,labelKey){
+  // Session counts per period
+  const now7=7*864e5,now30=30*864e5;
+  const wkCnt=cardioSessions.filter(h=>(Date.now()-new Date(h.date+'T12:00:00').getTime())<now7).length;
+  const moCnt=cardioSessions.filter(h=>(Date.now()-new Date(h.date+'T12:00:00').getTime())<now30).length;
+  const totCnt=cardioSessions.length;
+
+  // Color to RGB map for rgba() usage
+  const cRgb={'var(--ok)':'0,201,106','var(--ac2)':'255,184,0','var(--ac)':'255,61,0'};
+
+  function ring(min,cnt,color,labelKey,uid){
     const pct=cardioTotalMin>0?Math.min(min/cardioTotalMin,1):0;
     const dash=(pct*circ).toFixed(2);
-    const off=(circ/4).toFixed(2); // start from top
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:5px">
-      <svg viewBox="0 0 80 80" width="76" height="76" style="overflow:visible">
-        <circle cx="40" cy="40" r="32" fill="none" stroke="var(--sf3)" stroke-width="7"/>
-        <circle class="pg-ring-fill" cx="40" cy="40" r="32" fill="none"
-          stroke="${color}" stroke-width="7" stroke-linecap="round"
-          style="--rd:${dash};stroke-dashoffset:${off}"/>
-        <text x="40" y="37" text-anchor="middle" font-family="Bebas Neue,sans-serif"
-          font-size="12" fill="var(--tx)" letter-spacing=".5">${fMin(min)}</text>
-        <text x="40" y="50" text-anchor="middle" font-family="Barlow Condensed,sans-serif"
-          font-size="7" fill="var(--tx3)" letter-spacing="1" text-transform="uppercase">${t(labelKey).toUpperCase()}</text>
+    const off=(circ/4).toFixed(2);
+    const rgb=cRgb[color]||'255,61,0';
+    const sesLabel=cnt===1?'session':'sessions';
+    return `<div style="
+      display:flex;flex-direction:column;align-items:center;
+      background:rgba(${rgb},0.07);
+      border:1px solid rgba(${rgb},0.22);
+      border-radius:18px;
+      padding:14px 6px 11px;
+      box-shadow:0 4px 22px rgba(${rgb},0.13),inset 0 1px 0 rgba(255,255,255,0.06);
+      position:relative;overflow:hidden;flex:1;
+    ">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent)"></div>
+      <svg viewBox="0 0 100 100" width="82" height="82" style="overflow:visible;flex-shrink:0">
+        <defs>
+          <filter id="rg${uid}" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <circle cx="50" cy="50" r="${r}" fill="none" stroke="rgba(${rgb},0.14)" stroke-width="6.5"/>
+        <circle class="pg-ring-fill" cx="50" cy="50" r="${r}" fill="none"
+          stroke="${color}" stroke-width="6.5" stroke-linecap="round"
+          style="--rd:${dash};stroke-dashoffset:${off}"
+          filter="url(#rg${uid})"/>
+        <text x="50" y="50" text-anchor="middle" dominant-baseline="middle"
+          font-family="Bebas Neue,sans-serif" font-size="15.5"
+          fill="var(--tx)" letter-spacing=".5">${fMin(min)}</text>
       </svg>
+      <div style="
+        font-family:'Barlow Condensed',sans-serif;
+        font-size:8.5px;letter-spacing:2px;text-transform:uppercase;
+        color:rgba(${rgb},0.80);font-weight:700;margin-top:7px;text-align:center;
+        line-height:1.2;
+      ">${t(labelKey).toUpperCase()}</div>
     </div>`;
   }
 
@@ -5355,10 +5387,10 @@ function buildCardioCard(cardioWeekMin,cardioMonthMin,cardioTotalMin,cardioSessi
   }).join('');
 
   return `
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:16px">
-      ${ring(cardioWeekMin,'var(--ok)','thisWeekCard')}
-      ${ring(cardioMonthMin,'var(--ac2)','thisMonth')}
-      ${ring(cardioTotalMin,'var(--ac)','allTime')}
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      ${ring(cardioWeekMin,wkCnt,'var(--ok)','thisWeekCard','w')}
+      ${ring(cardioMonthMin,moCnt,'var(--ac2)','thisMonth','m')}
+      ${ring(cardioTotalMin,totCnt,'var(--ac)','allTime','t')}
     </div>
     <div style="border-top:1px solid var(--bd);padding-top:14px">
       <div style="display:flex;gap:3px;align-items:flex-end">${bars}</div>

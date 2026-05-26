@@ -666,6 +666,12 @@ button{-webkit-user-select:none;user-select:none}
 [data-pg-reveal="card"].pg-anim .hr:nth-child(7){animation:imFadeSlideUp .25s ease-out .40s both}
 [data-pg-reveal="card"].pg-anim .hr:nth-child(8){animation:imFadeSlideUp .25s ease-out .46s both}
 </style>
+<script>
+(function(){
+  const m={name:"IRONMEN",short_name:"IRONMEN",display:"fullscreen",orientation:"portrait-primary",background_color:"#0C0C0C",theme_color:"#0C0C0C",start_url:window.location.href,scope:window.location.href,icons:[]};
+  try{const b=new Blob([JSON.stringify(m)],{type:'application/json'});const u=URL.createObjectURL(b);const l=document.createElement('link');l.rel='manifest';l.href=u;document.head.appendChild(l);}catch(e){}
+})();
+</script>
 </head>
 <body>
 
@@ -6498,6 +6504,53 @@ function renderSpInner(data){
     </div>
   </div>`;
 }
+
+// ═══════════ PWA FULLSCREEN ═══════════
+(function(){
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid=/android/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode: fullscreen)').matches||window.matchMedia('(display-mode: standalone)').matches;
+
+  // Android: request fullscreen on first interaction
+  if(isAndroid&&!isStandalone){
+    const req=()=>{
+      const el=document.documentElement;
+      if(el.requestFullscreen)el.requestFullscreen({navigationUI:'hide'}).catch(()=>{});
+      else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+      document.removeEventListener('pointerdown',req);
+    };
+    document.addEventListener('pointerdown',req,{once:true});
+    // Also try orientation lock
+    try{screen.orientation.lock('portrait').catch(()=>{});}catch(e){}
+  }
+
+  // iOS: show "Add to Home Screen" banner if not standalone
+  if(isIOS&&!isStandalone&&!localStorage.getItem('im_a2hs_dismissed')){
+    setTimeout(()=>{
+      const banner=document.createElement('div');
+      banner.id='a2hs-banner';
+      banner.innerHTML=`
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="font-size:28px;line-height:1">📲</div>
+          <div style="flex:1">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;color:#fff;margin-bottom:4px">ADAUGĂ LA ECRAN PRINCIPAL</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.7);line-height:1.4">Apasă <strong style="color:#fff">☐ Share</strong> → <strong style="color:#fff">Add to Home Screen</strong> pentru experiență fullscreen</div>
+          </div>
+          <button onclick="localStorage.setItem('im_a2hs_dismissed','1');document.getElementById('a2hs-banner').remove()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;padding:0;line-height:1;min-width:24px">✕</button>
+        </div>
+      `;
+      Object.assign(banner.style,{
+        position:'fixed',bottom:'calc(80px + env(safe-area-inset-bottom))',left:'12px',right:'12px',
+        background:'rgba(30,30,30,.97)',backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)',
+        border:'1px solid rgba(255,255,255,.12)',borderRadius:'14px',padding:'14px 16px',
+        zIndex:'9999',boxShadow:'0 4px 24px rgba(0,0,0,.5)',
+        animation:'imFadeSlideUp .3s ease-out both'
+      });
+      document.body.appendChild(banner);
+      setTimeout(()=>{if(banner.parentNode){banner.style.transition='opacity .4s';banner.style.opacity='0';setTimeout(()=>banner.remove(),400);}},7000);
+    },2500);
+  }
+})();
 
 // ═══════════ AUTH INIT ═══════════
 (async function(){

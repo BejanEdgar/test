@@ -4486,7 +4486,7 @@ function renderHome(){
       <div style="font-size:44px;margin-bottom:12px">🏋️</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--tx);margin-bottom:8px">${t('createFirstWorkout')}</div>
       <div style="font-size:13px;color:var(--tx2);margin-bottom:18px;line-height:1.5;font-family:'Barlow',sans-serif">${t('createFirstSub')}</div>
-      <button class="btn bp bsm" onclick="go('library');setTimeout(()=>{const b=document.querySelector('.btn.bg');if(b)b.click();},300)">${t('createWorkoutBtn')}</button>
+      <button class="btn bp bsm" onclick="openAddWk()">${t('createWorkoutBtn')}</button>
     </div>`;
 
   document.getElementById('sc-home').innerHTML=`

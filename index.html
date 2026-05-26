@@ -280,6 +280,42 @@ button{-webkit-user-select:none;user-select:none}
   from{opacity:0;transform:translateY(18px)}
   to  {opacity:1;transform:translateY(0)}
 }
+/* ── Calendar ── */
+@keyframes appleEaten{
+  0%{transform:scale(1);opacity:1}
+  30%{transform:scale(1.4);opacity:1}
+  100%{transform:scale(0);opacity:0}
+}
+@keyframes appleReturn{
+  0%{transform:scale(0);opacity:0}
+  60%{transform:scale(1.3);opacity:1}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes calDayPop{
+  0%{transform:scale(.8);opacity:0}
+  70%{transform:scale(1.05)}
+  100%{transform:scale(1);opacity:1}
+}
+.cal-day{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;border-radius:8px;position:relative;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  transition:background .2s;
+}
+.cal-apple{
+  background:rgba(0,201,106,.08);
+  border:1px solid rgba(0,201,106,.18);
+}
+.cal-today .cal-day-num{color:var(--ac)!important;font-size:14px!important}
+.cal-today{border:1.5px solid rgba(255,61,0,.4);background:rgba(255,61,0,.06)!important}
+.apple-icon{font-size:14px;line-height:1;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;display:block}
+.apple-eaten .apple-icon{animation:appleEaten .35s ease-out forwards}
+.apple-return .apple-icon{animation:appleReturn .45s cubic-bezier(.34,1.56,.64,1) forwards}
+.cal-snake-glow{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,61,0,.35) 0%,transparent 70%);
+  width:24px;height:24px;transform:translate(-50%,-50%);
+}
 
 /* ── 2. Screen transitions ── */
 /* Tab screens: fade + slide up */
@@ -295,26 +331,236 @@ button{-webkit-user-select:none;user-select:none}
   animation:imSlideInRight .26s cubic-bezier(.25,.8,.25,1) both;
 }
 
-/* ── 3. Auth screen entrance ── */
-/* Logo */
-.im-auth-logo{
-  animation:imLogoIn .72s cubic-bezier(.34,1.56,.64,1) .05s both;
+/* ── 3. Auth screen entrance — enhanced GPU-only animations ── */
+
+/* ── Extra auth keyframes ── */
+@keyframes imLogoGlowPulse{
+  0%,100%{text-shadow:0 0 0 transparent}
+  50%{text-shadow:0 0 32px rgba(255,61,0,.55),0 0 64px rgba(255,61,0,.22)}
 }
+@keyframes imLogoMIn{
+  0%  {opacity:0;transform:scale(2.4) translateY(-10px);filter:blur(8px)}
+  60% {opacity:1;transform:scale(.96) translateY(2px);filter:blur(0)}
+  80% {transform:scale(1.04) translateY(-1px)}
+  100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
+}
+@keyframes imLogoWordIn{
+  0%  {opacity:0;transform:translateY(22px) scaleY(1.18);filter:blur(4px)}
+  55% {opacity:1;transform:translateY(-2px) scaleY(.98);filter:blur(0)}
+  75% {transform:translateY(1px) scaleY(1.01)}
+  100%{opacity:1;transform:translateY(0) scaleY(1)}
+}
+@keyframes imAuthTaglineIn{
+  0%  {opacity:0;letter-spacing:12px;transform:translateY(8px)}
+  100%{opacity:1;letter-spacing:3px;transform:translateY(0)}
+}
+@keyframes imAuthLangIn{
+  0%  {opacity:0;transform:translateY(16px) scale(.9)}
+  65% {opacity:1;transform:translateY(-2px) scale(1.02)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes imAuthTabsIn{
+  0%  {opacity:0;transform:translateY(20px) scale(.96)}
+  60% {opacity:1;transform:translateY(-2px) scale(1.01)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes imAuthFormIn{
+  0%  {opacity:0;transform:translateY(28px)}
+  55% {opacity:1;transform:translateY(-3px)}
+  75% {transform:translateY(1px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes imAuthFooterIn{
+  0%  {opacity:0;transform:translateY(12px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes imAuthScanLine{
+  0%  {transform:translateY(-100%);opacity:.18}
+  100%{transform:translateY(500%);opacity:0}
+}
+@keyframes imAuthBgPulse{
+  0%,100%{opacity:.55}
+  50%{opacity:.85}
+}
+@keyframes imLogoUnderline{
+  0%  {transform:scaleX(0);opacity:0}
+  60% {opacity:1}
+  100%{transform:scaleX(1);opacity:1}
+}
+@keyframes imTabSwipeLeft{
+  from{opacity:0;transform:translateX(22px)}
+  to  {opacity:1;transform:translateX(0)}
+}
+@keyframes imTabSwipeRight{
+  from{opacity:0;transform:translateX(-22px)}
+  to  {opacity:1;transform:translateX(0)}
+}
+@keyframes imInputFocusGlow{
+  0%  {box-shadow:0 0 0 0 rgba(255,61,0,0)}
+  50% {box-shadow:0 0 0 3px rgba(255,61,0,.18)}
+  100%{box-shadow:0 0 0 0 rgba(255,61,0,0)}
+}
+@keyframes imLangBtnPop{
+  0%  {transform:scale(1)}
+  45% {transform:scale(1.22)}
+  70% {transform:scale(.91)}
+  100%{transform:scale(1)}
+}
+@keyframes imLoginBtnReady{
+  0%  {box-shadow:0 4px 18px rgba(255,61,0,0)}
+  50% {box-shadow:0 4px 18px rgba(255,61,0,.45)}
+  100%{box-shadow:0 4px 18px rgba(255,61,0,.22)}
+}
+@keyframes imOrbFloat{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(18px,-14px) scale(1.08)}
+  66%{transform:translate(-12px,10px) scale(.94)}
+}
+@keyframes imOrbFloat2{
+  0%,100%{transform:translate(0,0) scale(1)}
+  40%{transform:translate(-22px,16px) scale(1.06)}
+  70%{transform:translate(14px,-8px) scale(.96)}
+}
+@keyframes imParticleRise{
+  0%  {opacity:0;transform:translateY(0) scale(0)}
+  15% {opacity:.7}
+  85% {opacity:.4}
+  100%{opacity:0;transform:translateY(-80px) scale(1)}
+}
+
+/* ── Auth background orbs ── */
+#auth-orb1,#auth-orb2,#auth-orb3{
+  position:absolute;border-radius:50%;pointer-events:none;
+  will-change:transform;
+}
+#auth-orb1{
+  width:260px;height:260px;
+  top:-60px;right:-80px;
+  background:radial-gradient(circle,rgba(255,61,0,.18) 0%,rgba(255,61,0,.06) 50%,transparent 70%);
+  animation:imOrbFloat 9s ease-in-out infinite;
+}
+#auth-orb2{
+  width:200px;height:200px;
+  bottom:80px;left:-60px;
+  background:radial-gradient(circle,rgba(255,184,0,.12) 0%,rgba(255,61,0,.05) 50%,transparent 70%);
+  animation:imOrbFloat2 12s ease-in-out infinite .5s;
+}
+#auth-orb3{
+  width:120px;height:120px;
+  top:40%;right:-30px;
+  background:radial-gradient(circle,rgba(255,61,0,.10) 0%,transparent 70%);
+  animation:imOrbFloat 7s ease-in-out infinite 2s;
+}
+/* Auth grid overlay */
+#auth-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,61,0,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,61,0,.03) 1px,transparent 1px);
+  background-size:36px 36px;
+  mask-image:radial-gradient(ellipse 75% 65% at 50% 40%,black 0%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 75% 65% at 50% 40%,black 0%,transparent 100%);
+  animation:imAuthBgPulse 6s ease-in-out infinite;
+}
+/* Scan-line sweep */
+#auth-scan{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+}
+#auth-scan::after{
+  content:'';
+  position:absolute;left:0;right:0;height:40px;top:0;
+  background:linear-gradient(transparent,rgba(255,61,0,.04) 50%,transparent);
+  animation:imAuthScanLine 5.5s cubic-bezier(.4,0,.6,1) infinite 1.2s;
+  will-change:transform;
+}
+
+/* Logo container split animation */
+.im-auth-logo-word{
+  display:inline-block;
+  will-change:transform,opacity;
+}
+.im-auth-logo-word.part-iron{
+  animation:imLogoWordIn .62s cubic-bezier(.34,1.28,.64,1) .08s both;
+}
+.im-auth-logo-m{
+  display:inline-block;
+  color:var(--ac);
+  will-change:transform,opacity,filter;
+  animation:imLogoMIn .7s cubic-bezier(.34,1.56,.64,1) .22s both;
+}
+.im-auth-logo-word.part-en{
+  animation:imLogoWordIn .62s cubic-bezier(.34,1.28,.64,1) .32s both;
+}
+.im-auth-logo-tagline{
+  will-change:opacity,letter-spacing,transform;
+  animation:imAuthTaglineIn .7s cubic-bezier(.25,.8,.25,1) .52s both;
+}
+/* Underline accent below logo */
+.im-auth-logo-line{
+  display:block;
+  height:2px;
+  width:48px;
+  margin:10px auto 0;
+  background:linear-gradient(90deg,transparent,var(--ac),transparent);
+  transform-origin:center;
+  will-change:transform,opacity;
+  animation:imLogoUnderline .55s cubic-bezier(.34,1.3,.64,1) .72s both;
+}
+/* Glow pulse on M after entrance */
+.im-auth-logo-m{
+  animation:imLogoMIn .7s cubic-bezier(.34,1.56,.64,1) .22s both,
+             imLogoGlowPulse 3.2s ease-in-out 1.4s infinite;
+}
+
 /* Language picker */
 .im-auth-lang{
-  animation:imFadeUp .42s ease-out .22s both;
+  will-change:transform,opacity;
+  animation:imAuthLangIn .5s cubic-bezier(.34,1.3,.64,1) .62s both;
 }
+/* Pop animation on active lang button */
+.auth-lang-pop{
+  animation:imLangBtnPop .32s cubic-bezier(.34,1.56,.64,1) both !important;
+}
+
 /* Tab switcher */
 .im-auth-tabs{
-  animation:imFadeUp .42s ease-out .32s both;
+  will-change:transform,opacity;
+  animation:imAuthTabsIn .48s cubic-bezier(.34,1.2,.64,1) .74s both;
 }
-/* Forms */
+
+/* Forms — entrance only; swipe handled by JS */
 .im-auth-form{
-  animation:imFadeUp .42s ease-out .42s both;
+  will-change:transform,opacity;
+  animation:imAuthFormIn .5s cubic-bezier(.25,.8,.25,1) .84s both;
 }
+/* Tab-switch slide classes (added by JS) */
+.auth-slide-left{
+  animation:imTabSwipeLeft .3s cubic-bezier(.34,1.1,.64,1) both !important;
+}
+.auth-slide-right{
+  animation:imTabSwipeRight .3s cubic-bezier(.34,1.1,.64,1) both !important;
+}
+
 /* Footer */
 .im-auth-footer{
-  animation:imFadeUp .38s ease-out .52s both;
+  will-change:opacity,transform;
+  animation:imAuthFooterIn .45s ease-out 1.05s both;
+}
+
+/* Input: glow on focus */
+#sc-auth .inp:focus{
+  border-color:var(--ac);
+  box-shadow:0 0 0 3px rgba(255,61,0,.14);
+  transition:border-color .2s,box-shadow .2s;
+}
+/* Login button: subtle glow once form is visible */
+#auth-login-btn,#auth-register-btn{
+  animation:imLoginBtnReady 2.2s ease-out 1.5s both;
+  transition:filter .12s,transform .12s,box-shadow .2s;
+}
+#auth-login-btn:active,#auth-register-btn:active{
+  filter:brightness(.85);transform:scale(.97);
+  box-shadow:0 2px 8px rgba(255,61,0,.25) !important;
 }
 
 /* ── 4. Modals: slide-up on open ── */
@@ -502,6 +748,29 @@ button{-webkit-user-select:none;user-select:none}
   }
 }
 
+/* ── Achievement unlock ── */
+@keyframes imAchUnlock{
+  0%  {transform:scale(.72);opacity:0}
+  55% {transform:scale(1.10)}
+  75% {transform:scale(.95)}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes imAchGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,61,0,0)}
+  50%    {box-shadow:0 0 14px 2px rgba(255,61,0,.35)}
+}
+@keyframes imAchBarFill{
+  from{width:0}
+  to  {width:var(--aw,0%)}
+}
+.ach-unlocked{
+  animation:imAchUnlock .5s cubic-bezier(.34,1.4,.64,1) var(--ad,0s) both,
+             imAchGlow 2.8s ease-in-out calc(var(--ad,0s) + .5s) 2;
+}
+.ach-bar-fill{
+  animation:imAchBarFill .6s cubic-bezier(.25,.8,.25,1) var(--ad,0s) both;
+}
+
 /* ════════════════════════════════════════
    PROGRESS SCREEN — SCROLL-REVEAL ANIMATIONS
    Triggered by IntersectionObserver per element.
@@ -678,19 +947,30 @@ button{-webkit-user-select:none;user-select:none}
 <input type="file" id="xl-import-input" accept=".xlsx,.xls" style="display:none" onchange="handleImportFile(this)">
 
 <!-- AUTH SCREEN -->
-<div id="sc-auth" class="fullscreen active" style="z-index:500;background:var(--bg);align-items:stretch;padding:0">
-  <div style="flex:1;display:flex;flex-direction:column;padding:0 28px;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="sc-auth" class="fullscreen active" style="z-index:500;background:var(--bg);align-items:stretch;padding:0;overflow:hidden">
+
+  <!-- Background decorations (GPU layers, pointer-events:none) -->
+  <div id="auth-orb1" aria-hidden="true"></div>
+  <div id="auth-orb2" aria-hidden="true"></div>
+  <div id="auth-orb3" aria-hidden="true"></div>
+  <div id="auth-grid" aria-hidden="true"></div>
+  <div id="auth-scan" aria-hidden="true"></div>
+
+  <div style="flex:1;display:flex;flex-direction:column;padding:0 28px;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1">
     <!-- Logo -->
-    <div class="im-auth-logo" style="padding-top:max(70px,calc(env(safe-area-inset-top) + 40px));text-align:center;margin-bottom:40px">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:6px;line-height:1">IRON<span style="color:var(--ac)">M</span>EN</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;color:var(--tx3);margin-top:6px;text-transform:uppercase">Train Harder</div>
+    <div style="padding-top:max(70px,calc(env(safe-area-inset-top) + 40px));text-align:center;margin-bottom:40px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:6px;line-height:1;display:inline-block">
+        <span class="im-auth-logo-word part-iron">IRON</span><span class="im-auth-logo-m">M</span><span class="im-auth-logo-word part-en">EN</span>
+      </div>
+      <div class="im-auth-logo-tagline" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;color:var(--tx3);margin-top:6px;text-transform:uppercase">Train Harder</div>
+      <span class="im-auth-logo-line" aria-hidden="true"></span>
     </div>
 
     <!-- Language picker -->
     <div class="im-auth-lang" style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">
-      <button id="auth-lang-en" onclick="setAuthLang('en')" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--ac);background:var(--ac);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">EN</button>
-      <button id="auth-lang-ro" onclick="setAuthLang('ro')" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">RO</button>
-      <button id="auth-lang-ru" onclick="setAuthLang('ru')" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">RU</button>
+      <button id="auth-lang-en" onclick="authLangPick('en',this)" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--ac);background:var(--ac);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;will-change:transform">EN</button>
+      <button id="auth-lang-ro" onclick="authLangPick('ro',this)" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;will-change:transform">RO</button>
+      <button id="auth-lang-ru" onclick="authLangPick('ru',this)" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--bd);background:transparent;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;will-change:transform">RU</button>
     </div>
 
     <!-- Tabs -->
@@ -738,7 +1018,7 @@ button{-webkit-user-select:none;user-select:none}
     </div>
 
   </div>
-  <div class="im-auth-footer" style="padding:16px 28px 32px;text-align:center;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px">CREATED BY BEJAN EDGAR · IRONMEN © 2026</div>
+  <div class="im-auth-footer" style="padding:16px 28px 32px;text-align:center;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;position:relative;z-index:1">CREATED BY BEJAN EDGAR · IRONMEN © 2026</div>
 </div>
 
 <div id="sc-home" class="screen"></div>
@@ -3478,13 +3758,30 @@ function getUserSK(uid_){ return 'ironmen4_' + uid_; }
 
 function switchAuthTab(tab){
   const isLogin=tab==='login';
-  document.getElementById('auth-login-form').style.display=isLogin?'block':'none';
-  document.getElementById('auth-register-form').style.display=isLogin?'none':'block';
+  const showEl=document.getElementById(isLogin?'auth-login-form':'auth-register-form');
+  const hideEl=document.getElementById(isLogin?'auth-register-form':'auth-login-form');
+  if(hideEl)hideEl.style.display='none';
+  if(showEl){
+    showEl.style.display='block';
+    showEl.classList.remove('auth-slide-left','auth-slide-right');
+    // force reflow
+    void showEl.offsetWidth;
+    showEl.classList.add(isLogin?'auth-slide-right':'auth-slide-left');
+  }
   const tl=document.getElementById('tab-login'),tr=document.getElementById('tab-register');
   tl.style.background=isLogin?'var(--ac)':'transparent';tl.style.color=isLogin?'#fff':'var(--tx3)';
   tr.style.background=isLogin?'transparent':'var(--ac)';tr.style.color=isLogin?'var(--tx3)':'#fff';
   document.getElementById('auth-lerr').textContent='';
   document.getElementById('auth-rerr').textContent='';
+}
+
+/* Language pick with pop animation */
+function authLangPick(l,btn){
+  btn.classList.remove('auth-lang-pop');
+  void btn.offsetWidth;
+  btn.classList.add('auth-lang-pop');
+  btn.addEventListener('animationend',()=>btn.classList.remove('auth-lang-pop'),{once:true});
+  setAuthLang(l);
 }
 function togglePwd(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
 
@@ -3651,7 +3948,11 @@ const LANGS={
     exerciseLabel:'EXERCISE',setsDone:'SETS DONE',weightCol:'WEIGHT',repsCol:'REPS',
     addSet:'+ SET',elapsed:'ELAPSED',
     skipRest:'SKIP REST ›',secondsRemaining:'SECONDS REMAINING',restTimer:'Rest Timer',
-    ach_century:'Century',ach_streak10:'Streak 10',ach_beast:'Beast',ach_firstPR:'First PR',
+    ach_first:'First Step',ach_century:'Century',ach_grinder:'Grinder',ach_machine:'Machine',
+    ach_onfire:'On Fire',ach_streak10:'Streak 10',ach_unstop:'Unstoppable',ach_ironmind:'Iron Mind',
+    ach_firstPR:'First PR',ach_beast:'Beast',ach_pking:'PR King',ach_irongod:'Iron God',
+    ach_scale:'Scale Keeper',ach_furnace:'Furnace',ach_builder:'Builder',ach_datanerd:'Data Nerd',
+    achCat_sessions:'SESSIONS',achCat_streaks:'STREAKS',achCat_records:'RECORDS',achCat_extra:'EXTRAS',
     cancelBtn:'CANCEL',confirmBtn:'CONFIRM',saveBtn:'SAVE',addBtn:'ADD',
     synced:'● SYNCED TO SUPABASE',noExResults:'No results',custExSection:'★ My Custom Exercises',
     muscleGroup:'Muscle Group',equipType:'Equipment Type',
@@ -3761,7 +4062,11 @@ const LANGS={
     exerciseLabel:'EXERCIȚIU',setsDone:'SETURI FĂCUTE',weightCol:'GREUTATE',repsCol:'REPETĂRI',
     addSet:'+ SET',elapsed:'TRECUT',
     skipRest:'SARI PAUZA ›',secondsRemaining:'SECUNDE RĂMASE',restTimer:'Pauză',
-    ach_century:'Centurion',ach_streak10:'Streak 10',ach_beast:'Bestie',ach_firstPR:'Primul PR',
+    ach_first:'Primul Pas',ach_century:'Centurion',ach_grinder:'Mașinărie',ach_machine:'Mașină',
+    ach_onfire:'În Flăcări',ach_streak10:'Streak 10',ach_unstop:'Imbatabil',ach_ironmind:'Minte de Fier',
+    ach_firstPR:'Primul PR',ach_beast:'Bestie',ach_pking:'Rege PR',ach_irongod:'Zeul Fierului',
+    ach_scale:'Tracker',ach_furnace:'Cuptor',ach_builder:'Constructor',ach_datanerd:'Analitician',
+    achCat_sessions:'SESIUNI',achCat_streaks:'STREAK-URI',achCat_records:'RECORDURI',achCat_extra:'EXTRA',
     cancelBtn:'ANULEAZĂ',confirmBtn:'CONFIRMĂ',saveBtn:'SALVEAZĂ',addBtn:'ADAUGĂ',
     synced:'● SINCRONIZAT CU SUPABASE',noExResults:'Niciun rezultat',custExSection:'★ Exercițiile Mele',
     muscleGroup:'Grup Muscular',equipType:'Tip Echipament',
@@ -3871,7 +4176,11 @@ const LANGS={
     exerciseLabel:'Упражнение',setsDone:'Подходов сделано',weightCol:'Вес',repsCol:'Повторы',
     addSet:'+ Подход',elapsed:'Прошло',
     skipRest:'Пропустить отдых ›',secondsRemaining:'Секунд осталось',restTimer:'Отдых',
-    ach_century:'Сотня',ach_streak10:'Серия 10',ach_beast:'Монстр',ach_firstPR:'Первый рекорд',
+    ach_first:'Первый шаг',ach_century:'Сотня',ach_grinder:'Трудяга',ach_machine:'Машина',
+    ach_onfire:'В огне',ach_streak10:'Серия 10',ach_unstop:'Неудержим',ach_ironmind:'Воля железа',
+    ach_firstPR:'Первый рекорд',ach_beast:'Монстр',ach_pking:'Рекордсмен',ach_irongod:'Железный бог',
+    ach_scale:'Трекер',ach_furnace:'Топка',ach_builder:'Строитель',ach_datanerd:'Аналитик',
+    achCat_sessions:'СЕССИИ',achCat_streaks:'СЕРИИ',achCat_records:'РЕКОРДЫ',achCat_extra:'ПРОЧЕЕ',
     cancelBtn:'Отмена',confirmBtn:'Подтвердить',saveBtn:'Сохранить',addBtn:'Добавить',
     synced:'● Синхронизировано',noExResults:'Нет результатов',custExSection:'★ Мои упражнения',
     muscleGroup:'Группа мышц',equipType:'Тип оборудования',
@@ -4391,6 +4700,8 @@ function moveNavPill(sc,instant){
 }
 
 function go(sc){
+  // Stop snake when leaving progress screen
+  if(sc!=='progress'){try{_stopSnake();}catch(_){}}
   const fromFullscreen=curSc==='active'||curSc==='wkd';
   curSc=sc;
   document.querySelectorAll('.screen,.fullscreen').forEach(s=>s.classList.remove('active'));
@@ -5504,6 +5815,23 @@ function renderProg(){
       <div id="bwc2" style="display:none;margin-top:10px;color:var(--ok);font-size:13px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">✓ ${t('logBodyWeight')}!</div>
     </div>
 
+    <div data-pg-reveal="label" class="slbl" style="justify-content:space-between">
+      <span id="cal-slbl-title">WORKOUT CALENDAR</span>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button class="bico" style="width:30px;height:30px;font-size:16px;line-height:1" onclick="calPrev()">‹</button>
+        <span id="cal-month-label" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:var(--tx2);min-width:90px;text-align:center"></span>
+        <button class="bico" style="width:30px;height:30px;font-size:16px;line-height:1" onclick="calNext()">›</button>
+      </div>
+    </div>
+    <div data-pg-reveal="card" class="card" style="margin:0 20px;padding:10px 10px 12px" id="cal-card">
+      <div id="cal-sport-row" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
+      <div id="cal-dow-headers" style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px"></div>
+      <div style="position:relative">
+        <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
+        <canvas id="snake-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:6px"></canvas>
+      </div>
+    </div>
+
     <div data-pg-reveal="label" class="slbl">${t('currentStreak')}</div>
     <div data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
@@ -5561,6 +5889,10 @@ function renderProg(){
   setTimeout(()=>{
     try{drawBW(bw);}catch(e){console.warn('drawBW:',e);}
     try{drawVol(wkVol);}catch(e){console.warn('drawVol:',e);}
+    try{
+      if(!window._calState){const n=new Date();window._calState={year:n.getFullYear(),month:n.getMonth()};}
+      buildCalendar();
+    }catch(e){console.warn('buildCalendar:',e);}
     initProgReveal();
   },150);
   }catch(err){
@@ -5597,6 +5929,326 @@ function initProgReveal(){
     items.forEach(el=>window._pgIO.observe(el));
     setTimeout(()=>{items.forEach(el=>{if(!el.classList.contains('pg-anim'))el.classList.add('pg-anim');});},700);
   });});
+}
+
+// ═══════════ WORKOUT CALENDAR + BALL ANIMATION ═══════════
+(function(){
+  if(!window._calState){
+    const n=new Date();
+    window._calState={year:n.getFullYear(),month:n.getMonth(),sport:'football'};
+  }
+  if(window._snakeLoop){cancelAnimationFrame(window._snakeLoop._raf);clearTimeout(window._snakeLoop._to);window._snakeLoop=null;}
+})();
+
+const _CAL_MONTHS={
+  en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  ro:['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'],
+  ru:['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
+};
+const _CAL_DOW={
+  en:['Mo','Tu','We','Th','Fr','Sa','Su'],
+  ro:['Lu','Ma','Mi','Jo','Vi','Sâ','Du'],
+  ru:['Пн','Вт','Ср','Чт','Пт','Сб','Вс']
+};
+const _CAL_TITLE={en:'WORKOUT CALENDAR',ro:'CALENDAR ANTRENAMENTE',ru:'КАЛЕНДАРЬ ТРЕНИРОВОК'};
+
+// Each sport: ball emoji, target emoji shown in cells, glow colour, arc height ratio, rotation speed
+const _CAL_SPORTS=[
+  {key:'football',   ball:'⚽', target:'🥅', glow:'80,220,120',  arcH:0.50, rot:0.14, name:{en:'Football',   ro:'Fotbal',    ru:'Футбол'}},
+  {key:'basketball', ball:'🏀', target:'🗑️', glow:'255,140,50',  arcH:0.28, rot:0.07, name:{en:'Basketball', ro:'Baschet',   ru:'Баскет'}},
+  {key:'tennis',     ball:'🎾', target:'⚾', glow:'195,235,55',  arcH:0.60, rot:0.22, name:{en:'Tennis',     ro:'Tenis',     ru:'Теннис'}},
+  {key:'volleyball', ball:'🏐', target:'🏖️', glow:'100,180,255', arcH:0.40, rot:0.09, name:{en:'Volleyball', ro:'Volei',     ru:'Волейбол'}},
+  {key:'american',   ball:'🏈', target:'👱‍♂️', glow:'210,140,60',  arcH:0.45, rot:0.11, name:{en:'NFL',        ro:'NFL',       ru:'NFL'}},
+  {key:'rugby',      ball:'🏉', target:'🦅', glow:'185,110,55',  arcH:0.42, rot:0.10, name:{en:'Rugby',      ro:'Rugby',     ru:'Регби'}},
+];
+
+function calSelectSport(key){
+  if(!window._calState)window._calState={year:new Date().getFullYear(),month:new Date().getMonth(),sport:'football'};
+  window._calState.sport=key;
+  document.querySelectorAll('.cal-sport-btn').forEach(b=>{
+    const sel=b.dataset.sport===key;
+    b.style.borderColor=sel?'var(--ac)':'var(--bd)';
+    b.style.background=sel?'rgba(255,61,0,.15)':'var(--sf2)';
+    b.style.color=sel?'var(--ac)':'var(--tx2)';
+  });
+  buildCalendar();
+}
+function calPrev(){
+  if(!window._calState)window._calState={year:new Date().getFullYear(),month:new Date().getMonth(),sport:'football'};
+  window._calState.month--;if(window._calState.month<0){window._calState.month=11;window._calState.year--;}
+  buildCalendar();
+}
+function calNext(){
+  if(!window._calState)window._calState={year:new Date().getFullYear(),month:new Date().getMonth(),sport:'football'};
+  window._calState.month++;if(window._calState.month>11){window._calState.month=0;window._calState.year++;}
+  buildCalendar();
+}
+
+function buildCalendar(){
+  const cs=window._calState;if(!cs)return;
+  const{year,month,sport}=cs;
+  const CL=(typeof lang!=='undefined'?lang:'en');
+  const mnames=_CAL_MONTHS[CL]||_CAL_MONTHS.en;
+  const dowArr=_CAL_DOW[CL]||_CAL_DOW.en;
+  const titleLbl=_CAL_TITLE[CL]||_CAL_TITLE.en;
+  const SC=_CAL_SPORTS.find(s=>s.key===sport)||_CAL_SPORTS[0];
+
+  const lblEl=document.getElementById('cal-slbl-title');if(lblEl)lblEl.textContent=titleLbl;
+  const mLbl=document.getElementById('cal-month-label');if(mLbl)mLbl.textContent=mnames[month]+' '+year;
+
+  // ── Sport picker pills ──
+  const sRow=document.getElementById('cal-sport-row');
+  if(sRow){
+    sRow.innerHTML=_CAL_SPORTS.map(s=>{
+      const nm=s.name[CL]||s.name.en;
+      const sel=s.key===sport;
+      return`<button class="cal-sport-btn" data-sport="${s.key}" onclick="calSelectSport('${s.key}')"
+        style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;
+               border-radius:20px;padding:5px 12px;border:1.5px solid ${sel?'var(--ac)':'var(--bd)'};
+               background:${sel?'rgba(255,61,0,.15)':'var(--sf2)'};color:${sel?'var(--ac)':'var(--tx2)'};
+               font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;
+               cursor:pointer;outline:none;min-height:32px;transition:all .15s">
+        <span style="font-size:14px">${s.ball}</span><span>${nm}</span>
+      </button>`;
+    }).join('');
+  }
+
+  // ── Workout dates ──
+  const workoutDates=new Set();
+  if(S&&S.hist){S.hist.forEach(h=>{if(h.date&&h.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`))workoutDates.add(h.date);});}
+
+  // ── Day-of-week headers ──
+  const hdrs=document.getElementById('cal-dow-headers');
+  if(hdrs)hdrs.innerHTML=dowArr.map(d=>`<div style="text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--tx3);padding:3px 0">${d}</div>`).join('');
+
+  // ── Calendar grid ──
+  const grid=document.getElementById('cal-grid');if(!grid)return;
+  const firstDow=new Date(year,month,1).getDay();
+  const offset=(firstDow===0?6:firstDow-1);
+  const total=new Date(year,month+1,0).getDate();
+  const today=new Date().toISOString().slice(0,10);
+  let html='';
+  for(let i=0;i<offset;i++)html+='<div></div>';
+  for(let d=1;d<=total;d++){
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hw=workoutDates.has(ds);const it=ds===today;const past=ds<=today;
+    html+=`<div class="cal-day${hw?' cal-apple':''}${it?' cal-today':''}" data-date="${ds}" style="${!past&&!it?'opacity:0.38':''}">
+      ${hw?`<div class="apple-icon" style="font-size:16px;line-height:1;display:block">${SC.target}</div>`:''}
+      <span class="cal-day-num" style="font-family:'Barlow Condensed',sans-serif;font-size:${hw?'9':'12'}px;font-weight:700;${it?'color:var(--ac)':''}">${d}</span>
+    </div>`;
+  }
+  grid.innerHTML=html;
+
+  _stopSnake();
+  setTimeout(()=>_startBallAnim(workoutDates,SC),500);
+}
+
+// Kept as _stopSnake for compatibility with go() hook
+function _stopSnake(){
+  if(window._snakeLoop){cancelAnimationFrame(window._snakeLoop._raf);clearTimeout(window._snakeLoop._to);window._snakeLoop=null;}
+  const cv=document.getElementById('snake-canvas');
+  if(cv){const c=cv.getContext('2d');if(c)c.clearRect(0,0,cv.width,cv.height);}
+}
+
+function _startBallAnim(workoutDates,SC){
+  const canvas=document.getElementById('snake-canvas');
+  const grid=document.getElementById('cal-grid');
+  if(!canvas||!grid)return;
+
+  // Collect target cells
+  const gRect=grid.getBoundingClientRect();
+  const targets=[];
+  grid.querySelectorAll('.cal-day.cal-apple').forEach(cell=>{
+    const r=cell.getBoundingClientRect();
+    targets.push({cell,x:r.left-gRect.left+r.width/2,y:r.top-gRect.top+r.height/2,scored:false});
+  });
+  if(targets.length===0)return;
+
+  // Size canvas to match grid
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=gRect.width*dpr;
+  canvas.height=gRect.height*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const W=gRect.width, H=gRect.height;
+
+  const BALL_PX=15;         // emoji draw size (half)
+  const SPEED=3.2;
+  const GLOW=SC.glow;
+  const BALL=SC.ball;
+  const ARC_H_RATIO=SC.arcH;
+  const ROT_SPD=SC.rot;
+
+  // ── State machine ──
+  // phases: 'flying' → 'pause' → 'resetting' → [timeout] → 'flying'
+  let phase='flying';
+  let tIdx=0;           // current target index during scoring
+  let rIdx=0;           // current target index during reset (0..n-1 reverse)
+  let pauseF=0;         // countdown frames
+  let resetPF=0;        // countdown between individual resets
+
+  // Ball position + bezier arc state
+  let bx=-BALL_PX, by=targets[0].y;
+  let arcX0=bx,arcY0=by,arcX1=0,arcY1=0,arcCX=0,arcCY=0,arcDur=1,arcF=0;
+
+  // Particles for score burst
+  let particles=[];
+
+  function buildArc(x0,y0,x1,y1){
+    arcX0=x0;arcY0=y0;arcX1=x1;arcY1=y1;
+    const dx=x1-x0,dy=y1-y0;
+    const dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const mx=(x0+x1)/2, my=(y0+y1)/2;
+    const arcHeight=Math.min(dist*ARC_H_RATIO,45);
+    // Perpendicular offset (upward bias)
+    const px=-dy/dist, py=dx/dist;
+    arcCX=mx+px*arcHeight;
+    arcCY=my+py*arcHeight-arcHeight*0.3;
+    arcDur=Math.max(22,Math.round(dist/SPEED));
+    arcF=0;
+  }
+
+  function scoreTarget(tgt){
+    tgt.scored=true;
+    const icon=tgt.cell.querySelector('.apple-icon');
+    if(icon){icon.style.animation='none';void icon.offsetWidth;icon.style.animation='appleEaten .38s ease-out forwards';}
+    // Burst particles
+    for(let i=0;i<12;i++){
+      const a=Math.random()*Math.PI*2, sp=1.5+Math.random()*3.5;
+      particles.push({x:tgt.x,y:tgt.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,sz:1.5+Math.random()*2.5});
+    }
+  }
+
+  function restoreTarget(tgt){
+    tgt.scored=false;
+    const icon=tgt.cell.querySelector('.apple-icon');
+    if(icon){icon.style.animation='none';void icon.offsetWidth;icon.style.animation='appleReturn .48s cubic-bezier(.34,1.56,.64,1) forwards';}
+  }
+
+  // Kick off first arc from left edge
+  buildArc(-BALL_PX, targets[0].y, targets[0].x, targets[0].y);
+
+  let rotation=0;
+  let rafId;
+
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+
+    // ── Particles ──
+    particles=particles.filter(p=>p.life>0.05);
+    for(const p of particles){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.18;p.life-=0.055;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.sz*p.life,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${GLOW},${p.life.toFixed(2)})`;
+      ctx.fill();
+    }
+
+    // ── Phase logic ──
+    if(phase==='flying'){
+      if(arcF>=arcDur){
+        // Arrived at target
+        bx=arcX1;by=arcY1;
+        const tgt=targets[tIdx];
+        if(tgt&&!tgt.scored)scoreTarget(tgt);
+        tIdx++;
+        if(tIdx>=targets.length){
+          phase='pause';pauseF=95;
+        } else {
+          buildArc(bx,by,targets[tIdx].x,targets[tIdx].y);
+        }
+      } else {
+        const t=arcF/arcDur,u=1-t;
+        bx=u*u*arcX0+2*u*t*arcCX+t*t*arcX1;
+        by=u*u*arcY0+2*u*t*arcCY+t*t*arcY1;
+        rotation+=ROT_SPD;arcF++;
+      }
+    } else if(phase==='pause'){
+      pauseF--;
+      if(pauseF<=0){
+        // Start return: restore last target (ball is already there), fly back in reverse
+        phase='returning';
+        rIdx=targets.length-1;
+        restoreTarget(targets[rIdx]);
+        rIdx--;
+        if(rIdx>=0){
+          buildArc(bx,by,targets[rIdx].x,targets[rIdx].y);
+        } else {
+          // Only 1 target — fly off-screen
+          buildArc(bx,by,-BALL_PX,by);
+          rIdx=-1;
+        }
+      }
+    } else if(phase==='returning'){
+      if(arcF>=arcDur){
+        bx=arcX1;by=arcY1;
+        if(rIdx>=0){
+          // Arrived at previous target — restore it
+          restoreTarget(targets[rIdx]);
+          rIdx--;
+          if(rIdx>=0){
+            buildArc(bx,by,targets[rIdx].x,targets[rIdx].y);
+          } else {
+            // All restored — arc off-screen left
+            buildArc(bx,by,-BALL_PX,by);
+          }
+        } else {
+          // Off-screen — stop RAF and restart after delay
+          ctx.clearRect(0,0,W,H);
+          window._snakeLoop._to=setTimeout(()=>{
+            if(!window._snakeLoop)return;
+            const cv=document.getElementById('snake-canvas');
+            const gr=document.getElementById('cal-grid');
+            if(!cv||!gr)return;
+            targets.forEach(t=>{t.scored=false;});
+            tIdx=0;rIdx=0;rotation=0;particles=[];
+            bx=-BALL_PX;by=targets[0].y;
+            buildArc(-BALL_PX,targets[0].y,targets[0].x,targets[0].y);
+            phase='flying';
+            rafId=requestAnimationFrame(tick);
+            window._snakeLoop._raf=rafId;
+          },1100);
+          return;
+        }
+      } else {
+        const t=arcF/arcDur,u=1-t;
+        bx=u*u*arcX0+2*u*t*arcCX+t*t*arcX1;
+        by=u*u*arcY0+2*u*t*arcCY+t*t*arcY1;
+        rotation-=ROT_SPD; // spin backwards on return
+        arcF++;
+      }
+    }
+
+    // ── Draw ball ──
+    if(bx>-BALL_PX*2 && bx<W+BALL_PX*2){
+      // Glow halo
+      const grd=ctx.createRadialGradient(bx,by,0,bx,by,BALL_PX*2.8);
+      grd.addColorStop(0,`rgba(${GLOW},0.55)`);
+      grd.addColorStop(1,`rgba(${GLOW},0)`);
+      ctx.beginPath();ctx.arc(bx,by,BALL_PX*2.8,0,Math.PI*2);
+      ctx.fillStyle=grd;ctx.fill();
+
+      // Shadow (squash-stretch based on y position → simulates bounce shadow)
+      ctx.beginPath();
+      ctx.ellipse(bx,by+BALL_PX*0.85,BALL_PX*0.75,BALL_PX*0.22,0,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,0.22)';ctx.fill();
+
+      // Ball emoji (rotated)
+      ctx.save();
+      ctx.translate(bx,by);
+      ctx.rotate(rotation);
+      ctx.font=`${BALL_PX*2}px serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(BALL,0,0);
+      ctx.restore();
+    }
+
+    rafId=requestAnimationFrame(tick);
+    if(window._snakeLoop)window._snakeLoop._raf=rafId;
+  }
+
+  window._snakeLoop={_raf:null,_to:null};
+  rafId=requestAnimationFrame(tick);
+  window._snakeLoop._raf=rafId;
 }
 
 function resetSessionHistory(){
@@ -5816,12 +6468,55 @@ function renderProf(){
     </div>
 
     <div class="slbl">${t('achievementsTitle')}</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 20px">
-      ${ach('🏅',t('ach_century'),totWk>=10,'10 sessions')}
-      ${ach('🔥',t('ach_streak10'),(S.streak||0)>=10,'10 day streak')}
-      ${ach('💀',t('ach_beast'),prs.length>=4,'4+ PRs')}
-      ${ach('🥇',t('ach_firstPR'),prs.length>=1,'Log a PR')}
-    </div>
+    ${(()=>{
+      const totalSets=hist.reduce((a,h)=>a+(h.sets||0),0);
+      const bwLogs=(S.bw||[]).length;
+      const wkCreated=(S.workouts||[]).length;
+      // best streak calc
+      let bestStreak=S.streak||0;
+      if(hist.length){
+        const dates=[...new Set(hist.map(h=>h.date))].sort();
+        let cur2=1,mx2=1;
+        for(let i=1;i<dates.length;i++){
+          const diff=Math.round((new Date(dates[i]+'T12:00:00')-new Date(dates[i-1]+'T12:00:00'))/864e5);
+          if(diff===1){cur2++;mx2=Math.max(mx2,cur2);}else{cur2=1;}
+        }
+        bestStreak=Math.max(S.streak||0,mx2);
+      }
+      const streak=bestStreak;
+      const curStreak=S.streak||0;
+      const rows=[
+        {cat:t('achCat_sessions'),items:[
+          {em:'🎯',key:'ach_first',  done:totWk>=1,  cur:totWk, max:1,  hint:'1 session'},
+          {em:'🏅',key:'ach_century',done:totWk>=10, cur:totWk, max:10, hint:'10 sessions'},
+          {em:'💪',key:'ach_grinder',done:totWk>=25, cur:totWk, max:25, hint:'25 sessions'},
+          {em:'⚡',key:'ach_machine',done:totWk>=50, cur:totWk, max:50, hint:'50 sessions'},
+        ]},
+        {cat:t('achCat_streaks'),items:[
+          {em:'🔥',key:'ach_onfire',  done:streak>=3,  cur:curStreak, max:3,  hint:'3 day streak'},
+          {em:'⭐',key:'ach_streak10',done:streak>=10, cur:curStreak, max:10, hint:'10 day streak'},
+          {em:'🌋',key:'ach_unstop',  done:streak>=21, cur:curStreak, max:21, hint:'21 day streak'},
+          {em:'💎',key:'ach_ironmind',done:streak>=30, cur:curStreak, max:30, hint:'30 day streak'},
+        ]},
+        {cat:t('achCat_records'),items:[
+          {em:'🥇',key:'ach_firstPR',done:prs.length>=1,  cur:prs.length, max:1,  hint:'Log 1 PR'},
+          {em:'💀',key:'ach_beast',  done:prs.length>=4,  cur:prs.length, max:4,  hint:'4 PRs'},
+          {em:'👑',key:'ach_pking',  done:prs.length>=10, cur:prs.length, max:10, hint:'10 PRs'},
+          {em:'🔱',key:'ach_irongod',done:prs.length>=20, cur:prs.length, max:20, hint:'20 PRs'},
+        ]},
+        {cat:t('achCat_extra'),items:[
+          {em:'⚖️',key:'ach_scale',   done:bwLogs>=1,    cur:bwLogs,    max:1,   hint:'Log body weight'},
+          {em:'📊',key:'ach_datanerd',done:bwLogs>=10,   cur:bwLogs,    max:10,  hint:'10 weight logs'},
+          {em:'🔥',key:'ach_furnace', done:totCal>=5000, cur:totCal,    max:5000,hint:'5000 kcal burned'},
+          {em:'🏗️',key:'ach_builder', done:wkCreated>=3, cur:wkCreated, max:3,   hint:'Create 3 workouts'},
+        ]},
+      ];
+      return rows.map(row=>`
+        <div class="slbl" style="margin-top:12px">${row.cat}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 20px">
+          ${row.items.map((a,i)=>ach(a.em,t(a.key),a.done,a.hint,a.cur,a.max,`${i*0.07}s`)).join('')}
+        </div>`).join('');
+    })()}
 
     <div style="margin:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button class="btn bg" onclick="exportExcel()">${t('exportExcel')}</button>
@@ -5849,10 +6544,23 @@ function sr(ico,name,sub,key,val){
     <div class="tgl${val?' on':''}" onclick="tglCfg('${key}',this)"></div>
   </div>`;
 }
-function ach(em,lbl,unlocked,hint){
-  return `<div style="background:var(--sf);border:1px solid ${unlocked?'var(--ac2)':'var(--bd)'};border-radius:12px;padding:12px;text-align:center;${unlocked?'':'opacity:.4'}" title="${hint}">
-    <div style="font-size:26px">${em}</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:${unlocked?'var(--ac2)':'var(--tx3)'};margin-top:6px;font-weight:700;letter-spacing:1px">${lbl}</div>
+function ach(em,lbl,unlocked,hint,cur,max,delay){
+  const pct=max?Math.min(100,Math.round(((cur||0)/max)*100)):0;
+  const clr=unlocked?'var(--ac)':'var(--bd)';
+  const txtClr=unlocked?'var(--ac)':'var(--tx3)';
+  const bg=unlocked?'rgba(255,61,0,.07)':'var(--sf)';
+  const delayStr=delay||'0s';
+  const progressBar=max&&!unlocked?`
+    <div style="margin-top:6px;height:2px;background:var(--sf3);border-radius:1px;overflow:hidden">
+      <div class="ach-bar-fill" style="height:100%;background:var(--ac);border-radius:1px;--aw:${pct}%;--ad:${delayStr}"></div>
+    </div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:9px;color:var(--tx3);margin-top:2px;letter-spacing:.5px">${Math.min(cur||0,max)}/${max}</div>`:'';
+  const check=unlocked?`<div style="font-size:9px;color:var(--ok);margin-top:3px;font-weight:700">✓</div>`:'';
+  const animClass=unlocked?`ach-unlocked`:'';
+  return `<div class="${animClass}" style="background:${bg};border:1px solid ${clr};border-radius:12px;padding:10px 6px 8px;text-align:center;${unlocked?'':'opacity:.45'};--ad:${delayStr}" title="${hint}">
+    <div style="font-size:22px;line-height:1;margin-bottom:4px">${em}</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:${txtClr};font-weight:700;letter-spacing:.6px;line-height:1.25">${lbl}</div>
+    ${progressBar}${check}
   </div>`;
 }
 function tglCfg(k,el){

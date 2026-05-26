@@ -3853,7 +3853,7 @@ const LANGS={
     workoutMusic:'Музыка',spotifyInt:'Интеграция Spotify',
     restTimerSound:'Звук отдыха',alertCompletion:'Сигнал по окончании',
     unitsLbl:'Единицы',weightDistance:'Вес и дистанция',
-    currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'(дни)',
+    currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'Дней',
     bestStreakLbl:'Лучший рекорд',
     languageLbl:'Язык',languageSub:'Язык приложения',
     exportExcel:'📊 Экспорт Excel',importExcel:'📥 Импорт Excel',
@@ -4653,7 +4653,7 @@ function showAllEx(){
   b.innerHTML=`<div class="mbox" style="max-height:95dvh;display:flex;flex-direction:column;padding:0;overflow:hidden">
     <div style="padding:20px 20px 0;flex-shrink:0">
       <div class="mtop"><div class="mtitle">${t('viewAll')} ${t('exercisesLbl')} (${totalCount})</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
-      <input style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:14px;outline:none;width:100%;margin-bottom:14px" placeholder="🔍 Search..." oninput="filterAllEx(this.value)">
+      <input style="background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:16px;outline:none;width:100%;margin-bottom:14px" placeholder="🔍 Search..." oninput="filterAllEx(this.value)">
     </div>
     <div id="all-ex-list" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:0 20px 20px">${renderExList('')}</div>
   </div>`;
@@ -6427,13 +6427,13 @@ function renderSpSetup(){
     ${isLocal?`<div style="background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.25);border-radius:8px;padding:9px 12px;font-size:11px;color:#FFB800;line-height:1.6;margin-bottom:12px">${L.warn}</div>`:''}
     <div style="font-size:12px;color:var(--tx2);line-height:1.8;margin-bottom:8px">
       <div style="margin-bottom:4px">${L.s0}</div>
-      <input id="sp-ruri-inp" class="inp" style="font-size:12px;width:100%;margin-bottom:10px;font-family:monospace" placeholder="${L.ruriPh}" value="${displayUri}">
+      <input id="sp-ruri-inp" class="inp" style="font-size:16px;width:100%;margin-bottom:10px;font-family:monospace" placeholder="${L.ruriPh}" value="${displayUri}">
       <div>${L.s1}</div>
       <div>${L.s2}</div>
       <div>${L.s3}</div>
     </div>
     <div style="display:flex;gap:8px">
-      <input id="sp-cid-inp" class="inp" style="font-size:14px;flex:1;min-width:0" placeholder="${L.ph}" value="${spCid()}">
+      <input id="sp-cid-inp" class="inp" style="font-size:16px;flex:1;min-width:0" placeholder="${L.ph}" value="${spCid()}">
       <button onclick="spSaveCid()" class="btn bok bsm" style="flex-shrink:0;white-space:nowrap">${L.save}</button>
     </div>
   </div>`;

@@ -3853,7 +3853,7 @@ const LANGS={
     workoutMusic:'Музыка',spotifyInt:'Интеграция Spotify',
     restTimerSound:'Звук отдыха',alertCompletion:'Сигнал по окончании',
     unitsLbl:'Единицы',weightDistance:'Вес и дистанция',
-    currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'Дней',
+    currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'(дни)',
     bestStreakLbl:'Лучший рекорд',
     languageLbl:'Язык',languageSub:'Язык приложения',
     exportExcel:'📊 Экспорт Excel',importExcel:'📥 Импорт Excel',
@@ -4662,8 +4662,8 @@ function showAllEx(){
 }
 function renderExList(q){
   const customExs=S.customExs||[];
-  const fCustom=customExs.filter(e=>!q||e.n.toLowerCase().includes(q)||tExName(e).toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
-  const filtered=EDB.filter(e=>!q||e.n.toLowerCase().includes(q)||tExName(e).toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
+  const fCustom=customExs.filter(e=>!q||e.n.toLowerCase().includes(q)||tExName(e).toLowerCase().includes(q)||e.m.toLowerCase().includes(q)||tMuscle(e.m).toLowerCase().includes(q)||e.t.toLowerCase().includes(q)||tEquip(e.t).toLowerCase().includes(q));
+  const filtered=EDB.filter(e=>!q||e.n.toLowerCase().includes(q)||tExName(e).toLowerCase().includes(q)||e.m.toLowerCase().includes(q)||tMuscle(e.m).toLowerCase().includes(q)||e.t.toLowerCase().includes(q)||tEquip(e.t).toLowerCase().includes(q));
   if(!filtered.length&&!fCustom.length)return `<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noExResults')}</div>`;
   const byMuscle={};
   filtered.forEach(e=>{if(!byMuscle[e.m])byMuscle[e.m]=[];byMuscle[e.m].push(e);});
@@ -4789,6 +4789,7 @@ function renderWKD(id){
           </div>`).join('')}
         <div style="background:transparent;border:1px dashed var(--bd);border-radius:6px;padding:6px 10px;text-align:center;min-width:52px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx3)" onclick="addSetToWk('${id}','${e.id}')">+</div>
       </div>
+      ${getGifBtn(e.n,'margin-top:8px')}
     </div>`).join('')+`</div>`
   :`<div style="padding:40px;text-align:center;color:var(--tx3)"><div style="font-size:36px;margin-bottom:12px">🏋️</div><div style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-bottom:16px">${t('noExercisesYet').toUpperCase()}</div><button class="btn bp" onclick="openAddEx('${id}')">+ ${t('addBtn')}</button></div>`;
 
@@ -4883,15 +4884,17 @@ function openAddEx(wid){
 function filterEx(q){
   const list=document.getElementById('exlib');
   const customExs=S.customExs||[];
-  const fCustom=customExs.filter(e=>!q||e.n.toLowerCase().includes(q.toLowerCase())||tExName(e).toLowerCase().includes(q.toLowerCase())||e.m.toLowerCase().includes(q.toLowerCase()));
-  const f=EDB.filter(e=>!q||e.n.toLowerCase().includes(q.toLowerCase())||tExName(e).toLowerCase().includes(q.toLowerCase())||e.m.toLowerCase().includes(q.toLowerCase()));
+  const ql=q.toLowerCase();
+  const _match=(e)=>!ql||e.n.toLowerCase().includes(ql)||tExName(e).toLowerCase().includes(ql)||e.m.toLowerCase().includes(ql)||tMuscle(e.m).toLowerCase().includes(ql)||e.t.toLowerCase().includes(ql)||tEquip(e.t).toLowerCase().includes(ql);
+  const fCustom=customExs.filter(_match);
+  const f=EDB.filter(_match);
   const customH=fCustom.map(e=>`
     <div class="eli" onclick="addExFromLib('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}')" style="border-left:2px solid var(--ac)">
-      <strong>${e.n} <span style="font-size:10px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">★ CUSTOM</span></strong><small>${e.t} · ${e.m}${e.notes?' · '+e.notes:''}</small>
+      <strong>${e.n} <span style="font-size:10px;color:var(--ac);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">★ CUSTOM</span></strong><small>${tEquip(e.t)} · ${tMuscle(e.m)}${e.notes?' · '+e.notes:''}</small>
     </div>`).join('');
   const stdH=f.slice(0,15-fCustom.length).map(e=>`
-    <div class="eli" style="display:flex;align-items:center;gap:8px;padding-right:8px">
-      <div style="flex:1;min-width:0" onclick="addExFromLib('${e.n}','${e.m}','${e.t}')"><strong>${e.n}</strong><small>${e.t} · ${e.m}</small></div>
+    <div class="eli" onclick="addExFromLib('${e.n.replace(/'/g,"\\'")}','${e.m}','${e.t}')" style="display:flex;align-items:center;gap:8px;padding-right:8px">
+      <div style="flex:1;min-width:0;pointer-events:none"><strong>${tExName(e)}</strong><small>${tEquip(e.t)} · ${tMuscle(e.m)}</small></div>
       ${e.gif?`<button onclick="event.stopPropagation();showExGif('${e.n}')" style="width:30px;height:30px;border-radius:8px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>`:''}
     </div>`).join('');
   list.innerHTML=(customH+stdH)||`<div style="padding:14px;text-align:center;color:var(--tx3);font-size:13px">${t('noExResults')}</div>`;
@@ -5043,6 +5046,13 @@ function buildActive(id){
   });
 }
 
+function getGifBtn(name,style=''){
+  const _en=name.toLowerCase();
+  const dbEx=EDB.find(x=>x.n===name)||EDB.find(x=>x.gif&&(x.n.toLowerCase().includes(_en)||_en.includes(x.n.toLowerCase())));
+  if(!dbEx||!dbEx.gif)return '';
+  const dn=dbEx.n.replace(/'/g,"\'");
+  return `<button onclick="showExGif('${dn}')" style="display:inline-flex;align-items:center;gap:5px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;color:var(--tx2);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;outline:none;${style}" onpointerdown="this.style.background='var(--sf3)'" onpointerup="this.style.background='var(--sf2)'" onpointerleave="this.style.background='var(--sf2)'"><span style="font-size:13px">▶</span> GIF</button>`;
+}
 function buildAEx(e,i){
   const sets=asets[i]||[];
   const done=sets.filter(s=>s.done).length,total=sets.length;
@@ -5086,12 +5096,14 @@ function buildAEx(e,i){
 
   const doneLbl=isCardio?'ROUNDS DONE':t('setsDone');
 
+  const gifBtn=getGifBtn(e.n,'margin-top:7px');
   return `<div class="aexc${allDone?' alld':''}" id="aex-${i}">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3)">${t('exerciseLabel')} ${i+1}</div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;letter-spacing:.5px;margin-top:2px">${tExName(e)}</div>
       <div style="font-size:12px;color:var(--tx2);margin-top:2px">${tEquip(e.t)} · ${tMuscle(e.m)}</div></div>
-      <div style="text-align:right">
+      ${gifBtn}
+      <div style="text-align:right;flex-shrink:0">
         <div id="acnt-${i}" style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:${allDone?'var(--ok)':'var(--tx3)'}">${done}/${total}</div>
         <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">${doneLbl}</div>
       </div>

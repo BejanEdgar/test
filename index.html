@@ -34,7 +34,7 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 :root{
   --bg:#0C0C0C;--sf:#161616;--sf2:#1E1E1E;--sf3:#282828;
-  --ac:#FF3D00;--ac2:#FFB800;--tx:#F0EDE8;--tx2:#9A9288;--tx3:#504845;
+  --ac:#FF3D00;--ac-rgb:255,61,0;--ac2:#FFB800;--tx:#F0EDE8;--tx2:#9A9288;--tx3:#504845;
   --ok:#00C96A;--err:#FF2D55;--bd:#2A2A2A;--r:10px;
   --nh:calc(72px + env(safe-area-inset-bottom) + 20px);
   --sat:env(safe-area-inset-top);
@@ -109,7 +109,7 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
 .nb.active svg{stroke-width:2.2}
 .nb span{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
 .pill{display:inline-flex;align-items:center;gap:3px;border-radius:20px;padding:3px 10px;font-size:11px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px}
-.pok{background:rgba(0,201,106,.15);color:var(--ok)}.pwn{background:rgba(255,184,0,.15);color:var(--ac2)}.per{background:rgba(255,45,85,.15);color:var(--err)}.pac{background:rgba(255,61,0,.15);color:var(--ac)}
+.pok{background:rgba(0,201,106,.15);color:var(--ok)}.pwn{background:rgba(255,184,0,.15);color:var(--ac2)}.per{background:rgba(255,45,85,.15);color:var(--err)}.pac{background:rgba(var(--ac-rgb),.15);color:var(--ac)}
 /* ── Inputs: 16px minimum → no iOS zoom ── */
 .inp{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;color:var(--tx);font-family:'Barlow',sans-serif;font-size:16px;outline:none;width:100%;transition:border-color .2s;-webkit-appearance:none;appearance:none}
 .inp:focus{border-color:var(--ac)}.inp::placeholder{color:var(--tx3)}
@@ -128,7 +128,7 @@ select.inp{cursor:pointer}option{background:#1a1a1a}
 .egrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:6px}
 .ebtn{height:48px;border-radius:8px;border:1.5px solid var(--bd);background:var(--sf2);font-size:22px;cursor:pointer;transition:border-color .12s;display:flex;align-items:center;justify-content:center}
 .ebtn:active{background:var(--sf3)}
-.ebtn.sel{border-color:var(--ac);background:rgba(255,61,0,.1)}
+.ebtn.sel{border-color:var(--ac);background:rgba(var(--ac-rgb),.1)}
 .exlib{max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--bd);border-radius:8px;background:var(--sf2)}
 .eli{padding:13px 14px;cursor:pointer;border-bottom:1px solid var(--bd);transition:background .12s;min-height:52px;display:flex;flex-direction:column;justify-content:center}
 .eli:last-child{border-bottom:none}.eli:active{background:var(--sf3)}
@@ -307,13 +307,13 @@ button{-webkit-user-select:none;user-select:none}
   border:1px solid rgba(0,201,106,.18);
 }
 .cal-today .cal-day-num{color:var(--ac)!important;font-size:14px!important}
-.cal-today{border:1.5px solid rgba(255,61,0,.4);background:rgba(255,61,0,.06)!important}
+.cal-today{border:1.5px solid rgba(var(--ac-rgb),.4);background:rgba(var(--ac-rgb),.06)!important}
 .apple-icon{font-size:14px;line-height:1;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;display:block}
 .apple-eaten .apple-icon{animation:appleEaten .35s ease-out forwards}
 .apple-return .apple-icon{animation:appleReturn .45s cubic-bezier(.34,1.56,.64,1) forwards}
 .cal-snake-glow{
   position:absolute;border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(255,61,0,.35) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(var(--ac-rgb),.35) 0%,transparent 70%);
   width:24px;height:24px;transform:translate(-50%,-50%);
 }
 
@@ -336,7 +336,7 @@ button{-webkit-user-select:none;user-select:none}
 /* ── Extra auth keyframes ── */
 @keyframes imLogoGlowPulse{
   0%,100%{text-shadow:0 0 0 transparent}
-  50%{text-shadow:0 0 32px rgba(255,61,0,.55),0 0 64px rgba(255,61,0,.22)}
+  50%{text-shadow:0 0 32px rgba(var(--ac-rgb),.55),0 0 64px rgba(var(--ac-rgb),.22)}
 }
 @keyframes imLogoMIn{
   0%  {opacity:0;transform:scale(2.4) translateY(-10px);filter:blur(8px)}
@@ -396,9 +396,9 @@ button{-webkit-user-select:none;user-select:none}
   to  {opacity:1;transform:translateX(0)}
 }
 @keyframes imInputFocusGlow{
-  0%  {box-shadow:0 0 0 0 rgba(255,61,0,0)}
-  50% {box-shadow:0 0 0 3px rgba(255,61,0,.18)}
-  100%{box-shadow:0 0 0 0 rgba(255,61,0,0)}
+  0%  {box-shadow:0 0 0 0 rgba(var(--ac-rgb),0)}
+  50% {box-shadow:0 0 0 3px rgba(var(--ac-rgb),.18)}
+  100%{box-shadow:0 0 0 0 rgba(var(--ac-rgb),0)}
 }
 @keyframes imLangBtnPop{
   0%  {transform:scale(1)}
@@ -407,9 +407,9 @@ button{-webkit-user-select:none;user-select:none}
   100%{transform:scale(1)}
 }
 @keyframes imLoginBtnReady{
-  0%  {box-shadow:0 4px 18px rgba(255,61,0,0)}
-  50% {box-shadow:0 4px 18px rgba(255,61,0,.45)}
-  100%{box-shadow:0 4px 18px rgba(255,61,0,.22)}
+  0%  {box-shadow:0 4px 18px rgba(var(--ac-rgb),0)}
+  50% {box-shadow:0 4px 18px rgba(var(--ac-rgb),.45)}
+  100%{box-shadow:0 4px 18px rgba(var(--ac-rgb),.22)}
 }
 @keyframes imOrbFloat{
   0%,100%{transform:translate(0,0) scale(1)}
@@ -436,27 +436,27 @@ button{-webkit-user-select:none;user-select:none}
 #auth-orb1{
   width:260px;height:260px;
   top:-60px;right:-80px;
-  background:radial-gradient(circle,rgba(255,61,0,.18) 0%,rgba(255,61,0,.06) 50%,transparent 70%);
+  background:radial-gradient(circle,rgba(var(--ac-rgb),.18) 0%,rgba(var(--ac-rgb),.06) 50%,transparent 70%);
   animation:imOrbFloat 9s ease-in-out infinite;
 }
 #auth-orb2{
   width:200px;height:200px;
   bottom:80px;left:-60px;
-  background:radial-gradient(circle,rgba(255,184,0,.12) 0%,rgba(255,61,0,.05) 50%,transparent 70%);
+  background:radial-gradient(circle,rgba(255,184,0,.12) 0%,rgba(var(--ac-rgb),.05) 50%,transparent 70%);
   animation:imOrbFloat2 12s ease-in-out infinite .5s;
 }
 #auth-orb3{
   width:120px;height:120px;
   top:40%;right:-30px;
-  background:radial-gradient(circle,rgba(255,61,0,.10) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(var(--ac-rgb),.10) 0%,transparent 70%);
   animation:imOrbFloat 7s ease-in-out infinite 2s;
 }
 /* Auth grid overlay */
 #auth-grid{
   position:absolute;inset:0;pointer-events:none;
   background-image:
-    linear-gradient(rgba(255,61,0,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,61,0,.03) 1px,transparent 1px);
+    linear-gradient(rgba(var(--ac-rgb),.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(var(--ac-rgb),.03) 1px,transparent 1px);
   background-size:36px 36px;
   mask-image:radial-gradient(ellipse 75% 65% at 50% 40%,black 0%,transparent 100%);
   -webkit-mask-image:radial-gradient(ellipse 75% 65% at 50% 40%,black 0%,transparent 100%);
@@ -469,7 +469,7 @@ button{-webkit-user-select:none;user-select:none}
 #auth-scan::after{
   content:'';
   position:absolute;left:0;right:0;height:40px;top:0;
-  background:linear-gradient(transparent,rgba(255,61,0,.04) 50%,transparent);
+  background:linear-gradient(transparent,rgba(var(--ac-rgb),.04) 50%,transparent);
   animation:imAuthScanLine 5.5s cubic-bezier(.4,0,.6,1) infinite 1.2s;
   will-change:transform;
 }
@@ -550,7 +550,7 @@ button{-webkit-user-select:none;user-select:none}
 /* Input: glow on focus */
 #sc-auth .inp:focus{
   border-color:var(--ac);
-  box-shadow:0 0 0 3px rgba(255,61,0,.14);
+  box-shadow:0 0 0 3px rgba(var(--ac-rgb),.14);
   transition:border-color .2s,box-shadow .2s;
 }
 /* Login button: subtle glow once form is visible */
@@ -560,7 +560,7 @@ button{-webkit-user-select:none;user-select:none}
 }
 #auth-login-btn:active,#auth-register-btn:active{
   filter:brightness(.85);transform:scale(.97);
-  box-shadow:0 2px 8px rgba(255,61,0,.25) !important;
+  box-shadow:0 2px 8px rgba(var(--ac-rgb),.25) !important;
 }
 
 /* ── 4. Modals: slide-up on open ── */
@@ -625,7 +625,7 @@ button{-webkit-user-select:none;user-select:none}
     /* Outer border glow */
     0 0 0 1px rgba(255,90,30,.28),
     /* Warm ambient glow */
-    0 3px 18px rgba(255,61,0,.20),
+    0 3px 18px rgba(var(--ac-rgb),.20),
     0 1px 4px rgba(0,0,0,.25);
 }
 /* Specular shimmer — top half gloss */
@@ -663,7 +663,7 @@ button{-webkit-user-select:none;user-select:none}
 }
 .nb.active span{
   color:var(--ac);
-  text-shadow:0 0 12px rgba(255,61,0,.45);
+  text-shadow:0 0 12px rgba(var(--ac-rgb),.45);
 }
 /* Animate icon color + label on activation */
 @keyframes imNavLabelIn{
@@ -766,8 +766,8 @@ button{-webkit-user-select:none;user-select:none}
   50%         {transform:translateX(420%) skewX(-18deg);opacity:0}
 }
 @keyframes imAchGlowPulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(255,61,0,0)}
-  50%    {box-shadow:0 0 14px 3px rgba(255,61,0,.32),inset 0 0 10px rgba(255,61,0,.07)}
+  0%,100%{box-shadow:0 0 0 0 rgba(var(--ac-rgb),0)}
+  50%    {box-shadow:0 0 14px 3px rgba(var(--ac-rgb),.32),inset 0 0 10px rgba(var(--ac-rgb),.07)}
 }
 @keyframes imAchEmojiBob{
   0%,100%{transform:translateY(0) scale(1)}
@@ -865,7 +865,7 @@ button{-webkit-user-select:none;user-select:none}
 .ach-u::after{
   content:'';position:absolute;
   top:-16px;right:-16px;width:52px;height:52px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,61,0,.3) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(var(--ac-rgb),.3) 0%,transparent 70%);
   pointer-events:none;
   animation:imAchGlowPulse 3.2s ease-in-out var(--ad,0s) infinite;
 }
@@ -1357,7 +1357,7 @@ button{-webkit-user-select:none;user-select:none}
       <div style="font-size:52px;margin-bottom:10px">🏁</div>
       <div id="m-fin-complete" style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px">WORKOUT COMPLETE!</div>
       <div id="fin-sub" style="font-size:14px;color:var(--tx2);margin-top:6px"></div>
-      <div id="fin-funny" style="font-size:13px;color:var(--tx2);margin-top:10px;padding:10px 14px;background:rgba(255,61,0,0.07);border:1px solid rgba(255,61,0,0.15);border-radius:10px;font-style:italic;line-height:1.5"></div>
+      <div id="fin-funny" style="font-size:13px;color:var(--tx2);margin-top:10px;padding:10px 14px;background:rgba(var(--ac-rgb),0.07);border:1px solid rgba(var(--ac-rgb),0.15);border-radius:10px;font-style:italic;line-height:1.5"></div>
     </div>
     <div id="fin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
     <div id="fin-prs" style="margin-bottom:14px"></div>
@@ -4100,6 +4100,7 @@ const LANGS={
     autoLog:'Auto-log Weight',connectHealth:'Connect Health App',
     workoutMusic:'Workout Music',spotifyInt:'Spotify integration',
     restTimerSound:'Rest Timer Sound',alertCompletion:'Alert on completion',
+    accentColorLbl:'Accent Color',accentColorSub:'App theme color',
     unitsLbl:'Units',weightDistance:'Weight & distance',
     currentStreak:'Current Streak',tapEdit:'Tap to edit',daysLbl:'DAYS',
     bestStreakLbl:'BEST STREAK',
@@ -4217,6 +4218,7 @@ const LANGS={
     autoLog:'Log Greutate Auto',connectHealth:'Conectează Sănătate',
     workoutMusic:'Muzică Antrenament',spotifyInt:'Integrare Spotify',
     restTimerSound:'Sunet Pauză',alertCompletion:'Alertă la final',
+    accentColorLbl:'Culoare Accent',accentColorSub:'Culoarea temei',
     unitsLbl:'Unități',weightDistance:'Greutate & distanță',
     currentStreak:'Streak Curent',tapEdit:'Apasă pentru a edita',daysLbl:'ZILE',
     bestStreakLbl:'CEL MAI BUN',
@@ -4334,6 +4336,7 @@ const LANGS={
     autoLog:'Авто-запись веса',connectHealth:'Подключить здоровье',
     workoutMusic:'Музыка',spotifyInt:'Интеграция Spotify',
     restTimerSound:'Звук отдыха',alertCompletion:'Сигнал по окончании',
+    accentColorLbl:'Цвет акцента',accentColorSub:'Цвет темы приложения',
     unitsLbl:'Единицы',weightDistance:'Вес и дистанция',
     currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'Дней',
     bestStreakLbl:'Лучший рекорд',
@@ -4660,13 +4663,14 @@ async function initS(){
   SK=getUserSK(currentUserId);
 
   function applyData(loaded){
-    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg',lang:'en',reminderHour:7,reminderMin:0};
+    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg',lang:'en',reminderHour:7,reminderMin:0,accent:'#FF3D00'};
     const defGoals={tw:80,dpw:4,bf:15};
     const defUser={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
     const clean={...loaded};delete clean._sid;
     S=clean;
     S.cfg=Object.assign({},defCfg,clean.cfg||{});
     if(S.cfg.lang){lang=S.cfg.lang;document.body.setAttribute('data-ru',lang==='ru'?'1':'0');}
+    if(S.cfg.accent)applyAccent(S.cfg.accent);
     S.goals=Object.assign({},defGoals,clean.goals||{});
     S.user=Object.assign({},defUser,clean.user||{});
     if(!S.user.xp||isNaN(S.user.xp))S.user.xp=0;
@@ -4987,7 +4991,7 @@ function renderHome(){
 
   const recH=rec.length?rec.map(h=>`
     <div class="hr" onclick="openWKD('${h.wid||''}')">
-      <div class="hico" style="background:rgba(255,61,0,.1)">${h.em||'🏋️'}</div>
+      <div class="hico" style="background:rgba(var(--ac-rgb),.1)">${h.em||'🏋️'}</div>
       <div class="hinfo"><div class="hname">${h.name||'Workout'}</div><div class="hdate">${fdate(h.date)} · ${h.dur||0} ${t('minAbbr')}</div></div>
       <div style="text-align:right"><div style="font-family:'Bebas Neue',sans-serif;font-size:20px">${h.sets||0}</div><div style="font-size:11px;color:var(--tx3)">${t('setsLbl')}</div></div>
     </div>`).join('')
@@ -5449,7 +5453,7 @@ function renderCustomExList(){
   </div>`;
   return exs.map(e=>`
     <div class="hr" style="align-items:center">
-      <div class="hico" style="background:rgba(255,61,0,.12);font-size:16px">⭐</div>
+      <div class="hico" style="background:rgba(var(--ac-rgb),.12);font-size:16px">⭐</div>
       <div class="hinfo">
         <div class="hname">${tExName(e)}</div>
         <div class="hdate">${tEquip(e.t)} · ${tMuscle(e.m)}${e.notes?' · '+e.notes:''}</div>
@@ -5940,7 +5944,7 @@ function buildCardioCard(cardioWeekMin,cardioMonthMin,cardioTotalMin,cardioSessi
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--tx3);letter-spacing:1px;text-transform:uppercase">${t('mostDone')}</div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${topCardio[0]}</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--ac);background:rgba(255,61,0,.1);border:1px solid rgba(255,61,0,.2);border-radius:6px;padding:2px 8px">${topCardio[1]}×</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--ac);background:rgba(var(--ac-rgb),.1);border:1px solid rgba(var(--ac-rgb),.2);border-radius:6px;padding:2px 8px">${topCardio[1]}×</span>
       </div>
     </div>`:''}`;
 }
@@ -6096,7 +6100,7 @@ function renderProg(){
     <div data-pg-card="hist" data-pg-reveal="card" class="card" style="margin:0 20px">
       ${S.hist.length?[...S.hist].slice(0,20).map(h=>`
         <div class="hr" style="gap:8px">
-          <div class="hico" style="background:rgba(255,61,0,.1)">${h.em}</div>
+          <div class="hico" style="background:rgba(var(--ac-rgb),.1)">${h.em}</div>
           <div class="hinfo"><div class="hname">${h.name}</div><div class="hdate">${fdate(h.date)} · ${h.dur} ${t('minAbbr')} · ${h.sets} ${t('setsLbl')}</div></div>
           <div style="text-align:right;flex-shrink:0"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px">${h.cal}</div><div style="font-size:10px;color:var(--tx3)">kcal</div></div>
           <button onclick="deleteSession('${h.id}')" style="width:30px;height:30px;border-radius:50%;border:none;background:transparent;color:var(--tx3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .15s" onpointerdown="this.style.color='var(--err)'" onpointerup="this.style.color='var(--tx3)'" onpointerleave="this.style.color='var(--tx3)'">✕</button>
@@ -6189,7 +6193,7 @@ function calSelectSport(key){
   document.querySelectorAll('.cal-sport-btn').forEach(b=>{
     const sel=b.dataset.sport===key;
     b.style.borderColor=sel?'var(--ac)':'var(--bd)';
-    b.style.background=sel?'rgba(255,61,0,.15)':'var(--sf2)';
+    b.style.background=sel?'rgba(var(--ac-rgb),.15)':'var(--sf2)';
     b.style.color=sel?'var(--ac)':'var(--tx2)';
   });
   buildCalendar();
@@ -6226,7 +6230,7 @@ function buildCalendar(){
       return`<button class="cal-sport-btn" data-sport="${s.key}" onclick="calSelectSport('${s.key}')"
         style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;
                border-radius:20px;padding:5px 12px;border:1.5px solid ${sel?'var(--ac)':'var(--bd)'};
-               background:${sel?'rgba(255,61,0,.15)':'var(--sf2)'};color:${sel?'var(--ac)':'var(--tx2)'};
+               background:${sel?'rgba(var(--ac-rgb),.15)':'var(--sf2)'};color:${sel?'var(--ac)':'var(--tx2)'};
                font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;
                cursor:pointer;outline:none;min-height:32px;transition:all .15s">
         <span style="font-size:14px">${s.ball}</span><span>${nm}</span>
@@ -6541,7 +6545,7 @@ function drawBW(data){
 
   // Nicio intrare — placeholder
   if(!data.length){
-    ctx.fillStyle='rgba(255,61,0,.15)';ctx.beginPath();ctx.arc(W/2,H/2,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(var(--ac-rgb),.15)';ctx.beginPath();ctx.arc(W/2,H/2,5,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='rgba(150,140,135,.5)';ctx.font='bold 11px Barlow Condensed,sans-serif';
     ctx.textAlign='center';ctx.fillText('LOG WEIGHT TO SEE PROGRESS',W/2,H/2+20);
     return;
@@ -6551,12 +6555,12 @@ function drawBW(data){
   if(data.length===1){
     const cx=W/2,cy=H/2-8;
     ctx.beginPath();ctx.moveTo(4,cy);ctx.lineTo(W-4,cy);
-    ctx.strokeStyle='rgba(255,61,0,.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle='rgba(var(--ac-rgb),.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);
     ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);
-    ctx.fillStyle='#FF3D00';ctx.fill();
+    ctx.fillStyle=_acHex();ctx.fill();
     ctx.fillStyle='rgba(150,140,135,.5)';ctx.font='bold 10px Barlow Condensed,sans-serif';
     ctx.textAlign='center';ctx.fillText('LOG MORE ENTRIES TO SEE CURVE',cx,cy+22);
-    addBWPulse(c,cx,cy,'#FF3D00');
+    addBWPulse(c,cx,cy,_acHex());
     return;
   }
 
@@ -6571,8 +6575,8 @@ function drawBW(data){
   const reachedGoal=tryingToLose?lastW<=goalW:lastW>=goalW;
   const absDiff=Math.abs(lastW-goalW);
   // Verde: a atins/depășit goalul | Galben: în ±3kg | Roșu: departe
-  const lineClr=reachedGoal?'#00C96A':absDiff<=3?'#FFB800':'#FF3D00';
-  const gradClr0=reachedGoal?'rgba(0,201,106,.35)':absDiff<=3?'rgba(255,184,0,.3)':'rgba(255,61,0,.3)';
+  const lineClr=reachedGoal?'#00C96A':absDiff<=3?'#FFB800':_acHex();
+  const gradClr0=reachedGoal?'rgba(0,201,106,.35)':absDiff<=3?'rgba(255,184,0,.3)':'rgba(var(--ac-rgb),.3)';
   const path=new Path2D();
   data.forEach((d,i)=>{const x=4+i*xS,y=H-6-(d.w-mn)*yS;i===0?path.moveTo(x,y):path.lineTo(x,y);});
   const grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,gradClr0);grd.addColorStop(1,'rgba(0,0,0,0)');
@@ -6601,7 +6605,7 @@ function drawVol(data){
   const bw=(W-40)/data.length*.65,gap=(W-40-bw*data.length)/(data.length-1||1);
   data.forEach((v,i)=>{
     const x=20+i*(bw+gap),bh=Math.max(4,(v/maxV)*(H-24)),y=H-bh-4;
-    const g=ctx.createLinearGradient(0,y,0,H);g.addColorStop(0,i===data.length-1?'#FF3D00':'rgba(255,61,0,.6)');g.addColorStop(1,'rgba(255,61,0,.1)');
+    const g=ctx.createLinearGradient(0,y,0,H);g.addColorStop(0,i===data.length-1?_acHex():'rgba(var(--ac-rgb),.6)');g.addColorStop(1,'rgba(var(--ac-rgb),.1)');
     ctx.fillStyle=g;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,bw,bh,4);else ctx.rect(x,y,bw,bh);ctx.fill();
     ctx.fillStyle=i===data.length-1?'#F0EDE8':'#9A9288';
     ctx.font='bold 12px Barlow Condensed,sans-serif';ctx.textAlign='center';ctx.fillText(v||'0',x+bw/2,y-5);
@@ -6618,7 +6622,7 @@ function renderProf(){
   const initials=name.split(' ').filter(Boolean).map(x=>x[0]).join('').toUpperCase().slice(0,2)||'?';
   document.getElementById('sc-profile').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
     <div style="padding:20px 20px 20px;margin-top:max(80px,calc(env(safe-area-inset-top)+60px));text-align:center;background:var(--sf);border-bottom:1px solid var(--bd)">
-      <div onclick="openProf()" style="width:88px;height:88px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin:0 auto 14px;cursor:pointer;border:3px solid rgba(255,61,0,.5)">${initials}</div>
+      <div onclick="openProf()" style="width:88px;height:88px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin:0 auto 14px;cursor:pointer;border:3px solid rgba(var(--ac-rgb),.5)">${initials}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;cursor:pointer" onclick="openProf()">${name}</div>
       <div style="font-size:13px;color:var(--tx2);margin-top:4px;cursor:pointer" onclick="openProf()">${u.prog||'My Program'} ✏️</div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap">
@@ -6654,13 +6658,25 @@ function renderProf(){
 
     <div class="slbl">${t('settingsTitle')}</div>
     <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r)">
-      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'Задать'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0"><div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔔</div><div style="min-width:0;overflow:hidden"><div style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 10px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
+      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'Задать'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0"><div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔔</div><div style="min-width:0;overflow:hidden"><div style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 10px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
       ${sr('📊',t('autoLog'),t('connectHealth'),'autoLog',cfg.autoLog)}
       ${sr('🎵',t('workoutMusic'),t('spotifyInt'),'music',cfg.music)}
       ${sr('⏱',t('restTimerSound'),t('alertCompletion'),'restSound',cfg.restSound)}
+      <div class="srow" style="flex-direction:column;align-items:flex-start;gap:12px;padding:14px 20px">
+        <div style="display:flex;align-items:center;gap:14px;width:100%">
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🎨</div>
+          <div><div style="font-size:15px;font-weight:500">${t('accentColorLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('accentColorSub')}</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;padding-left:50px">
+          ${['#FF3D00','#FF9F0A','#30D158','#0A84FF','#BF5AF2','#FF375F'].map(c=>{
+            const sel=(cfg.accent||'#FF3D00')===c;
+            return `<button class="accent-swatch" data-color="${c}" onclick="setAccent('${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};border:none;cursor:pointer;outline:${sel?'2.5px solid #fff':'2.5px solid transparent'};outline-offset:2px;transform:${sel?'scale(1.22)':'scale(1)'};transition:transform .15s,outline .15s;flex-shrink:0"></button>`;
+          }).join('')}
+        </div>
+      </div>
       <div class="srow">
         <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">📏</div>
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">📏</div>
           <div><div style="font-size:15px;font-weight:500">${t('unitsLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('weightDistance')}</div></div>
         </div>
         <div style="display:flex;gap:6px">
@@ -6677,7 +6693,7 @@ function renderProf(){
       </div>
       <div class="srow">
         <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🌐</div>
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">🌐</div>
           <div><div style="font-size:15px;font-weight:500">${t('languageLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('languageSub')}</div></div>
         </div>
         <div style="display:flex;gap:6px">
@@ -6761,7 +6777,7 @@ function renderProf(){
 function sr(ico,name,sub,key,val){
   return `<div class="srow">
     <div style="display:flex;align-items:center;gap:14px">
-      <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,61,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">${ico}</div>
+      <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">${ico}</div>
       <div><div style="font-size:15px;font-weight:500">${name}</div><div style="font-size:12px;color:var(--tx2)">${sub}</div></div>
     </div>
     <div class="tgl${val?' on':''}" onclick="tglCfg('${key}',this)"></div>
@@ -6796,7 +6812,7 @@ function ach(em,lbl,unlocked,hint,cur,max,delay){
   const lockTap=!unlocked?`onclick="vib([30,60,30]);this.classList.remove('ach-jiggle');void this.offsetWidth;this.classList.add('ach-jiggle')"`:'';
 
   const cardClass=`ach-card ${unlocked?'ach-u':virgin?'ach-l ach-virgin':'ach-l ach-started'}`;
-  const bg=unlocked?'rgba(255,61,0,.08)':virgin?'rgba(10,10,10,.55)':'var(--sf)';
+  const bg=unlocked?'rgba(var(--ac-rgb),.08)':virgin?'rgba(10,10,10,.55)':'var(--sf)';
   const border=unlocked?'var(--ac)':virgin?'rgba(255,255,255,.06)':'var(--bd)';
   const opacity=unlocked?'1':virgin?'1':'.55';
 
@@ -7726,7 +7742,33 @@ function renderSpInner(data){
   </div>`;
 }
 
-// ═══════════ VIBRATION HELPER ═══════════
+// ═══════════ ACCENT COLOR ═══════════
+function _hexToRgb(hex){
+  hex=hex.replace('#','');
+  if(hex.length===3)hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  const n=parseInt(hex,16);
+  return [(n>>16)&255,(n>>8)&255,n&255];
+}
+function _acHex(){
+  return getComputedStyle(document.documentElement).getPropertyValue('--ac').trim()||'#FF3D00';
+}
+function applyAccent(hex){
+  if(!hex||!/^#[0-9A-Fa-f]{3,6}$/.test(hex))return;
+  const r=document.documentElement;
+  r.style.setProperty('--ac',hex);
+  const [rv,gv,bv]=_hexToRgb(hex);
+  r.style.setProperty('--ac-rgb',`${rv},${gv},${bv}`);
+}
+function setAccent(hex){
+  applyAccent(hex);
+  if(S.cfg)S.cfg.accent=hex;
+  save();
+  // Re-render settings row to update swatch selection
+  document.querySelectorAll('.accent-swatch').forEach(sw=>{
+    sw.style.outline=sw.dataset.color===hex?'2.5px solid #fff':'2.5px solid transparent';
+    sw.style.transform=sw.dataset.color===hex?'scale(1.22)':'scale(1)';
+  });
+}
 // Language-independent, safe on all browsers.
 // Uses Vibration API (Android Chrome/Edge). Silent no-op on iOS/unsupported.
 function vib(pattern){

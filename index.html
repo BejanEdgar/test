@@ -4185,6 +4185,9 @@ const LANGS={
     setNamePlaceholder:'e.g. Alex',
     setNameEmpty:'Please enter a name.',
     setNameBtn:'SAVE NAME',
+    pgVisTitle:'VISIBLE CARDS',pgVisDone:'DONE',
+    pgCard_bw:'Body Weight',pgCard_cal:'Calendar',pgCard_streak:'Streak',
+    pgCard_vol:'Weekly Volume',pgCard_pr:'Personal Records',pgCard_cardio:'Cardio',pgCard_hist:'Session History',
   },
   ro:{
     login:'LOGIN',register:'ÎNREGISTRARE',
@@ -4299,6 +4302,9 @@ const LANGS={
     setNamePlaceholder:'ex. Alex',
     setNameEmpty:'Te rog introdu un nume.',
     setNameBtn:'SALVEAZĂ NUMELE',
+    pgVisTitle:'CARDURI VIZIBILE',pgVisDone:'GATA',
+    pgCard_bw:'Greutate Corporală',pgCard_cal:'Calendar',pgCard_streak:'Streak',
+    pgCard_vol:'Volum Săptămânal',pgCard_pr:'Recorduri Personale',pgCard_cardio:'Cardio',pgCard_hist:'Istoricul Sesiunilor',
   },
   ru:{
     login:'Вход',register:'Регистрация',
@@ -4413,6 +4419,9 @@ const LANGS={
     setNamePlaceholder:'напр. Алекс',
     setNameEmpty:'Пожалуйста, введи имя.',
     setNameBtn:'Сохранить имя',
+    pgVisTitle:'КАРТОЧКИ',pgVisDone:'ГОТОВО',
+    pgCard_bw:'Вес тела',pgCard_cal:'Календарь',pgCard_streak:'Серия',
+    pgCard_vol:'Недельный объём',pgCard_pr:'Личные рекорды',pgCard_cardio:'Кардио',pgCard_hist:'История тренировок',
 }
 };
 let lang='en';
@@ -4421,6 +4430,42 @@ function setLang(l){
   lang=l;if(S.cfg)S.cfg.lang=l;save();
   document.body.setAttribute('data-ru',l==='ru'?'1':'0');
   renderHome();renderLib();renderProg();renderProf();updateNavLang();updateAuthLangUI();updateModalLang();updateAllSelects();
+}
+// ── Progress card visibility ──
+const _PG_CARDS=['bw','cal','streak','vol','pr','cardio','hist'];
+function getPgVis(){try{return JSON.parse(localStorage.getItem('im_pg_vis')||'{}');}catch(e){return {};}}
+function setPgVis(v){try{localStorage.setItem('im_pg_vis',JSON.stringify(v));}catch(e){}}
+function applyPgVis(){
+  const v=getPgVis();
+  _PG_CARDS.forEach(function(id){
+    const vis=v[id]!==false;
+    document.querySelectorAll('[data-pg-card="'+id+'"]').forEach(function(el){el.style.display=vis?'':'none';});
+    const tgl=document.getElementById('pg-tgl-'+id);
+    if(tgl){tgl.classList.toggle('on',vis);}
+  });
+}
+function togglePgCardVis(id){
+  const v=getPgVis();
+  v[id]=v[id]===false?true:false;
+  setPgVis(v);
+  const vis=v[id]!==false;
+  document.querySelectorAll('[data-pg-card="'+id+'"]').forEach(function(el){el.style.display=vis?'':'none';});
+  const tgl=document.getElementById('pg-tgl-'+id);
+  if(tgl){tgl.classList.toggle('on',vis);}
+}
+function openPgVis(){
+  const p=document.getElementById('pg-vis-panel');
+  if(!p)return;
+  const opening=p.style.display==='none'||p.style.display==='';
+  if(opening){
+    p.style.display='block';
+    p.style.animation='imFadeSlideUp .22s ease-out both';
+    applyPgVis();
+  }else{
+    p.style.display='none';
+  }
+  const btn=document.getElementById('pg-vis-btn');
+  if(btn)btn.style.color=opening?'var(--ac)':'var(--tx2)';
 }
 function setAuthLang(l){
   lang=l;
@@ -5607,7 +5652,8 @@ function tSD(i,j){
   if(cnt){cnt.textContent=done+'/'+total;cnt.style.color=done===total&&total>0?'var(--ok)':'var(--tx3)';}
   const card=document.getElementById('aex-'+i);
   if(card){card.classList.toggle('alld',done===total&&total>0);}
-  if(asets[i][j].done)startRest(90,i);
+  if(asets[i][j].done){vib([60]);startRest(90,i);}
+  else{vib([30]);}
 }
 
 function addASet(i){
@@ -5659,6 +5705,7 @@ function exitActive(){if(!confirm(t('exitSessionConfirm')))return;clearInterval(
 
 function finishActive(wid){
   clearInterval(wkT);
+  vib([80,55,80,55,200]);
   const w=S.workouts.find(x=>x.id===wid);if(!w)return;
   const elapsed=Math.max(1,Math.round((Date.now()-wkSt)/6e4));
   let totalSets=0,cardioMin=0;const newPRs=[];
@@ -5948,9 +5995,17 @@ function renderProg(){
   const prRows=null; // table removed — pie chart only
 
   document.getElementById('sc-progress').innerHTML=`<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding-bottom:var(--nh)">
-    <div data-pg-reveal="top" class="top-bar"><h1>${t('progressTitle')}</h1><span class="pill pok">${S.hist.length} ${t('sessionsPill')}</span></div>
+    <div data-pg-reveal="top" class="top-bar"><h1>${t('progressTitle')}</h1><div style="display:flex;align-items:center;gap:8px"><span class="pill pok">${S.hist.length} ${t('sessionsPill')}</span><button id="pg-vis-btn" onclick="openPgVis()" style="width:34px;height:34px;border-radius:50%;background:var(--sf2);border:1px solid var(--bd);color:var(--tx2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;outline:none;flex-shrink:0;transition:color .15s" title="${t('pgVisTitle')}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C7 3 2.73 7.11 1 12c1.73 4.89 6 9 11 9s9.27-4.11 11-9c-1.73-4.89-6-9-11-9z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
 
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div id="pg-vis-panel" style="display:none;margin:8px 20px 0;background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden">
+      <div style="padding:14px 16px 8px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:10px">${t('pgVisTitle')}</div>
+        ${_PG_CARDS.map(id=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd)"><span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px">${t('pgCard_'+id)}</span><div id="pg-tgl-${id}" class="tgl" onclick="togglePgCardVis('${id}')"></div></div>`).join('')}
+        <div style="padding-top:10px;text-align:right"><button onclick="openPgVis()" style="background:var(--ac);border:none;border-radius:8px;padding:9px 18px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer">${t('pgVisDone')}</button></div>
+      </div>
+    </div>
+
+    <div data-pg-card="bw" data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
         <div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase;margin-bottom:4px">${t('bodyWeightLbl')}</div>
@@ -5970,8 +6025,8 @@ function renderProg(){
       </div>
     </div>
 
-    <div data-pg-reveal="label" class="slbl">${t('logBodyWeight')}</div>
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div data-pg-card="bw" data-pg-reveal="label" class="slbl">${t('logBodyWeight')}</div>
+    <div data-pg-card="bw" data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:flex;gap:10px;align-items:center">
         <input type="number" id="bwi" class="inp" value="${lat}" min="30" max="300" step="0.1" inputmode="decimal" style="flex:1;font-family:'Bebas Neue',sans-serif;font-size:26px;text-align:center">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--tx2);font-weight:700">KG</div>
@@ -5980,7 +6035,7 @@ function renderProg(){
       <div id="bwc2" style="display:none;margin-top:10px;color:var(--ok);font-size:13px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">✓ ${t('logBodyWeight')}!</div>
     </div>
 
-    <div data-pg-reveal="label" class="slbl" style="justify-content:space-between">
+    <div data-pg-card="cal" data-pg-reveal="label" class="slbl" style="justify-content:space-between">
       <span id="cal-slbl-title">WORKOUT CALENDAR</span>
       <div style="display:flex;gap:5px;align-items:center">
         <button class="bico" style="width:30px;height:30px;font-size:16px;line-height:1" onclick="calPrev()">‹</button>
@@ -5988,7 +6043,7 @@ function renderProg(){
         <button class="bico" style="width:30px;height:30px;font-size:16px;line-height:1" onclick="calNext()">›</button>
       </div>
     </div>
-    <div data-pg-reveal="card" class="card" style="margin:0 20px;padding:10px 10px 12px" id="cal-card">
+    <div data-pg-card="cal" data-pg-reveal="card" class="card" style="margin:0 20px;padding:10px 10px 12px" id="cal-card">
       <div id="cal-sport-row" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
       <div id="cal-dow-headers" style="display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px"></div>
       <div style="position:relative">
@@ -5997,8 +6052,8 @@ function renderProg(){
       </div>
     </div>
 
-    <div data-pg-reveal="label" class="slbl">${t('currentStreak')}</div>
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div data-pg-card="streak" data-pg-reveal="label" class="slbl">${t('currentStreak')}</div>
+    <div data-pg-card="streak" data-pg-reveal="card" class="card" style="margin:0 20px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
         <div style="text-align:center;padding:10px 0 6px">
           <div class="pg-fire" style="font-size:28px;line-height:1;margin-bottom:6px">🔥</div>
@@ -6017,28 +6072,28 @@ function renderProg(){
       </div>`:''}
     </div>
 
-    <div data-pg-reveal="label" class="slbl">${t('weeklyVolume')}</div>
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div data-pg-card="vol" data-pg-reveal="label" class="slbl">${t('weeklyVolume')}</div>
+    <div data-pg-card="vol" data-pg-reveal="card" class="card" style="margin:0 20px">
       <canvas id="vc" height="80" style="width:100%;display:block"></canvas>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:6px">
         ${t('wkVolumeLabels').map(l=>`<div style="text-align:center;font-size:11px;color:var(--tx3)">${l}</div>`).join('')}
       </div>
     </div>
 
-    <div data-pg-reveal="label" class="slbl">${t('personalRecords')} <button class="btn bok bsm" onclick="OM('m-pr')">${t('logPRBtn')}</button></div>
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div data-pg-card="pr" data-pg-reveal="label" class="slbl">${t('personalRecords')} <button class="btn bok bsm" onclick="OM('m-pr')">${t('logPRBtn')}</button></div>
+    <div data-pg-card="pr" data-pg-reveal="card" class="card" style="margin:0 20px">
       ${S.prs.length?buildPRPie(S.prs):`<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noPRs')}</div>`}
     </div>
 
-    <div data-pg-reveal="label" class="slbl">${t('cardioTitle')}</div>
+    <div data-pg-card="cardio" data-pg-reveal="label" class="slbl">${t('cardioTitle')}</div>
     ${cardioSessions.length?`
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div data-pg-card="cardio" data-pg-reveal="card" class="card" style="margin:0 20px">
       ${buildCardioCard(cardioWeekMin,cardioMonthMin,cardioTotalMin,cardioSessions,topCardio)}
     </div>`
-    :`<div data-pg-reveal="card" class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">${t('noCardioYet')}</div>`}
+    :`<div data-pg-card="cardio" data-pg-reveal="card" class="card" style="margin:0 20px;padding:20px;text-align:center;color:var(--tx3)">${t('noCardioYet')}</div>`}
 
-    <div data-pg-reveal="label" class="slbl">${t('sessionHistory')}</div>
-    <div data-pg-reveal="card" class="card" style="margin:0 20px">
+    <div data-pg-card="hist" data-pg-reveal="label" class="slbl">${t('sessionHistory')}</div>
+    <div data-pg-card="hist" data-pg-reveal="card" class="card" style="margin:0 20px">
       ${S.hist.length?[...S.hist].slice(0,20).map(h=>`
         <div class="hr" style="gap:8px">
           <div class="hico" style="background:rgba(255,61,0,.1)">${h.em}</div>
@@ -6059,6 +6114,7 @@ function renderProg(){
       buildCalendar();
     }catch(e){console.warn('buildCalendar:',e);}
     initProgReveal();
+    applyPgVis();
   },150);
   }catch(err){
     console.error('renderProg failed:',err);
@@ -6737,7 +6793,7 @@ function ach(em,lbl,unlocked,hint,cur,max,delay){
   const check=unlocked?`<div style="font-size:9px;color:var(--ok);margin-top:3px;font-weight:700;letter-spacing:.5px">✓ DONE</div>`:'';
 
   // Jiggle on locked tap
-  const lockTap=!unlocked?`onclick="this.classList.remove('ach-jiggle');void this.offsetWidth;this.classList.add('ach-jiggle')"`:'';
+  const lockTap=!unlocked?`onclick="vib([30,60,30]);this.classList.remove('ach-jiggle');void this.offsetWidth;this.classList.add('ach-jiggle')"`:'';
 
   const cardClass=`ach-card ${unlocked?'ach-u':virgin?'ach-l ach-virgin':'ach-l ach-started'}`;
   const bg=unlocked?'rgba(255,61,0,.08)':virgin?'rgba(10,10,10,.55)':'var(--sf)';
@@ -6748,7 +6804,7 @@ function ach(em,lbl,unlocked,hint,cur,max,delay){
     class="${cardClass}"
     data-reveal="1"
     style="background:${bg};border:1px solid ${border};opacity:${opacity};--ad:${delayStr}"
-    title="${hint}" ${lockTap}>
+    title="${hint}" ${lockTap}${unlocked?` onclick="playChime();vib([50])"`:``}>
     ${veil}${sparks}
     <span class="ach-em" style="${virgin?'filter:grayscale(1) brightness(.45)':''}${unlocked?'':'filter:grayscale(.5) brightness(.7)'}">${em}</span>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:${unlocked?'var(--ac)':virgin?'rgba(255,255,255,.2)':'var(--tx3)'};font-weight:700;letter-spacing:.6px;line-height:1.25">${lbl}</div>
@@ -6916,7 +6972,6 @@ function manualStreak(){
 }
 async function exportExcel(){
   try{
-    // Check ExcelJS is loaded
     if(typeof ExcelJS==='undefined'){
       showToast(t('loadingExcelLib'),'info');
       await new Promise(r=>setTimeout(r,2000));
@@ -6926,156 +6981,377 @@ async function exportExcel(){
     const wb=new ExcelJS.Workbook();
     wb.creator='IRONMEN App';wb.created=new Date();
 
-    // ── Palette ──
-    const D='FF1A1A1A',D2='FF222222',ALT='FFF6F6F6',WH='FFFFFFFF';
-    const RED='FFFF3D00',YEL='FFFFB800',GRN='FF00C96A',BLU='FF3D7EFF',PRP='FF8B5CF6';
-    const TXW='FFFFFFFF',TXD='FF1A1A1A',TXM='FF555555',TXL='FF999999';
-    const BDL='FFE8E8E8',BDM='FFCCCCCC';
+    /* ── Palette ── */
+    const BG='FF0C0C0C',BG2='FF161616',BG3='FF1E1E1E',BG4='FF282828';
+    const RED='FFFF3D00',YEL='FFFFB800',GRN='FF00C96A',BLU='FF3D7EFF',PRP='FF8B5CF6',CYN='FF00BCD4';
+    const WH='FFFFFFFF',TX='FFF0EDE8',TX2='FF9A9288',TX3='FF504845',BD='FF2A2A2A';
+    const LBGW='FFFAFAFA',LBGA='FFF2F2F2',LBDR='FFFFE8E0',LBDY='FFFFF3CC',LBDG='FFE0F7EC',LBDP='FFF3EFFF',LBDB='FFE8F0FF',LBDC='FFE0F4F8';
 
-    function cellFill(c){return{type:'pattern',pattern:'solid',fgColor:{argb:c}};}
-    function thinBorder(c){return{style:'thin',color:{argb:c}};}
+    const cf=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}});
+    const tb=(c,s='thin')=>({style:s,color:{argb:c}});
+    const bdr=(t2,b2,l2,r2)=>({top:t2,bottom:b2,left:l2,right:r2});
+    const hairAll=bdr(tb('FFE0E0E0','hair'),tb('FFE0E0E0','hair'),tb('FFCCCCCC'),tb('FFCCCCCC'));
+    const medBot=c=>bdr(tb('FFE0E0E0','hair'),tb(c,'medium'),tb(BD),tb(BD));
 
-    function styleHdr(cell,accentArgb){
-      cell.font={name:'Calibri',size:11,bold:true,color:{argb:TXW}};
-      cell.fill=cellFill(D);
-      cell.alignment={horizontal:'center',vertical:'middle'};
-      cell.border={top:thinBorder(D),bottom:{style:'medium',color:{argb:accentArgb}},left:thinBorder(D),right:thinBorder(D)};
+    function sHdr(cell,acc){
+      cell.font={name:'Calibri',size:11,bold:true,color:{argb:WH}};
+      cell.fill=cf(BG);cell.alignment={horizontal:'center',vertical:'middle',wrapText:false};
+      cell.border=medBot(acc);
     }
-
-    function styleData(cell,alt,leftAlign){
-      cell.font={name:'Calibri',size:10,color:{argb:TXD}};
-      cell.fill=cellFill(alt?ALT:WH);
-      cell.alignment={horizontal:leftAlign?'left':'center',vertical:'middle'};
-      cell.border={top:{style:'hair',color:{argb:BDL}},bottom:{style:'hair',color:{argb:BDL}},left:thinBorder(BDM),right:thinBorder(BDM)};
+    function sDark(cell,bold,align){
+      cell.font={name:'Calibri',size:10,bold:!!bold,color:{argb:'FF1A1A1A'}};
+      cell.alignment={horizontal:align||'left',vertical:'middle',indent:1};cell.border=hairAll;
     }
-
-    function applyHdr(row,numCols,accentArgb){
-      row.height=30;
-      for(let c=1;c<=numCols;c++)styleHdr(row.getCell(c),accentArgb);
+    function sData(cell,alt,leftAlign,accent){
+      cell.font={name:'Calibri',size:10,color:{argb:'FF1A1A1A'}};
+      cell.fill=cf(alt?LBGA:LBGW);cell.alignment={horizontal:leftAlign?'left':'center',vertical:'middle',indent:leftAlign?1:0};
+      cell.border=hairAll;
+      if(accent){cell.fill=cf(accent);cell.font={name:'Calibri',size:10,bold:true,color:{argb:WH}};}
     }
-
-    function applyData(row,rowIdx,numCols,firstLeft){
-      const alt=rowIdx%2===1;row.height=21;
-      for(let c=1;c<=numCols;c++)styleData(row.getCell(c),alt,firstLeft&&c===1);
+    function applyHdr(row,n,acc){
+      row.height=30;for(let c=1;c<=n;c++){sHdr(row.getCell(c),acc);}
     }
-
-    function addSectionHdr(ws,rowNum,label,bgArgb,colSpan){
-      const endCol=String.fromCharCode(64+colSpan);
-      ws.mergeCells('A'+rowNum+':'+endCol+rowNum);
+    function applyDataRow(row,ri,n,fl){
+      const alt=ri%2===1;row.height=21;
+      for(let c=1;c<=n;c++)sData(row.getCell(c),alt,fl&&c===1);
+    }
+    function secHdr(ws,rowNum,lbl,bgArgb,span){
+      const ec=String.fromCharCode(64+span);
+      ws.mergeCells('A'+rowNum+':'+ec+rowNum);
       const cell=ws.getCell('A'+rowNum);
-      cell.value=label;
-      cell.font={name:'Calibri',size:11,bold:true,color:{argb:TXW}};
-      cell.fill=cellFill(bgArgb);
-      cell.alignment={horizontal:'left',vertical:'middle',indent:1};
+      cell.value=lbl;cell.font={name:'Calibri',size:11,bold:true,color:{argb:WH}};
+      cell.fill=cf(bgArgb);cell.alignment={horizontal:'left',vertical:'middle',indent:1};
       ws.getRow(rowNum).height=26;
     }
-
-    function addKVRow(ws,rowNum,k1,v1,k2,v2,alt){
-      const r=ws.getRow(rowNum);r.height=22;
-      r.getCell(1).value=k1;r.getCell(2).value=v1;
-      r.getCell(3).value=k2;r.getCell(4).value=v2;
-      const bg=cellFill(alt?ALT:WH);
-      const bd={top:{style:'hair',color:{argb:BDL}},bottom:{style:'hair',color:{argb:BDL}},left:thinBorder(BDM),right:thinBorder(BDM)};
-      for(let c=1;c<=4;c++){
-        const cell=r.getCell(c);
-        const isKey=c===1||c===3;
-        cell.font={name:'Calibri',size:10,bold:isKey,color:{argb:isKey?TXM:TXD}};
-        cell.fill=bg;cell.border=bd;
+    function kvRow(ws,rn,k1,v1,k2,v2,alt,acc1,acc2){
+      const r=ws.getRow(rn);r.height=22;
+      const pairs=[[1,k1,true],[2,v1,false],[3,k2,true],[4,v2,false]];
+      pairs.forEach(([c,v,isKey])=>{
+        const cell=r.getCell(c);cell.value=v!==undefined&&v!==null?v:'—';
+        cell.fill=cf(alt?LBGA:LBGW);cell.border=hairAll;
+        cell.font={name:'Calibri',size:10,bold:isKey,color:{argb:isKey?'FF444444':'FF111111'}};
         cell.alignment={horizontal:'left',vertical:'middle',indent:1};
-      }
+        if(isKey&&acc1){cell.fill=cf(acc1);cell.font={name:'Calibri',size:10,bold:true,color:{argb:WH}};}
+      });
+    }
+    function spacer(ws,rn,h){ws.getRow(rn).height=h||6;}
+    function titleRow(ws,rn,txt,bgArgb,span,sz){
+      const ec=String.fromCharCode(64+span);
+      ws.mergeCells('A'+rn+':'+ec+rn);
+      const c=ws.getCell('A'+rn);c.value=txt;
+      c.font={name:'Calibri',size:sz||20,bold:true,color:{argb:WH}};
+      c.fill=cf(bgArgb);c.alignment={horizontal:'center',vertical:'middle'};
+      ws.getRow(rn).height=sz?sz*2.4:48;
+    }
+    function subTitleRow(ws,rn,txt,bgArgb,span){
+      const ec=String.fromCharCode(64+span);
+      ws.mergeCells('A'+rn+':'+ec+rn);
+      const c=ws.getCell('A'+rn);c.value=txt;
+      c.font={name:'Calibri',size:10,italic:true,color:{argb:'FFAAAAAA'}};
+      c.fill=cf(bgArgb);c.alignment={horizontal:'center',vertical:'middle'};
+      ws.getRow(rn).height=20;
     }
 
-    // ── Sheet 1: Summary ──
-    const ws1=wb.addWorksheet('Summary',{tabColor:{argb:'FF3D00'}});
-    ws1.columns=[{width:24},{width:20},{width:20},{width:22}];
+    /* ── Pre-compute stats ── */
+    const totSess=S.hist.length;
+    const totDur=S.hist.reduce((a,h)=>a+h.dur,0);
+    const totSets=S.hist.reduce((a,h)=>a+h.sets,0);
+    const totCal=S.hist.reduce((a,h)=>a+h.cal,0);
+    const totWk=(S.workouts||[]).length;
+    const customCount=(S.customExs||[]).length;
+    const bwLogs=(S.bw||[]).length;
+    const prsCount=(S.prs||[]).length;
+    const lastBW=bwLogs?(S.bw[S.bw.length-1].w)+' '+S.cfg.units:'—';
 
-    ws1.mergeCells('A1:D1');
-    const tc=ws1.getCell('A1');
-    tc.value='🏋️  IRONMEN — Data Export';
-    tc.font={name:'Calibri',size:20,bold:true,color:{argb:TXW}};
-    tc.fill=cellFill(D);tc.alignment={horizontal:'center',vertical:'middle'};
-    ws1.getRow(1).height=46;
+    // Best streak
+    let bestStreak=S.streak||0;
+    if(S.hist&&S.hist.length>1){
+      const dates=[...new Set(S.hist.map(h=>h.date))].sort();
+      let c2=1,mx2=1;
+      for(let i=1;i<dates.length;i++){
+        const diff=Math.round((new Date(dates[i]+'T12:00:00')-new Date(dates[i-1]+'T12:00:00'))/864e5);
+        if(diff===1){c2++;mx2=Math.max(mx2,c2);}else{c2=1;}
+      }
+      bestStreak=Math.max(S.streak||0,mx2);
+    }
 
-    ws1.mergeCells('A2:D2');
-    const dc=ws1.getCell('A2');
-    dc.value='Exported on: '+new Date().toLocaleString();
-    dc.font={name:'Calibri',size:10,italic:true,color:{argb:TXL}};
-    dc.fill=cellFill(D2);dc.alignment={horizontal:'center',vertical:'middle'};
-    ws1.getRow(2).height=20;
+    // Achievements
+    const wkCreated=(S.workouts||[]).length;
+    const prs=(S.prs||[]);
+    const achievList=[
+      {em:'🎯',name:'First Step',   done:totSess>=1,   cur:totSess,    max:1},
+      {em:'🏅',name:'Century',      done:totSess>=10,  cur:totSess,    max:10},
+      {em:'💪',name:'Grinder',      done:totSess>=25,  cur:totSess,    max:25},
+      {em:'⚡',name:'Machine',      done:totSess>=50,  cur:totSess,    max:50},
+      {em:'🔥',name:'On Fire',      done:bestStreak>=3, cur:S.streak||0,max:3},
+      {em:'⭐',name:'Streak 10',    done:bestStreak>=10,cur:S.streak||0,max:10},
+      {em:'🌋',name:'Unstoppable',  done:bestStreak>=21,cur:S.streak||0,max:21},
+      {em:'💎',name:'Iron Mind',    done:bestStreak>=30,cur:S.streak||0,max:30},
+      {em:'🥇',name:'First PR',     done:prs.length>=1, cur:prs.length, max:1},
+      {em:'💀',name:'Beast',        done:prs.length>=4, cur:prs.length, max:4},
+      {em:'👑',name:'PR King',      done:prs.length>=10,cur:prs.length, max:10},
+      {em:'🤖',name:'Iron Man',     done:prs.length>=20,cur:prs.length, max:20},
+      {em:'⚖️',name:'Scale Keeper', done:bwLogs>=1,     cur:bwLogs,     max:1},
+      {em:'📊',name:'Data Nerd',    done:bwLogs>=10,    cur:bwLogs,     max:10},
+      {em:'🔥',name:'Furnace',      done:totCal>=5000,  cur:totCal,     max:5000},
+      {em:'🏗️',name:'Builder',      done:wkCreated>=3,  cur:wkCreated,  max:3},
+    ];
+    const achUnlocked=achievList.filter(a=>a.done).length;
+    const lvlNames=['','Iron','Bronze','Silver','Gold','Platinum','Diamond','Elite','Legend','Mythic'];
 
-    ws1.getRow(3).height=8;
+    const todayWkName=(S.workouts||[]).find(w=>w.id===S.todayWk)?.name||'—';
+    const xpPct=S.user.mxp>0?Math.round((S.user.xp/S.user.mxp)*100):0;
+    const exportDate=new Date().toLocaleString();
 
-    addSectionHdr(ws1,4,'👤   USER INFO',RED,4);
-    addKVRow(ws1,5,'Name',S.user.name,'Program',S.user.prog,false);
-    addKVRow(ws1,6,'Level',S.user.lvl,'XP',S.user.xp,true);
-    addKVRow(ws1,7,'Streak (days)',S.streak,'Units',S.cfg.units,false);
+    /* ════════════════════════════════
+       SHEET 1 — SUMMARY
+    ════════════════════════════════ */
+    const ws1=wb.addWorksheet('📊 Summary',{tabColor:{argb:RED.slice(2)}});
+    ws1.columns=[{width:26},{width:22},{width:22},{width:22}];
 
-    ws1.getRow(8).height=8;
+    titleRow(ws1,1,'🏋️  IRONMEN — Full Data Export',BG,4,18);
+    subTitleRow(ws1,2,'Exported: '+exportDate,BG2,4);
+    spacer(ws1,3,8);
 
-    addSectionHdr(ws1,9,'🎯   GOALS',YEL,4);
-    addKVRow(ws1,10,'Target Weight ('+S.cfg.units+')',S.goals.tw,'Days / Week',S.goals.dpw,false);
-    addKVRow(ws1,11,'Body Fat %',S.goals.bf,'','',true);
+    // User Info
+    secHdr(ws1,4,'👤   USER PROFILE',RED,4);
+    kvRow(ws1,5,'Name',S.user.name,'Program',S.user.prog,false);
+    kvRow(ws1,6,'Level',S.user.lvl+' — '+(lvlNames[S.user.lvl]||'Legend+'),'XP',S.user.xp+' / '+S.user.mxp+' ('+xpPct+'%)',true);
+    kvRow(ws1,7,'Current Streak',S.streak+' days','Best Streak',bestStreak+' days',false);
+    kvRow(ws1,8,'Language',S.cfg.lang.toUpperCase(),'Units',S.cfg.units,true);
+    spacer(ws1,9,8);
 
-    // ── Sheet 2: Workouts ──
-    const ws2=wb.addWorksheet('Workouts',{tabColor:{argb:'FFB800'}});
-    ws2.columns=[{width:20},{width:13},{width:6},{width:26},{width:15},{width:11},{width:15},{width:22},{width:13},{width:13},{width:7},{width:13},{width:15}];
-    const hdr2=ws2.addRow(['Workout','Category','Icon','Description','Duration (min)','Calories','Level','Exercise','Muscle','Equipment','Sets','Avg Reps','Avg Weight']);
-    applyHdr(hdr2,13,YEL);
-    ws2.views=[{state:'frozen',ySplit:1}];
-    ws2.autoFilter={from:'A1',to:'M1'};
+    // Goals
+    secHdr(ws1,10,'🎯   GOALS',YEL,4);
+    kvRow(ws1,11,'Target Weight',S.goals.tw+' '+S.cfg.units,'Days / Week',S.goals.dpw,false);
+    kvRow(ws1,12,'Body Fat %',S.goals.bf+'%','Today\'s Workout',todayWkName,true);
+    spacer(ws1,13,8);
+
+    // Statistics
+    secHdr(ws1,14,'📈   OVERALL STATISTICS',BLU,4);
+    kvRow(ws1,15,'Total Sessions',totSess,'Total Duration',totDur+' min',false);
+    kvRow(ws1,16,'Total Sets',totSets,'Total Calories',totCal+' kcal',true);
+    kvRow(ws1,17,'Workouts Created',totWk,'Personal Records',prsCount,false);
+    kvRow(ws1,18,'Body Weight Logs',bwLogs,'Last Weight',lastBW,true);
+    kvRow(ws1,19,'Custom Exercises',customCount,'Achievements',achUnlocked+' / '+achievList.length,false);
+    spacer(ws1,20,8);
+
+    // Settings
+    secHdr(ws1,21,'⚙️   SETTINGS',PRP,4);
+    kvRow(ws1,22,'Workout Reminders',S.cfg.reminders?'✔ On':'✘ Off','Auto-log Weight',S.cfg.autoLog?'✔ On':'✘ Off',false);
+    kvRow(ws1,23,'Workout Music',S.cfg.music?'✔ On':'✘ Off','Rest Timer Sound',S.cfg.restSound?'✔ On':'✘ Off',true);
+    kvRow(ws1,24,'Reminder Time',String(S.cfg.reminderHour||7).padStart(2,'0')+':'+String(S.cfg.reminderMin||0).padStart(2,'0'),'','',false);
+
+    /* ════════════════════════════════
+       SHEET 2 — WORKOUTS
+    ════════════════════════════════ */
+    const ws2=wb.addWorksheet('🏋️ Workouts',{tabColor:{argb:YEL.slice(2)}});
+    ws2.columns=[{width:22},{width:13},{width:6},{width:26},{width:15},{width:11},{width:13},{width:8},{width:24},{width:13},{width:13},{width:7},{width:13},{width:15}];
+    const h2=ws2.addRow(['Workout','Category','Icon','Description','Duration (min)','Calories','Level','Today?','Exercise','Muscle','Equipment','Sets','Avg Reps','Avg Weight ('+S.cfg.units+')']);
+    applyHdr(h2,14,YEL);
+    ws2.views=[{state:'frozen',ySplit:1}];ws2.autoFilter={from:'A1',to:'N1'};
     let ri2=0;
-    S.workouts.forEach(w=>{
+    (S.workouts||[]).forEach(w=>{
+      const isToday=w.id===S.todayWk;
       if(!w.exs||!w.exs.length){
-        const r=ws2.addRow([w.name,w.cat,w.em,w.desc,w.dur,w.cal,w.lvl,'','','','','','']);
-        applyData(r,ri2++,13,true);
-      } else {
+        const r=ws2.addRow([w.name,w.cat,w.em,w.desc,w.dur,w.cal,w.lvl,isToday?'★ TODAY':'','','','','','','']);
+        applyDataRow(r,ri2++,14,true);
+        if(isToday)sData(r.getCell(8),false,false,YEL);
+      }else{
         w.exs.forEach((e,i)=>{
-          const avgRep=e.sets.length?Math.round(e.sets.reduce((a,s)=>a+s.r,0)/e.sets.length):'-';
+          const avgR=e.sets.length?Math.round(e.sets.reduce((a,s)=>a+s.r,0)/e.sets.length):'-';
           const avgW=e.sets.length?parseFloat((e.sets.reduce((a,s)=>a+s.w,0)/e.sets.length).toFixed(1)):'-';
-          const r=ws2.addRow(i===0?[w.name,w.cat,w.em,w.desc,w.dur,w.cal,w.lvl,e.n,e.m,e.t,e.sets.length,avgRep,avgW]:['','','','','','','',e.n,e.m,e.t,e.sets.length,avgRep,avgW]);
-          applyData(r,ri2++,13,true);
+          const r=ws2.addRow(i===0?[w.name,w.cat,w.em,w.desc,w.dur,w.cal,w.lvl,isToday?'★ TODAY':'',e.n,e.m,e.t,e.sets.length,avgR,avgW]:['','','','','','','','',e.n,e.m,e.t,e.sets.length,avgR,avgW]);
+          applyDataRow(r,ri2++,14,true);
+          if(i===0&&isToday)sData(r.getCell(8),ri2%2===0,false,YEL);
         });
       }
     });
 
-    // ── Sheet 3: History ──
-    const ws3=wb.addWorksheet('Workout History',{tabColor:{argb:'3D7EFF'}});
-    ws3.columns=[{width:15},{width:22},{width:15},{width:9},{width:13},{width:9}];
-    const hdr3=ws3.addRow(['Date','Workout','Duration (min)','Sets','Calories','Emoji']);
-    applyHdr(hdr3,6,BLU);
-    ws3.views=[{state:'frozen',ySplit:1}];
-    ws3.autoFilter={from:'A1',to:'F1'};
-    S.hist.forEach((h,i)=>{const r=ws3.addRow([h.date,h.name,h.dur,h.sets,h.cal,h.em]);applyData(r,i,6,true);});
+    /* ════════════════════════════════
+       SHEET 3 — WORKOUT HISTORY
+    ════════════════════════════════ */
+    const ws3=wb.addWorksheet('📅 History',{tabColor:{argb:BLU.slice(2)}});
+    ws3.columns=[{width:14},{width:24},{width:15},{width:9},{width:13},{width:8},{width:10}];
+    const h3=ws3.addRow(['Date','Workout','Duration (min)','Sets','Calories','Emoji','# Session']);
+    applyHdr(h3,7,BLU);
+    ws3.views=[{state:'frozen',ySplit:1}];ws3.autoFilter={from:'A1',to:'G1'};
+    const histSorted=[...S.hist].reverse();
+    histSorted.forEach((h,i)=>{
+      const r=ws3.addRow([h.date,h.name,h.dur,h.sets,h.cal,h.em,totSess-i]);
+      applyDataRow(r,i,7,true);
+    });
+    // Totals row
+    if(S.hist.length){
+      ws3.addRow([]);
+      const totR=ws3.addRow(['TOTAL','',''+totDur+' min',totSets,totCal+' kcal','','']);
+      totR.height=24;
+      for(let c=1;c<=7;c++){
+        const cell=totR.getCell(c);
+        cell.font={name:'Calibri',size:10,bold:true,color:{argb:WH}};
+        cell.fill=cf(BG);cell.border=hairAll;
+        cell.alignment={horizontal:c===1?'left':'center',vertical:'middle',indent:c===1?1:0};
+      }
+    }
 
-    // ── Sheet 4: Personal Records ──
-    const ws4=wb.addWorksheet('Personal Records',{tabColor:{argb:'00C96A'}});
-    ws4.columns=[{width:24},{width:17},{width:9},{width:15},{width:20}];
-    const hdr4=ws4.addRow(['Exercise','Weight ('+S.cfg.units+')','Reps','Date','Previous Weight']);
-    applyHdr(hdr4,5,GRN);
-    ws4.views=[{state:'frozen',ySplit:1}];
-    ws4.autoFilter={from:'A1',to:'E1'};
-    S.prs.forEach((p,i)=>{const r=ws4.addRow([p.ex,p.w,p.r,p.date,p.prev||'']);applyData(r,i,5,true);});
+    /* ════════════════════════════════
+       SHEET 4 — PERSONAL RECORDS
+    ════════════════════════════════ */
+    const ws4=wb.addWorksheet('🏆 PRs',{tabColor:{argb:GRN.slice(2)}});
+    ws4.columns=[{width:26},{width:18},{width:9},{width:15},{width:20},{width:16}];
+    const h4=ws4.addRow(['Exercise','Weight ('+S.cfg.units+')','Reps','Date','Previous Weight','Gain']);
+    applyHdr(h4,6,GRN);
+    ws4.views=[{state:'frozen',ySplit:1}];ws4.autoFilter={from:'A1',to:'F1'};
+    (S.prs||[]).forEach((p,i)=>{
+      const gain=p.prev&&p.w?(p.w-p.prev).toFixed(1):'—';
+      const r=ws4.addRow([p.ex,p.w,p.r,p.date,p.prev||'—',gain!=='—'?(gain>0?'+'+gain:gain):'—']);
+      applyDataRow(r,i,6,true);
+      if(gain!=='—'&&parseFloat(gain)>0){sData(r.getCell(6),i%2===1,false,GRN);}
+    });
 
-    // ── Sheet 5: Body Weight ──
-    const ws5=wb.addWorksheet('Body Weight',{tabColor:{argb:'8B5CF6'}});
-    ws5.columns=[{width:15},{width:18}];
-    const hdr5=ws5.addRow(['Date','Weight ('+S.cfg.units+')']);
-    applyHdr(hdr5,2,PRP);
-    ws5.views=[{state:'frozen',ySplit:1}];
-    ws5.autoFilter={from:'A1',to:'B1'};
-    S.bw.forEach((b,i)=>{const r=ws5.addRow([b.date,b.w]);applyData(r,i,2,true);});
+    /* ════════════════════════════════
+       SHEET 5 — BODY WEIGHT
+    ════════════════════════════════ */
+    const ws5=wb.addWorksheet('⚖️ Body Weight',{tabColor:{argb:PRP.slice(2)}});
+    ws5.columns=[{width:15},{width:20},{width:18}];
+    const h5=ws5.addRow(['Date','Weight ('+S.cfg.units+')','Change']);
+    applyHdr(h5,3,PRP);
+    ws5.views=[{state:'frozen',ySplit:1}];ws5.autoFilter={from:'A1',to:'C1'};
+    (S.bw||[]).forEach((b,i,arr)=>{
+      const prev=arr[i-1];
+      const chg=prev?(b.w-prev.w).toFixed(1):'—';
+      const r=ws5.addRow([b.date,b.w,chg!=='—'?(parseFloat(chg)>0?'+'+chg:chg):'—']);
+      applyDataRow(r,i,3,true);
+      if(chg!=='—'){
+        const up=parseFloat(chg)>0;
+        sData(r.getCell(3),i%2===1,false,up?'FFFF2D55':'FF00C96A');
+      }
+    });
 
-    // ── Hidden sheet: raw JSON pentru import ──
-    const ws6=wb.addWorksheet('_data');
-    ws6.state='hidden';
-    ws6.addRow(['_json_data']);
-    ws6.addRow([JSON.stringify(S)]);
+    /* ════════════════════════════════
+       SHEET 6 — CUSTOM EXERCISES
+    ════════════════════════════════ */
+    const ws6=wb.addWorksheet('⭐ Custom Exercises',{tabColor:{argb:CYN.slice(2)}});
+    ws6.columns=[{width:28},{width:18},{width:18},{width:32}];
+    const h6=ws6.addRow(['Exercise Name','Muscle Group','Equipment','Notes']);
+    applyHdr(h6,4,CYN);
+    ws6.views=[{state:'frozen',ySplit:1}];
+    if((S.customExs||[]).length){
+      (S.customExs||[]).forEach((e,i)=>{
+        const r=ws6.addRow([e.n,e.m,e.t,e.notes||'']);
+        applyDataRow(r,i,4,true);
+      });
+    }else{
+      const r=ws6.addRow(['No custom exercises yet','','','']);
+      r.getCell(1).font={name:'Calibri',size:10,italic:true,color:{argb:'FF999999'}};
+      r.height=22;
+    }
 
-    // Write & download
+    /* ════════════════════════════════
+       SHEET 7 — ACHIEVEMENTS
+    ════════════════════════════════ */
+    const ws7=wb.addWorksheet('🎯 Achievements',{tabColor:{argb:YEL.slice(2)}});
+    ws7.columns=[{width:7},{width:24},{width:14},{width:10},{width:10},{width:12},{width:22}];
+    const h7=ws7.addRow(['Icon','Achievement','Status','Progress','Target','% Done','Hint']);
+    applyHdr(h7,7,YEL);
+    ws7.views=[{state:'frozen',ySplit:1}];
+    achievList.forEach((a,i)=>{
+      const pct=Math.min(100,Math.round((a.cur/a.max)*100));
+      const r=ws7.addRow([a.em,a.name,a.done?'✔ UNLOCKED':'⏳ Locked',a.cur,a.max,pct+'%',a.done?'Completed!':'Keep going']);
+      applyDataRow(r,i,7,false);
+      if(a.done){
+        sData(r.getCell(3),i%2===1,false,GRN);
+        sData(r.getCell(7),i%2===1,false,GRN);
+      }
+    });
+    // Summary row
+    ws7.addRow([]);
+    const achTot=ws7.addRow(['','ACHIEVEMENTS UNLOCKED: '+achUnlocked+' / '+achievList.length,'','','','','']);
+    ws7.mergeCells('B'+(achievList.length+3)+':G'+(achievList.length+3));
+    achTot.height=24;
+    const achCell=achTot.getCell(2);
+    achCell.font={name:'Calibri',size:11,bold:true,color:{argb:WH}};
+    achCell.fill=cf(BG);achCell.border=hairAll;
+    achCell.alignment={horizontal:'center',vertical:'middle'};
+
+    /* ════════════════════════════════
+       SHEET 8 — SETTINGS (full cfg)
+    ════════════════════════════════ */
+    const ws8=wb.addWorksheet('⚙️ Settings',{tabColor:{argb:PRP.slice(2)}});
+    ws8.columns=[{width:28},{width:28}];
+    titleRow(ws8,1,'⚙️  App Configuration',BG,2,13);
+    spacer(ws8,2,6);
+    secHdr(ws8,3,'ACCOUNT',RED,2);
+    const cfgRows=[
+      ['Language',S.cfg.lang.toUpperCase()],
+      ['Units',S.cfg.units],
+      ['Profile Name',S.user.name],
+      ['Program',S.user.prog],
+      ['Level',S.user.lvl],
+      ['XP',S.user.xp+' / '+S.user.mxp],
+    ];
+    cfgRows.forEach((row,i)=>{
+      const r=ws8.addRow(row);r.height=22;
+      const alt=i%2===1;
+      for(let c=1;c<=2;c++){
+        const cell=r.getCell(c);
+        cell.fill=cf(alt?LBGA:LBGW);cell.border=hairAll;
+        cell.font={name:'Calibri',size:10,bold:c===1,color:{argb:c===1?'FF444444':'FF111111'}};
+        cell.alignment={horizontal:'left',vertical:'middle',indent:1};
+      }
+    });
+    ws8.addRow([]).height=6;
+    secHdr(ws8,cfgRows.length+6,'PREFERENCES',PRP,2);
+    const prefRows=[
+      ['Workout Reminders',S.cfg.reminders?'On':'Off'],
+      ['Reminder Time',String(S.cfg.reminderHour||7).padStart(2,'0')+':'+String(S.cfg.reminderMin||0).padStart(2,'0')],
+      ['Auto-log Weight',S.cfg.autoLog?'On':'Off'],
+      ['Workout Music',S.cfg.music?'On':'Off'],
+      ['Rest Timer Sound',S.cfg.restSound?'On':'Off'],
+    ];
+    prefRows.forEach((row,i)=>{
+      const r=ws8.addRow(row);r.height=22;
+      const alt=i%2===1;
+      for(let c=1;c<=2;c++){
+        const cell=r.getCell(c);
+        cell.fill=cf(alt?LBGA:LBGW);cell.border=hairAll;
+        cell.font={name:'Calibri',size:10,bold:c===1,color:{argb:c===1?'FF444444':'FF111111'}};
+        cell.alignment={horizontal:'left',vertical:'middle',indent:1};
+      }
+    });
+    ws8.addRow([]).height=6;
+    secHdr(ws8,cfgRows.length+prefRows.length+8,'GOALS',YEL,2);
+    const goalRows=[
+      ['Target Weight',S.goals.tw+' '+S.cfg.units],
+      ['Training Days / Week',S.goals.dpw],
+      ['Body Fat Target',S.goals.bf+'%'],
+    ];
+    goalRows.forEach((row,i)=>{
+      const r=ws8.addRow(row);r.height=22;
+      const alt=i%2===1;
+      for(let c=1;c<=2;c++){
+        const cell=r.getCell(c);
+        cell.fill=cf(alt?LBGA:LBGW);cell.border=hairAll;
+        cell.font={name:'Calibri',size:10,bold:c===1,color:{argb:c===1?'FF444444':'FF111111'}};
+        cell.alignment={horizontal:'left',vertical:'middle',indent:1};
+      }
+    });
+
+    /* ════════════════════════════════
+       SHEET 9 — _data (hidden, full JSON)
+    ════════════════════════════════ */
+    const ws9=wb.addWorksheet('_data');
+    ws9.state='hidden';
+    ws9.addRow(['_json_data']);
+    ws9.addRow([JSON.stringify(S)]);
+
+    /* Write & download */
+    const name=S.user.name.replace(/[^a-z0-9]/gi,'_').toLowerCase();
     const buf=await wb.xlsx.writeBuffer();
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='ironmen-data.xlsx';
+    const a=document.createElement('a');a.href=url;
+    a.download='ironmen_'+name+'_'+new Date().toISOString().slice(0,10)+'.xlsx';
     document.body.appendChild(a);a.click();
     document.body.removeChild(a);URL.revokeObjectURL(url);
     showToast(t('exportOk'),'ok');
@@ -7093,17 +7369,43 @@ function handleImportFile(input){
     try{
       const data=new Uint8Array(e.target.result);
       const wb=XLSX.read(data,{type:'array'});
-      // Try to restore from hidden _data sheet first
+      // Primary: restore from hidden _data sheet (full JSON — always up to date)
       if(wb.SheetNames.includes('_data')){
         const ws=wb.Sheets['_data'];
         const rows=XLSX.utils.sheet_to_json(ws,{header:1});
         if(rows[1]&&rows[1][0]){
-          const parsed=JSON.parse(rows[1][0]);
+          let parsed;
+          try{parsed=JSON.parse(rows[1][0]);}catch(pe){alert('❌ '+t('importInvalid'));return;}
           if(parsed&&parsed.user&&parsed.workouts){
-            if(confirm(t('importConfirm'))){
-              S=parsed;save();
-              alert('✅ '+t('importOk'));
-              renderProf();renderHome();
+            // Build summary for confirmation dialog
+            const sess=(parsed.hist||[]).length;
+            const wkts=(parsed.workouts||[]).length;
+            const prs2=(parsed.prs||[]).length;
+            const bw2=(parsed.bw||[]).length;
+            const cex=(parsed.customExs||[]).length;
+            const msg=t('importConfirm')+'\n\n'
+              +'👤 '+parsed.user.name+' — Level '+parsed.user.lvl+'\n'
+              +'📅 '+sess+' sessions\n'
+              +'🏋️ '+wkts+' workouts\n'
+              +'🏆 '+prs2+' personal records\n'
+              +'⚖️ '+bw2+' body weight logs\n'
+              +(cex?'⭐ '+cex+' custom exercises\n':'');
+            if(confirm(msg)){
+              S=parsed;
+              // Ensure critical fields exist
+              if(!Array.isArray(S.hist))S.hist=[];
+              if(!Array.isArray(S.workouts))S.workouts=[];
+              if(!Array.isArray(S.prs))S.prs=[];
+              if(!Array.isArray(S.bw))S.bw=[];
+              if(!Array.isArray(S.customExs))S.customExs=[];
+              if(!S.cfg)S.cfg={};
+              if(!S.user)S.user={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
+              if(!S.goals)S.goals={tw:80,dpw:4,bf:15};
+              if(S.cfg.lang){lang=S.cfg.lang;document.body.setAttribute('data-ru',lang==='ru'?'1':'0');}
+              S.streak=calcStreak();
+              save();
+              showToast('✅ '+t('importOk'),'ok');
+              renderProf();renderHome();renderProg();renderLib();
             }
             return;
           }
@@ -7422,6 +7724,41 @@ function renderSpInner(data){
       </button>
     </div>
   </div>`;
+}
+
+// ═══════════ VIBRATION HELPER ═══════════
+// Language-independent, safe on all browsers.
+// Uses Vibration API (Android Chrome/Edge). Silent no-op on iOS/unsupported.
+function vib(pattern){
+  try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}
+}
+
+// ═══════════ CHIME SOUND ═══════════
+// Web Audio API — no files, works in all languages, silent no-op on error.
+let _ac=null;
+function _getAC(){
+  if(!_ac){try{_ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  return _ac;
+}
+function playChime(){
+  try{
+    const ac=_getAC();if(!ac)return;
+    if(ac.state==='suspended')ac.resume();
+    const now=ac.currentTime;
+    // Two-note ascending chime: C5 → E5
+    [[523.25,0],[659.25,0.10]].forEach(([freq,delay])=>{
+      const osc=ac.createOscillator();
+      const gain=ac.createGain();
+      osc.connect(gain);gain.connect(ac.destination);
+      osc.type='sine';
+      osc.frequency.setValueAtTime(freq,now+delay);
+      gain.gain.setValueAtTime(0,now+delay);
+      gain.gain.linearRampToValueAtTime(0.28,now+delay+0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.55);
+      osc.start(now+delay);
+      osc.stop(now+delay+0.56);
+    });
+  }catch(e){}
 }
 
 // ═══════════ PWA FULLSCREEN ═══════════

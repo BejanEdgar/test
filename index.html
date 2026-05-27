@@ -748,27 +748,192 @@ button{-webkit-user-select:none;user-select:none}
   }
 }
 
-/* ── Achievement unlock ── */
+/* ════════════════════════════════════
+   ACHIEVEMENTS — Rich Visual Effects
+   GPU-only (transform + opacity only)
+   ════════════════════════════════════ */
+
+/* ── Keyframes ── */
 @keyframes imAchUnlock{
-  0%  {transform:scale(.72);opacity:0}
-  55% {transform:scale(1.10)}
-  75% {transform:scale(.95)}
+  0%  {transform:scale(.7) rotate(-4deg);opacity:0}
+  55% {transform:scale(1.13) rotate(1deg)}
+  75% {transform:scale(.93) rotate(0)}
   100%{transform:scale(1);opacity:1}
 }
-@keyframes imAchGlow{
+@keyframes imAchShimmer{
+  0%,72%,100%{transform:translateX(-120%) skewX(-18deg);opacity:0}
+  4%          {opacity:1}
+  50%         {transform:translateX(420%) skewX(-18deg);opacity:0}
+}
+@keyframes imAchGlowPulse{
   0%,100%{box-shadow:0 0 0 0 rgba(255,61,0,0)}
-  50%    {box-shadow:0 0 14px 2px rgba(255,61,0,.35)}
+  50%    {box-shadow:0 0 14px 3px rgba(255,61,0,.32),inset 0 0 10px rgba(255,61,0,.07)}
+}
+@keyframes imAchEmojiBob{
+  0%,100%{transform:translateY(0) scale(1)}
+  45%    {transform:translateY(-4px) scale(1.18)}
+  65%    {transform:translateY(-2px) scale(1.08)}
+}
+@keyframes imAchEmojiSpin{
+  0%  {transform:rotate(0) scale(1)}
+  18% {transform:rotate(-12deg) scale(1.2)}
+  42% {transform:rotate(10deg) scale(1.15)}
+  65% {transform:rotate(-5deg) scale(1.06)}
+  100%{transform:rotate(0) scale(1)}
+}
+@keyframes imAchSparkle{
+  0%  {transform:scale(0) translate(0,0);opacity:0}
+  18% {opacity:.9}
+  100%{transform:scale(1.4) translate(var(--sx,0px),var(--sy,-22px));opacity:0}
 }
 @keyframes imAchBarFill{
   from{width:0}
   to  {width:var(--aw,0%)}
 }
-.ach-unlocked{
-  animation:imAchUnlock .5s cubic-bezier(.34,1.4,.64,1) var(--ad,0s) both,
-             imAchGlow 2.8s ease-in-out calc(var(--ad,0s) + .5s) 2;
+@keyframes imAchBarShimmer{
+  0%  {transform:translateX(-200%)}
+  100%{transform:translateX(500%)}
+}
+@keyframes imAchLockedJiggle{
+  0%,100%{transform:rotate(0) scale(1)}
+  15%    {transform:rotate(-7deg) scale(1.06)}
+  30%    {transform:rotate(6deg) scale(1.06)}
+  45%    {transform:rotate(-4deg)}
+  60%    {transform:rotate(3deg)}
+  80%    {transform:rotate(-1deg)}
+}
+@keyframes imAchReveal{
+  from{opacity:0;transform:translateY(20px) scale(.93)}
+  to  {opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes imAchCornerStar{
+  0%,100%{opacity:.5;transform:scale(1) rotate(0)}
+  50%    {opacity:1;transform:scale(1.3) rotate(20deg)}
+}
+
+/* ── Locked — not started (virgin) ── */
+.ach-virgin{
+  box-shadow:inset 0 0 0 100px rgba(0,0,0,.38);
+}
+.ach-veil{
+  position:absolute;inset:0;border-radius:12px;
+  background:rgba(0,0,0,.42);
+  pointer-events:none;z-index:1;
+  backdrop-filter:blur(.6px);
+  -webkit-backdrop-filter:blur(.6px);
+}
+/* push content above the veil */
+.ach-virgin .ach-em,
+.ach-virgin>div:not(.ach-veil){
+  position:relative;z-index:2;
+}
+
+/* ── Locked — in progress (started) ── */
+.ach-started{opacity:.55}
+
+/* ── Base card ── */
+.ach-card{
+  position:relative;overflow:hidden;border-radius:12px;
+  padding:10px 6px 8px;text-align:center;
+  will-change:transform,box-shadow;
+  transition:transform .14s;
+  -webkit-user-select:none;user-select:none;
+}
+
+/* ── Unlocked card ── */
+.ach-u{
+  animation:imAchUnlock .55s cubic-bezier(.34,1.4,.64,1) var(--ad,0s) both,
+            imAchGlowPulse 3.2s ease-in-out calc(var(--ad,0s) + .65s) 3;
+}
+.ach-u:active{transform:scale(.91)}
+
+/* Diagonal shimmer sweep */
+.ach-u::before{
+  content:'';position:absolute;
+  top:0;left:0;width:45%;height:100%;
+  background:linear-gradient(
+    108deg,
+    transparent 30%,
+    rgba(255,255,255,.24) 50%,
+    transparent 70%
+  );
+  pointer-events:none;will-change:transform;
+  animation:imAchShimmer 4.8s ease-in-out var(--ad,0s) infinite;
+}
+
+/* Corner radial glow */
+.ach-u::after{
+  content:'';position:absolute;
+  top:-16px;right:-16px;width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,61,0,.3) 0%,transparent 70%);
+  pointer-events:none;
+  animation:imAchGlowPulse 3.2s ease-in-out var(--ad,0s) infinite;
+}
+
+/* ── Locked card — jiggle on tap ── */
+.ach-l{cursor:pointer}
+.ach-l:active{transform:scale(.94)}
+.ach-jiggle{
+  animation:imAchLockedJiggle .44s cubic-bezier(.34,1.4,.64,1) both !important;
+}
+
+/* ── Scroll reveal ── */
+.ach-card[data-reveal]{opacity:0}
+.ach-card[data-reveal].ach-vis{
+  animation:imAchReveal .4s cubic-bezier(.25,.8,.25,1) var(--ad,0s) both;
+}
+/* unlocked cards: compose reveal + unlock */
+.ach-u[data-reveal].ach-vis{
+  animation:imAchReveal .3s cubic-bezier(.25,.8,.25,1) var(--ad,0s) both,
+            imAchUnlock  .55s cubic-bezier(.34,1.4,.64,1) calc(var(--ad,0s) + .06s) both,
+            imAchGlowPulse 3.2s ease-in-out calc(var(--ad,0s) + .8s) 3;
+}
+
+/* ── Emoji ── */
+.ach-em{
+  font-size:22px;line-height:1;margin-bottom:4px;display:block;
+}
+.ach-u .ach-em{
+  display:inline-block;
+  animation:imAchEmojiBob 3.4s ease-in-out var(--ad,0s) infinite;
+  will-change:transform;
+}
+
+/* ── Sparkle dots ── */
+.ach-spark{
+  position:absolute;font-size:8px;
+  color:var(--ac);pointer-events:none;
+  animation:imAchSparkle 2.6s ease-out var(--sd,0s) infinite;
+  will-change:transform,opacity;
+  line-height:1;
+}
+
+/* ── Corner star (static decoration on unlocked) ── */
+.ach-star{
+  position:absolute;top:4px;left:6px;
+  font-size:7px;color:rgba(255,184,0,.7);
+  pointer-events:none;
+  animation:imAchCornerStar 2.8s ease-in-out var(--ad,0s) infinite;
+}
+
+/* ── Progress bar ── */
+.ach-bar-wrap{
+  margin-top:6px;height:3px;
+  background:var(--sf3);border-radius:2px;
+  overflow:hidden;position:relative;
 }
 .ach-bar-fill{
-  animation:imAchBarFill .6s cubic-bezier(.25,.8,.25,1) var(--ad,0s) both;
+  height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,var(--ac),#FFB800);
+  position:relative;overflow:hidden;
+  animation:imAchBarFill .72s cubic-bezier(.25,.8,.25,1) var(--ad,0s) both;
+}
+.ach-bar-fill::after{
+  content:'';position:absolute;
+  top:0;left:0;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+  animation:imAchBarShimmer 2.2s ease-in-out calc(var(--ad,0s) + .8s) infinite;
+  will-change:transform;
 }
 
 /* ════════════════════════════════════════
@@ -3950,7 +4115,7 @@ const LANGS={
     skipRest:'SKIP REST ›',secondsRemaining:'SECONDS REMAINING',restTimer:'Rest Timer',
     ach_first:'First Step',ach_century:'Century',ach_grinder:'Grinder',ach_machine:'Machine',
     ach_onfire:'On Fire',ach_streak10:'Streak 10',ach_unstop:'Unstoppable',ach_ironmind:'Iron Mind',
-    ach_firstPR:'First PR',ach_beast:'Beast',ach_pking:'PR King',ach_irongod:'Iron God',
+    ach_firstPR:'First PR',ach_beast:'Beast',ach_pking:'PR King',ach_irongod:'Iron Man',
     ach_scale:'Scale Keeper',ach_furnace:'Furnace',ach_builder:'Builder',ach_datanerd:'Data Nerd',
     achCat_sessions:'SESSIONS',achCat_streaks:'STREAKS',achCat_records:'RECORDS',achCat_extra:'EXTRAS',
     cancelBtn:'CANCEL',confirmBtn:'CONFIRM',saveBtn:'SAVE',addBtn:'ADD',
@@ -4062,9 +4227,9 @@ const LANGS={
     exerciseLabel:'EXERCIȚIU',setsDone:'SETURI FĂCUTE',weightCol:'GREUTATE',repsCol:'REPETĂRI',
     addSet:'+ SET',elapsed:'TRECUT',
     skipRest:'SARI PAUZA ›',secondsRemaining:'SECUNDE RĂMASE',restTimer:'Pauză',
-    ach_first:'Primul Pas',ach_century:'Centurion',ach_grinder:'Mașinărie',ach_machine:'Mașină',
-    ach_onfire:'În Flăcări',ach_streak10:'Streak 10',ach_unstop:'Imbatabil',ach_ironmind:'Minte de Fier',
-    ach_firstPR:'Primul PR',ach_beast:'Bestie',ach_pking:'Rege PR',ach_irongod:'Zeul Fierului',
+    ach_first:'Primul Pas',ach_century:'Centurion',ach_grinder:'Productiv',ach_machine:'Mașinărie',
+    ach_onfire:'On Fire',ach_streak10:'Streak 10',ach_unstop:'De neoprit',ach_ironmind:'Mindset de Fier',
+    ach_firstPR:'Primul PR',ach_beast:'Bestie',ach_pking:'Rege PR',ach_irongod:'Omul de Fier',
     ach_scale:'Tracker',ach_furnace:'Cuptor',ach_builder:'Constructor',ach_datanerd:'Analitician',
     achCat_sessions:'SESIUNI',achCat_streaks:'STREAK-URI',achCat_records:'RECORDURI',achCat_extra:'EXTRA',
     cancelBtn:'ANULEAZĂ',confirmBtn:'CONFIRMĂ',saveBtn:'SALVEAZĂ',addBtn:'ADAUGĂ',
@@ -4177,9 +4342,9 @@ const LANGS={
     addSet:'+ Подход',elapsed:'Прошло',
     skipRest:'Пропустить отдых ›',secondsRemaining:'Секунд осталось',restTimer:'Отдых',
     ach_first:'Первый шаг',ach_century:'Сотня',ach_grinder:'Трудяга',ach_machine:'Машина',
-    ach_onfire:'В огне',ach_streak10:'Серия 10',ach_unstop:'Неудержим',ach_ironmind:'Воля железа',
-    ach_firstPR:'Первый рекорд',ach_beast:'Монстр',ach_pking:'Рекордсмен',ach_irongod:'Железный бог',
-    ach_scale:'Трекер',ach_furnace:'Топка',ach_builder:'Строитель',ach_datanerd:'Аналитик',
+    ach_onfire:'В тонусе',ach_streak10:'Серия 10',ach_unstop:'Неудержимый',ach_ironmind:'Железная воля',
+    ach_firstPR:'Первый рекорд',ach_beast:'Монстр',ach_pking:'Рекордсмен',ach_irongod:'Железный Человек',
+    ach_scale:'Трекер',ach_furnace:'Жара',ach_builder:'Строитель',ach_datanerd:'Аналитик',
     achCat_sessions:'СЕССИИ',achCat_streaks:'СЕРИИ',achCat_records:'РЕКОРДЫ',achCat_extra:'ПРОЧЕЕ',
     cancelBtn:'Отмена',confirmBtn:'Подтвердить',saveBtn:'Сохранить',addBtn:'Добавить',
     synced:'● Синхронизировано',noExResults:'Нет результатов',custExSection:'★ Мои упражнения',
@@ -6502,7 +6667,7 @@ function renderProf(){
           {em:'🥇',key:'ach_firstPR',done:prs.length>=1,  cur:prs.length, max:1,  hint:'Log 1 PR'},
           {em:'💀',key:'ach_beast',  done:prs.length>=4,  cur:prs.length, max:4,  hint:'4 PRs'},
           {em:'👑',key:'ach_pking',  done:prs.length>=10, cur:prs.length, max:10, hint:'10 PRs'},
-          {em:'🔱',key:'ach_irongod',done:prs.length>=20, cur:prs.length, max:20, hint:'20 PRs'},
+          {em:'🤖',key:'ach_irongod',done:prs.length>=20, cur:prs.length, max:20, hint:'20 PRs'},
         ]},
         {cat:t('achCat_extra'),items:[
           {em:'⚖️',key:'ach_scale',   done:bwLogs>=1,    cur:bwLogs,    max:1,   hint:'Log body weight'},
@@ -6511,10 +6676,10 @@ function renderProf(){
           {em:'🏗️',key:'ach_builder', done:wkCreated>=3, cur:wkCreated, max:3,   hint:'Create 3 workouts'},
         ]},
       ];
-      return rows.map(row=>`
+      return rows.map((row,ri)=>`
         <div class="slbl" style="margin-top:12px">${row.cat}</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 20px">
-          ${row.items.map((a,i)=>ach(a.em,t(a.key),a.done,a.hint,a.cur,a.max,`${i*0.07}s`)).join('')}
+          ${row.items.map((a,i)=>ach(a.em,t(a.key),a.done,a.hint,a.cur,a.max,`${ri*0.12+i*0.07}s`)).join('')}
         </div>`).join('');
     })()}
 
@@ -6533,6 +6698,8 @@ function renderProf(){
       <button class="btn bd2" style="font-size:11px" onclick="deleteAccount()">${t('deleteAccount')}</button>
     </div>
   </div>`;
+  // Boot achievement effects after DOM is ready
+  setTimeout(()=>_achRevealObserver(), 80);
 }
 
 function sr(ico,name,sub,key,val){
@@ -6546,22 +6713,66 @@ function sr(ico,name,sub,key,val){
 }
 function ach(em,lbl,unlocked,hint,cur,max,delay){
   const pct=max?Math.min(100,Math.round(((cur||0)/max)*100)):0;
-  const clr=unlocked?'var(--ac)':'var(--bd)';
-  const txtClr=unlocked?'var(--ac)':'var(--tx3)';
-  const bg=unlocked?'rgba(255,61,0,.07)':'var(--sf)';
   const delayStr=delay||'0s';
+  const virgin=!unlocked&&(cur||0)===0; // not started at all
+
+  // Sparkle elements (only for unlocked)
+  const sparks=unlocked?`
+    <span class="ach-spark" style="top:5px;right:7px;--sx:9px;--sy:-20px;--sd:${delayStr}">✦</span>
+    <span class="ach-spark" style="top:9px;left:5px;--sx:-11px;--sy:-16px;--sd:calc(${delayStr} + 1s)">✦</span>
+    <span class="ach-spark" style="bottom:12px;right:8px;--sx:7px;--sy:-12px;--sd:calc(${delayStr} + 2s)">·</span>
+    <span class="ach-star" style="--ad:${delayStr}">★</span>`:'';
+
+  // Dark veil overlay for completely untouched achievements
+  const veil=virgin?`<div class="ach-veil" aria-hidden="true"></div>`:'';
+
+  // Progress bar (locked but started)
   const progressBar=max&&!unlocked?`
-    <div style="margin-top:6px;height:2px;background:var(--sf3);border-radius:1px;overflow:hidden">
-      <div class="ach-bar-fill" style="height:100%;background:var(--ac);border-radius:1px;--aw:${pct}%;--ad:${delayStr}"></div>
+    <div class="ach-bar-wrap">
+      <div class="ach-bar-fill" style="--aw:${pct}%;--ad:${delayStr}"></div>
     </div>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:9px;color:var(--tx3);margin-top:2px;letter-spacing:.5px">${Math.min(cur||0,max)}/${max}</div>`:'';
-  const check=unlocked?`<div style="font-size:9px;color:var(--ok);margin-top:3px;font-weight:700">✓</div>`:'';
-  const animClass=unlocked?`ach-unlocked`:'';
-  return `<div class="${animClass}" style="background:${bg};border:1px solid ${clr};border-radius:12px;padding:10px 6px 8px;text-align:center;${unlocked?'':'opacity:.45'};--ad:${delayStr}" title="${hint}">
-    <div style="font-size:22px;line-height:1;margin-bottom:4px">${em}</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:${txtClr};font-weight:700;letter-spacing:.6px;line-height:1.25">${lbl}</div>
+
+  // Checkmark for unlocked
+  const check=unlocked?`<div style="font-size:9px;color:var(--ok);margin-top:3px;font-weight:700;letter-spacing:.5px">✓ DONE</div>`:'';
+
+  // Jiggle on locked tap
+  const lockTap=!unlocked?`onclick="this.classList.remove('ach-jiggle');void this.offsetWidth;this.classList.add('ach-jiggle')"`:'';
+
+  const cardClass=`ach-card ${unlocked?'ach-u':virgin?'ach-l ach-virgin':'ach-l ach-started'}`;
+  const bg=unlocked?'rgba(255,61,0,.08)':virgin?'rgba(10,10,10,.55)':'var(--sf)';
+  const border=unlocked?'var(--ac)':virgin?'rgba(255,255,255,.06)':'var(--bd)';
+  const opacity=unlocked?'1':virgin?'1':'.55';
+
+  return `<div
+    class="${cardClass}"
+    data-reveal="1"
+    style="background:${bg};border:1px solid ${border};opacity:${opacity};--ad:${delayStr}"
+    title="${hint}" ${lockTap}>
+    ${veil}${sparks}
+    <span class="ach-em" style="${virgin?'filter:grayscale(1) brightness(.45)':''}${unlocked?'':'filter:grayscale(.5) brightness(.7)'}">${em}</span>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:${unlocked?'var(--ac)':virgin?'rgba(255,255,255,.2)':'var(--tx3)'};font-weight:700;letter-spacing:.6px;line-height:1.25">${lbl}</div>
     ${progressBar}${check}
   </div>`;
+}
+
+// Reveal achievements as they scroll into view
+function _achRevealObserver(){
+  const cards=document.querySelectorAll('#sc-profile .ach-card[data-reveal]');
+  if(!cards.length)return;
+  let idx=0;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting)return;
+      const el=entry.target;
+      // stagger per card index
+      const base=parseFloat(el.style.getPropertyValue('--ad')||'0');
+      el.style.setProperty('--ad', base+'s');
+      el.classList.add('ach-vis');
+      obs.unobserve(el);
+    });
+  },{threshold:0.12,rootMargin:'0px 0px -10px 0px'});
+  cards.forEach(c=>obs.observe(c));
 }
 function tglCfg(k,el){
   S.cfg[k]=!S.cfg[k];

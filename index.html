@@ -92,6 +92,7 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
   display:flex;justify-content:space-around;align-items:center;
   z-index:40;padding:0 6px;
   overflow:hidden;
+  will-change:transform;
 }
 .nb{
   display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -100,6 +101,9 @@ input,textarea,select{-webkit-user-select:auto;user-select:auto}
   color:rgba(160,150,144,0.75);
   transition:color .2s,background .2s,transform .15s;
   outline:none;min-width:64px;position:relative;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
 }
 .nb:active{transform:scale(.88);opacity:.8}
 .nb.active{
@@ -1195,16 +1199,16 @@ button{-webkit-user-select:none;user-select:none}
 
 <nav class="nav" id="main-nav" style="display:none">
   <div id="nav-pill" aria-hidden="true"></div>
-  <button class="nb active" id="nb-home" onclick="go('home')">
+  <button class="nb active" id="nb-home" onpointerdown="go('home')">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span>
   </button>
-  <button class="nb" id="nb-library" onclick="go('library')">
+  <button class="nb" id="nb-library" onpointerdown="go('library')">
     <svg viewBox="0 0 24 24"><rect x="2" y="7" width="4" height="14" rx="1"/><rect x="9" y="3" width="4" height="18" rx="1"/><rect x="16" y="10" width="4" height="11" rx="1"/></svg><span>Library</span>
   </button>
-  <button class="nb" id="nb-progress" onclick="go('progress')">
+  <button class="nb" id="nb-progress" onpointerdown="go('progress')">
     <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Progress</span>
   </button>
-  <button class="nb" id="nb-profile" onclick="go('profile')">
+  <button class="nb" id="nb-profile" onpointerdown="go('profile')">
     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span>
   </button>
 </nav>
@@ -4021,6 +4025,7 @@ async function bootSession(userId){
   go('home');
   checkNameDefault();
   scheduleReminder();
+  scheduleWaterReminder();
   subscribeRealtime();
   updateNavLang();updateModalLang();updateAllSelects();
 }
@@ -4188,7 +4193,12 @@ const LANGS={
     setNameBtn:'SAVE NAME',
     pgVisTitle:'VISIBLE CARDS',pgVisDone:'DONE',
     pgCard_bw:'Body Weight',pgCard_cal:'Calendar',pgCard_streak:'Streak',
-    pgCard_vol:'Weekly Volume',pgCard_pr:'Personal Records',pgCard_cardio:'Cardio',pgCard_hist:'Session History',
+    pgCard_exprog:'Exercise Progress',pgCard_sleep:'Recovery',pgCard_vol:'Weekly Volume',pgCard_pr:'Personal Records',
+    pgCard_musvol:'Muscle Volume',pgCard_cardio:'Cardio',pgCard_hist:'Session History',
+    exProgressTitle:'EXERCISE PROGRESS',exProgressSelect:'Select exercise…',exProgNoData:'Complete workouts to track weight over time',
+    muscleVolTitle:'MUSCLE VOLUME (SETS / WEEK)',muscleVolNoData:'Complete workouts to see muscle breakdown',
+    waterTitle:'WATER INTAKE',waterGlasses:'glasses today',waterGoalLbl:'Goal',waterReset:'RESET DAY',waterReminderLbl:'Hydration reminder',waterGoalEdit:'Edit goal',waterReminderScheduled:'Water reminder at {time} enabled 💧',waterReminderBody:'Time to hydrate! Drink a glass of water 💧',waterReminderOff:'Water reminder disabled',waterReminderSet:'Set time',
+    sleepTitle:'RECOVERY LOG',sleepQuestion:'How did you sleep?',sleepPoor:'Poor',sleepOk:'OK',sleepRested:'Rested',sleepLast7:'Last 7 days',sleepNoData:'Log daily to see trends',sleepLogged:'Recovery logged ✓',
   },
   ro:{
     login:'LOGIN',register:'ÎNREGISTRARE',
@@ -4198,7 +4208,7 @@ const LANGS={
     morning:'dimineața',afternoon:'ziua',evening:'seara',goodGreet:'Bună',
     thisWeek:'SĂPTĂMÂNA ACEASTA',todayPlan:'PLANUL DE AZI',changeWk:'SCHIMBĂ ›',
     recentSessions:'SESIUNI RECENTE',workoutsLbl:'Antrenamente',calories:'Calorii',volume:'Volum',
-    dayLbl:'ZI',tapToView:'APASĂ PENTRU A VEDEA & PORNI ›',noWorkoutSelected:'NICIUN ANTRENAMENT SELECTAT',
+    dayLbl:'ZI',tapToView:'APASĂ PENTRU A VEDEA & ÎNCEPE ›',noWorkoutSelected:'NICIUN ANTRENAMENT SELECTAT',
     browseLibrary:'CAUTĂ ÎN BIBLIOTECĂ',noExercisesYet:'Niciun exercițiu',createFirstWorkout:'CREEAZĂ PRIMUL TĂU ANTRENAMENT',createFirstSub:'Construiește un plan de antrenament și începe să te antrenezi.',createWorkoutBtn:'+ CREEAZĂ ANTRENAMENT',
     completeFirst:'Completează primul antrenament!',moreEx:'MAI MULTE EXERCIȚII',exLbl:'EX',minLbl:'MIN',setsLbl:'seturi',minAbbr:'min',
     libraryTitle:'BIBLIOTECĂ',searchWorkouts:'Caută antrenamente...',noWorkoutsFound:'NICIUN ANTRENAMENT GĂSIT',
@@ -4306,7 +4316,12 @@ const LANGS={
     setNameBtn:'SALVEAZĂ NUMELE',
     pgVisTitle:'CARDURI VIZIBILE',pgVisDone:'GATA',
     pgCard_bw:'Greutate Corporală',pgCard_cal:'Calendar',pgCard_streak:'Streak',
-    pgCard_vol:'Volum Săptămânal',pgCard_pr:'Recorduri Personale',pgCard_cardio:'Cardio',pgCard_hist:'Istoricul Sesiunilor',
+    pgCard_exprog:'Progres Exerciții',pgCard_sleep:'Recuperare',pgCard_vol:'Volum Săptămânal',pgCard_pr:'Recorduri Personale',
+    pgCard_musvol:'Volum Muscular',pgCard_cardio:'Cardio',pgCard_hist:'Istoricul Sesiunilor',
+    exProgressTitle:'PROGRES PE EXERCIȚIU',exProgressSelect:'Alege exercițiu…',exProgNoData:'Completează antrenamente pentru a vedea progresul',
+    muscleVolTitle:'VOLUM MUSCULAR (SETURI / SĂPT.)',muscleVolNoData:'Completează antrenamente pentru a vedea volumul muscular',
+    waterTitle:'HIDRATARE',waterGlasses:'pahare azi',waterGoalLbl:'Obiectiv',waterReset:'RESETEAZĂ ZI',waterReminderLbl:'Reminder hidratare',waterGoalEdit:'Editează obiectivul',waterReminderScheduled:'Reminder hidratare la {time} activat 💧',waterReminderBody:'Timpul pentru hidratare! Bea un pahar cu apă 💧',waterReminderOff:'Reminder hidratare dezactivat',waterReminderSet:'Setează ora',
+    sleepTitle:'JURNAL RECUPERARE',sleepQuestion:'Cum ai dormit?',sleepPoor:'Prost',sleepOk:'OK',sleepRested:'Odihnit',sleepLast7:'Ultimele 7 zile',sleepNoData:'Loghează zilnic pentru trenduri',sleepLogged:'Recuperare salvată ✓',
   },
   ru:{
     login:'Вход',register:'Регистрация',
@@ -4424,7 +4439,12 @@ const LANGS={
     setNameBtn:'Сохранить имя',
     pgVisTitle:'КАРТОЧКИ',pgVisDone:'ГОТОВО',
     pgCard_bw:'Вес тела',pgCard_cal:'Календарь',pgCard_streak:'Серия',
-    pgCard_vol:'Недельный объём',pgCard_pr:'Личные рекорды',pgCard_cardio:'Кардио',pgCard_hist:'История тренировок',
+    pgCard_exprog:'Прогресс упражнений',pgCard_sleep:'Восстановление',pgCard_vol:'Недельный объём',pgCard_pr:'Личные рекорды',
+    pgCard_musvol:'Объём мышц',pgCard_cardio:'Кардио',pgCard_hist:'История тренировок',
+    exProgressTitle:'ПРОГРЕСС ПО УПРАЖНЕНИЯМ',exProgressSelect:'Выберите упражнение…',exProgNoData:'Завершите тренировки для просмотра прогресса',
+    muscleVolTitle:'ОБЪЁМ ПО МЫШЦАМ (ПОДХОДЫ / НЕД.)',muscleVolNoData:'Завершите тренировки для просмотра объёма',
+    waterTitle:'ВОДНЫЙ БАЛАНС',waterGlasses:'стаканов сегодня',waterGoalLbl:'Цель',waterReset:'СБРОС ДНЯ',waterReminderLbl:'Напоминание о воде',waterGoalEdit:'Изменить цель',waterReminderScheduled:'Напоминание о воде в {time} включено 💧',waterReminderBody:'Время пить воду! Выпейте стакан воды 💧',waterReminderOff:'Напоминание о воде отключено',waterReminderSet:'Задать время',
+    sleepTitle:'ЖУРНАЛ ВОССТАНОВЛЕНИЯ',sleepQuestion:'Как спалось?',sleepPoor:'Плохо',sleepOk:'OK',sleepRested:'Отдохнул',sleepLast7:'Последние 7 дней',sleepNoData:'Ведите дневник для трендов',sleepLogged:'Восстановление сохранено ✓',
 }
 };
 let lang='en';
@@ -4435,7 +4455,7 @@ function setLang(l){
   renderHome();renderLib();renderProg();renderProf();updateNavLang();updateAuthLangUI();updateModalLang();updateAllSelects();
 }
 // ── Progress card visibility ──
-const _PG_CARDS=['bw','cal','streak','vol','pr','cardio','hist'];
+const _PG_CARDS=['bw','cal','streak','sleep','exprog','vol','pr','musvol','cardio','hist'];
 function getPgVis(){try{return JSON.parse(localStorage.getItem('im_pg_vis')||'{}');}catch(e){return {};}}
 function setPgVis(v){try{localStorage.setItem('im_pg_vis',JSON.stringify(v));}catch(e){}}
 function applyPgVis(){
@@ -4663,7 +4683,7 @@ async function initS(){
   SK=getUserSK(currentUserId);
 
   function applyData(loaded){
-    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg',lang:'en',reminderHour:7,reminderMin:0,accent:'#FF3D00'};
+    const defCfg={reminders:true,autoLog:false,music:true,restSound:true,units:'kg',lang:'en',reminderHour:7,reminderMin:0,accent:'#FF3D00',waterReminder:false,waterReminderHour:8,waterReminderMin:0};
     const defGoals={tw:80,dpw:4,bf:15};
     const defUser={name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000};
     const clean={...loaded};delete clean._sid;
@@ -4680,6 +4700,8 @@ async function initS(){
     if(!Array.isArray(S.hist))S.hist=[];
     if(!Array.isArray(S.workouts))S.workouts=[];
     if(!Array.isArray(S.bw))S.bw=[];
+    if(!Array.isArray(S.water))S.water=[];
+    if(!Array.isArray(S.sleep))S.sleep=[];
     if(!Array.isArray(S.customExs))S.customExs=[];
     S.streak=calcStreak();
     if(_pendingName){S.user.name=_pendingName;_pendingName=null;}
@@ -4726,8 +4748,8 @@ async function initS(){
     // Supabase a eșuat — nu creăm date default ca să nu suprascriem nimic
     showToast(t('loadDataErr'),'err');
     S={user:{name:'Athlete',prog:'My Program',lvl:1,xp:0,mxp:1000},streak:0,todayWk:null,
-       cfg:{reminders:true,autoLog:false,music:true,restSound:true,units:'kg'},
-       goals:{tw:85,dpw:5,bf:15},workouts:[],hist:[],prs:[],bw:[],customExs:[]};
+       cfg:{reminders:true,autoLog:false,music:true,restSound:true,units:'kg',waterGoal:8},
+       goals:{tw:85,dpw:5,bf:15},workouts:[],hist:[],prs:[],bw:[],water:[],sleep:[],customExs:[]};
     return; // NU salvăm — ar suprascrie datele existente din cloud
   }
 
@@ -4737,12 +4759,14 @@ async function initS(){
   S={
     user:{name:displayName,prog:'My Program',lvl:1,xp:0,mxp:1000},
     streak:0,todayWk:null,
-    cfg:{reminders:true,autoLog:false,music:true,restSound:true,units:'kg'},
+    cfg:{reminders:true,autoLog:false,music:true,restSound:true,units:'kg',waterGoal:8},
     goals:{tw:85,dpw:5,bf:15},
     workouts:[],
     hist:[],
     prs:[],
     bw:[],
+    water:[],
+    sleep:[],
     customExs:[],
   };
   save();
@@ -5729,7 +5753,9 @@ function finishActive(wid){
   });
   const dur=Math.max(elapsed,cardioMin)||elapsed;
   const cal=Math.round(w.cal*(dur/w.dur));
-  S.hist.unshift({id:uid(),wid,name:w.name,date:td(),dur,sets:totalSets,cal,em:w.em});
+  // Build per-exercise detail array for progress tracking
+  const exd=w.exs.map((e,i)=>{const sets=(asets[i]||[]).filter(s=>s.done);const maxW=sets.length?Math.max(...sets.map(s=>s.w)):0;return{ex:e.n,m:e.m,sets:sets.length,maxW};}).filter(x=>x.sets>0);
+  S.hist.unshift({id:uid(),wid,name:w.name,date:td(),dur,sets:totalSets,cal,em:w.em,exd});
   S.streak=calcStreak();S.user.xp=Math.min(S.user.mxp,(S.user.xp||0)+Math.round(totalSets*15+dur*2));
   if(S.user.xp>=S.user.mxp){S.user.lvl++;S.user.xp=0;S.user.mxp=Math.round(S.user.mxp*1.4);}
   save();
@@ -6039,6 +6065,16 @@ function renderProg(){
       <div id="bwc2" style="display:none;margin-top:10px;color:var(--ok);font-size:13px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">✓ ${t('logBodyWeight')}!</div>
     </div>
 
+    <div data-pg-card="sleep" data-pg-reveal="label" class="slbl">${t('sleepTitle')}</div>
+    <div data-pg-card="sleep" data-pg-reveal="card" class="card" style="margin:0 20px">
+      <div style="margin-bottom:12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--tx2);letter-spacing:.5px">${t('sleepQuestion')}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+        ${['poor','ok','rested'].map(r=>{const emj={poor:'😴',ok:'😐',rested:'💪'}[r];const lbl={poor:t('sleepPoor'),ok:t('sleepOk'),rested:t('sleepRested')}[r];const today=new Date().toISOString().split('T')[0];const cur=((S.sleep||[]).find(s=>s.date===today)||{}).rating||null;const sel=cur===r;return`<button id="sleep-btn-${r}" onclick="logSleep('${r}')" style="border-radius:10px;border:${sel?'2.5px solid var(--ac)':'2px solid var(--bd)'};background:${sel?'rgba(var(--ac-rgb),.15)':'var(--sf2)'};padding:14px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s;outline:none"><span style="font-size:26px;line-height:1">${emj}</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:${sel?'var(--ac)':'var(--tx2)'}">${lbl}</span></button>`;}).join('')}
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--tx3);margin-bottom:8px">${t('sleepLast7').toUpperCase()}</div>
+      <canvas id="sleep-canvas" height="68" style="width:100%;display:block"></canvas>
+    </div>
+
     <div data-pg-card="cal" data-pg-reveal="label" class="slbl" style="justify-content:space-between">
       <span id="cal-slbl-title">WORKOUT CALENDAR</span>
       <div style="display:flex;gap:5px;align-items:center">
@@ -6076,6 +6112,22 @@ function renderProg(){
       </div>`:''}
     </div>
 
+    <div data-pg-card="exprog" data-pg-reveal="label" class="slbl">${t('exProgressTitle')}</div>
+    <div data-pg-card="exprog" data-pg-reveal="card" class="card" style="margin:0 20px">
+      ${(()=>{
+        // Collect all exercises that appear in hist.exd (new data) or prs (fallback)
+        const exSet=new Set();
+        (S.hist||[]).forEach(h=>{if(h.exd)h.exd.forEach(e=>{if(e.maxW>0)exSet.add(e.ex);});});
+        (S.prs||[]).forEach(p=>exSet.add(p.ex));
+        const exList=[...exSet].sort();
+        const defEx=exList[0]||'';
+        const opts=exList.map(ex=>`<option value="${ex}">${ex}</option>`).join('');
+        if(!exList.length)return`<div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--tx3);text-align:center;padding:12px 0">${t('exProgNoData')}</div>`;
+        return `<select id="exprog-sel" class="inp" style="margin-bottom:12px;font-size:14px" onchange="selectExProg()">${opts}</select>`;
+      })()}
+      <canvas id="exprog-canvas" height="90" style="width:100%;display:block"></canvas>
+    </div>
+
     <div data-pg-card="vol" data-pg-reveal="label" class="slbl">${t('weeklyVolume')}</div>
     <div data-pg-card="vol" data-pg-reveal="card" class="card" style="margin:0 20px">
       <canvas id="vc" height="80" style="width:100%;display:block"></canvas>
@@ -6087,6 +6139,11 @@ function renderProg(){
     <div data-pg-card="pr" data-pg-reveal="label" class="slbl">${t('personalRecords')} <button class="btn bok bsm" onclick="OM('m-pr')">${t('logPRBtn')}</button></div>
     <div data-pg-card="pr" data-pg-reveal="card" class="card" style="margin:0 20px">
       ${S.prs.length?buildPRPie(S.prs):`<div style="padding:20px;text-align:center;color:var(--tx3)">${t('noPRs')}</div>`}
+    </div>
+
+    <div data-pg-card="musvol" data-pg-reveal="label" class="slbl">${t('muscleVolTitle')}</div>
+    <div data-pg-card="musvol" data-pg-reveal="card" class="card" style="margin:0 20px">
+      <canvas id="musvol-canvas" height="80" style="width:100%;display:block"></canvas>
     </div>
 
     <div data-pg-card="cardio" data-pg-reveal="label" class="slbl">${t('cardioTitle')}</div>
@@ -6113,6 +6170,13 @@ function renderProg(){
   setTimeout(()=>{
     try{drawBW(bw);}catch(e){console.warn('drawBW:',e);}
     try{drawVol(wkVol);}catch(e){console.warn('drawVol:',e);}
+    try{drawSleepChart();}catch(e){console.warn('drawSleepChart:',e);}
+    try{drawMuscleVol();}catch(e){console.warn('drawMuscleVol:',e);}
+    try{
+      // Auto-select first exercise for progress chart
+      const exSel=document.getElementById('exprog-sel');
+      if(exSel&&exSel.options.length>0){exSel.selectedIndex=0;selectExProg();}
+    }catch(e){console.warn('drawExProg:',e);}
     try{
       if(!window._calState){const n=new Date();window._calState={year:n.getFullYear(),month:n.getMonth()};}
       buildCalendar();
@@ -6543,9 +6607,11 @@ function drawBW(data){
   c.width=W*dpr;c.height=H*dpr;
   const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
 
+  // Resolve CSS variable once — Canvas doesn't support CSS custom properties
+  const _ah=_acHex();const [_ar,_ag,_ab]=_hexToRgb(_ah);
   // Nicio intrare — placeholder
   if(!data.length){
-    ctx.fillStyle='rgba(var(--ac-rgb),.15)';ctx.beginPath();ctx.arc(W/2,H/2,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=`rgba(${_ar},${_ag},${_ab},0.15)`;ctx.beginPath();ctx.arc(W/2,H/2,5,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='rgba(150,140,135,.5)';ctx.font='bold 11px Barlow Condensed,sans-serif';
     ctx.textAlign='center';ctx.fillText('LOG WEIGHT TO SEE PROGRESS',W/2,H/2+20);
     return;
@@ -6555,7 +6621,7 @@ function drawBW(data){
   if(data.length===1){
     const cx=W/2,cy=H/2-8;
     ctx.beginPath();ctx.moveTo(4,cy);ctx.lineTo(W-4,cy);
-    ctx.strokeStyle='rgba(var(--ac-rgb),.2)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle=`rgba(${_ar},${_ag},${_ab},0.2)`;ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);
     ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);
     ctx.fillStyle=_acHex();ctx.fill();
     ctx.fillStyle='rgba(150,140,135,.5)';ctx.font='bold 10px Barlow Condensed,sans-serif';
@@ -6576,7 +6642,7 @@ function drawBW(data){
   const absDiff=Math.abs(lastW-goalW);
   // Verde: a atins/depășit goalul | Galben: în ±3kg | Roșu: departe
   const lineClr=reachedGoal?'#00C96A':absDiff<=3?'#FFB800':_acHex();
-  const gradClr0=reachedGoal?'rgba(0,201,106,.35)':absDiff<=3?'rgba(255,184,0,.3)':'rgba(var(--ac-rgb),.3)';
+  const gradClr0=reachedGoal?'rgba(0,201,106,.35)':absDiff<=3?'rgba(255,184,0,.3)':`rgba(${_ar},${_ag},${_ab},0.3)`;
   const path=new Path2D();
   data.forEach((d,i)=>{const x=4+i*xS,y=H-6-(d.w-mn)*yS;i===0?path.moveTo(x,y):path.lineTo(x,y);});
   const grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,gradClr0);grd.addColorStop(1,'rgba(0,0,0,0)');
@@ -6596,6 +6662,260 @@ function drawBW(data){
     ctx.textAlign='right';ctx.fillText(t('goalChart'),W-4,gy-3);
   }
 }
+
+// ═══════════ WATER TRACKER ═══════════
+function getWaterToday(){
+  const today=new Date().toISOString().split('T')[0];
+  const e=(S.water||[]).find(w=>w.date===today);
+  return e?e.glasses:0;
+}
+function addWater(n){
+  if(!Array.isArray(S.water))S.water=[];
+  const today=new Date().toISOString().split('T')[0];
+  const e=S.water.find(w=>w.date===today);
+  const goal=S.cfg&&S.cfg.waterGoal||8;
+  if(e){e.glasses=Math.min(goal+4,e.glasses+n);}
+  else{S.water.push({date:today,glasses:Math.min(goal+4,n)});}
+  save();_renderWaterCard();
+}
+function resetWater(){
+  if(!Array.isArray(S.water))S.water=[];
+  const today=new Date().toISOString().split('T')[0];
+  const e=S.water.find(w=>w.date===today);
+  if(e)e.glasses=0;
+  save();_renderWaterCard();
+}
+function setWaterGoal(){
+  const v=parseInt(prompt((LANGS[lang]||LANGS.en).waterGoalEdit||'Daily goal (glasses):',S.cfg&&S.cfg.waterGoal||8));
+  if(!isNaN(v)&&v>0&&v<=30){if(!S.cfg)S.cfg={};S.cfg.waterGoal=v;save();_renderWaterCard();}
+}
+function _renderWaterCard(){
+  const el=document.getElementById('water-card');if(!el)return;
+  const g=S.cfg&&S.cfg.waterGoal||8;
+  const cur=getWaterToday();
+  const pct=Math.min(100,Math.round(cur/g*100));
+  el.querySelector('.water-num').textContent=cur;
+  el.querySelector('.water-goal-num').textContent=g;
+  el.querySelector('.water-pct').style.width=pct+'%';
+  el.querySelector('.water-lbl').textContent=t('waterGlasses');
+}
+
+// ═══════════ SLEEP / RECOVERY LOG ═══════════
+function logSleep(rating){
+  if(!Array.isArray(S.sleep))S.sleep=[];
+  const today=new Date().toISOString().split('T')[0];
+  const e=S.sleep.find(s=>s.date===today);
+  if(e){e.rating=rating;}else{S.sleep.push({date:today,rating});}
+  // Keep only last 90 days
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-90);
+  const cutStr=cutoff.toISOString().split('T')[0];
+  S.sleep=S.sleep.filter(s=>s.date>=cutStr);
+  save();
+  showToast(t('sleepLogged'),'ok');
+  _renderSleepButtons();
+  setTimeout(()=>drawSleepChart(),50);
+}
+function _renderSleepButtons(){
+  const today=new Date().toISOString().split('T')[0];
+  const todayRating=((S.sleep||[]).find(s=>s.date===today)||{}).rating||null;
+  ['poor','ok','rested'].forEach(r=>{
+    const btn=document.getElementById('sleep-btn-'+r);
+    if(!btn)return;
+    btn.style.border=todayRating===r?'2.5px solid var(--ac)':'2px solid var(--bd)';
+    btn.style.background=todayRating===r?'rgba(var(--ac-rgb),.15)':'var(--sf2)';
+  });
+}
+function drawSleepChart(){
+  const c=document.getElementById('sleep-canvas');if(!c)return;
+  const dpr=window.devicePixelRatio||1,W=c.clientWidth,H=68;
+  c.width=W*dpr;c.height=H*dpr;
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const entry=(S.sleep||[]).find(s=>s.date===ds);
+    days.push({ds,rating:entry?entry.rating:null,dow:d.getDay()});
+  }
+  const hasAny=days.some(d=>d.rating);
+  const n=7,pad=8,slot=(W-pad*2)/n,barW=Math.max(slot-6,8),barH=H-18;
+  // Derive colors from accent — works across all accent settings and languages
+  const acHex=_acHex();const [ar,ag,ab]=_hexToRgb(acHex);
+  const colors={poor:`rgba(${ar},${ag},${ab},0.38)`,ok:`rgba(${ar},${ag},${ab},0.68)`,rested:acHex};
+  const emojis={poor:'😴',ok:'😐',rested:'💪'};
+  const dayL=['S','M','T','W','T','F','S'];
+  if(!hasAny){
+    ctx.fillStyle='rgba(150,140,135,.5)';
+    ctx.font='bold 11px Barlow Condensed,sans-serif';
+    ctx.textAlign='center';ctx.fillText(t('sleepNoData'),W/2,H/2-4);
+    return;
+  }
+  days.forEach((d,i)=>{
+    const cx=pad+i*slot+slot/2;
+    ctx.fillStyle='rgba(40,40,40,.55)';
+    if(ctx.roundRect)ctx.roundRect(cx-barW/2,2,barW,barH,5);
+    else ctx.rect(cx-barW/2,2,barW,barH);
+    ctx.fill();
+    if(d.rating){
+      ctx.fillStyle=colors[d.rating];
+      if(ctx.roundRect)ctx.roundRect(cx-barW/2,2,barW,barH,5);
+      else ctx.rect(cx-barW/2,2,barW,barH);
+      ctx.fill();
+      const ems=emojis[d.rating];
+      const fs=Math.min(barW-4,18);
+      ctx.font=`${fs}px serif`;ctx.textAlign='center';
+      ctx.fillText(ems,cx,barH-2);
+    }
+    ctx.fillStyle=d.rating?'#F0EDE8':'#504845';
+    ctx.font='bold 9px Barlow Condensed,sans-serif';ctx.textAlign='center';
+    ctx.fillText(dayL[d.dow],cx,H-4);
+  });
+}
+
+// ═══════════ EXERCISE PROGRESS CHART ═══════════
+function getExProgData(exName){
+  const pts=[];
+  const seen=new Set();
+  // 1. Detailed data from sessions completed after the update (has exd field)
+  [...(S.hist||[])].reverse().forEach(h=>{
+    if(!h.exd)return;
+    const ex=h.exd.find(e=>e.ex===exName);
+    if(ex&&ex.maxW>0&&!seen.has(h.date)){pts.push({date:h.date,w:ex.maxW});seen.add(h.date);}
+  });
+  // 2. For old sessions without exd, look up the workout's planned weight for this exercise
+  if(!pts.length){
+    [...(S.hist||[])].slice().reverse().forEach(h=>{
+      if(h.exd)return; // already handled above
+      const wk=(S.workouts||[]).find(w=>w.id===h.wid);
+      if(!wk)return;
+      const ex=wk.exs.find(e=>e.n===exName);
+      if(!ex)return;
+      const maxW=Math.max(...ex.sets.map(s=>s.w||0));
+      if(maxW>0&&!seen.has(h.date)){pts.push({date:h.date,w:maxW,est:true});seen.add(h.date);}
+    });
+  }
+  // 3. If still empty, use PR record as anchor (at minimum 1 data point)
+  if(!pts.length){
+    const pr=(S.prs||[]).find(p=>p.ex===exName);
+    if(pr&&pr.w>0){
+      if(pr.prev&&pr.prev>0&&pr.date){
+        const d=new Date(pr.date+'T12:00:00');d.setDate(d.getDate()-Math.max(7,Math.min(60,Math.round((pr.w-pr.prev)*2))));
+        pts.push({date:d.toISOString().split('T')[0],w:pr.prev,est:true});
+      }
+      if(pr.date)pts.push({date:pr.date,w:pr.w});
+    }
+  }
+  // Sort by date ascending
+  pts.sort((a,b)=>a.date.localeCompare(b.date));
+  return pts;
+}
+function selectExProg(){
+  const sel=document.getElementById('exprog-sel');
+  if(!sel)return;
+  const pts=sel.value?getExProgData(sel.value):[];
+  setTimeout(()=>drawExProg(pts),0);
+}
+function drawExProg(pts){
+  const c=document.getElementById('exprog-canvas');if(!c)return;
+  const dpr=window.devicePixelRatio||1,W=c.clientWidth,H=90;
+  c.width=W*dpr;c.height=H*dpr;
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const acHex=_acHex();const [ar,ag,ab]=_hexToRgb(acHex);
+  if(!pts||!pts.length){
+    ctx.fillStyle='rgba(150,140,135,.5)';
+    ctx.font='bold 11px Barlow Condensed,sans-serif';
+    ctx.textAlign='center';ctx.fillText(t('exProgNoData'),W/2,H/2+4);
+    return;
+  }
+  if(pts.length===1){
+    ctx.beginPath();ctx.arc(W/2,H/2-8,5,0,Math.PI*2);
+    ctx.fillStyle=acHex;ctx.fill();
+    ctx.fillStyle='#F0EDE8';ctx.font='bold 12px Barlow Condensed,sans-serif';
+    ctx.textAlign='center';ctx.fillText(pts[0].w+'kg',W/2,H/2-20);
+    ctx.fillStyle='rgba(150,140,135,.45)';ctx.font='bold 10px Barlow Condensed,sans-serif';
+    ctx.fillText('PR · '+pts[0].date,W/2,H-4);
+    return;
+  }
+  const vals=pts.map(p=>p.w);
+  const mn=Math.min(...vals)-Math.max(1,Math.min(...vals)*0.05);
+  const mx=Math.max(...vals)+Math.max(1,Math.max(...vals)*0.05);
+  const xS=(W-16)/(pts.length-1),yS=(H-16)/(mx-mn||1);
+  const path=new Path2D();
+  pts.forEach((p,i)=>{const x=8+i*xS,y=H-8-(p.w-mn)*yS;i===0?path.moveTo(x,y):path.lineTo(x,y);});
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,`rgba(${ar},${ag},${ab},0.35)`);grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.strokeStyle=acHex;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke(path);
+  const fp=new Path2D(path);fp.lineTo(8+(pts.length-1)*xS,H);fp.lineTo(8,H);fp.closePath();
+  ctx.fillStyle=grd;ctx.fill(fp);
+  pts.forEach((p,i)=>{
+    const x=8+i*xS,y=H-8-(p.w-mn)*yS;
+    // Estimated points (from workout template) shown as open circle
+    if(p.est){
+      ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);
+      ctx.strokeStyle=acHex;ctx.lineWidth=1.5;ctx.stroke();
+    } else {
+      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle=acHex;ctx.fill();
+    }
+    if(i===0||i===pts.length-1){
+      ctx.fillStyle='#F0EDE8';ctx.font='bold 11px Barlow Condensed,sans-serif';
+      ctx.textAlign=i===0?'left':'right';
+      ctx.fillText(p.w+'kg',i===0?x+5:x-5,y-6);
+    }
+  });
+}
+
+// ═══════════ MUSCLE VOLUME CHART ═══════════
+function getMuscleVolData(){
+  const cutoff=Date.now()-7*864e5;
+  const byMuscle={};
+  (S.hist||[]).forEach(h=>{
+    if(new Date(h.date+'T12:00:00').getTime()<cutoff)return;
+    if(h.exd&&h.exd.length){
+      h.exd.forEach(e=>{if(e.m&&e.m!=='Cardio')byMuscle[e.m]=(byMuscle[e.m]||0)+e.sets;});
+    } else {
+      const wk=(S.workouts||[]).find(w=>w.id===h.wid);
+      if(wk&&wk.exs.length){
+        const perEx=Math.max(1,Math.round((h.sets||0)/wk.exs.length));
+        wk.exs.forEach(e=>{if(e.m&&e.m!=='Cardio')byMuscle[e.m]=(byMuscle[e.m]||0)+perEx;});
+      }
+    }
+  });
+  return Object.entries(byMuscle).sort((a,b)=>b[1]-a[1]).slice(0,8);
+}
+function drawMuscleVol(){
+  const c=document.getElementById('musvol-canvas');if(!c)return;
+  const data=getMuscleVolData();
+  const dpr=window.devicePixelRatio||1,W=c.clientWidth;
+  const rows=Math.max(data.length,1);
+  const H=rows*34+12;
+  c.style.height=H+'px';
+  c.width=W*dpr;c.height=H*dpr;
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const acHex=_acHex();const [ar,ag,ab]=_hexToRgb(acHex);
+  if(!data.length){
+    ctx.fillStyle='rgba(150,140,135,.5)';
+    ctx.font='bold 11px Barlow Condensed,sans-serif';
+    ctx.textAlign='center';ctx.fillText(t('muscleVolNoData'),W/2,H/2);
+    return;
+  }
+  const maxV=Math.max(...data.map(d=>d[1]),1);
+  const labelW=88,barH=18,rowH=34,startY=8;
+  data.forEach(([muscle,sets],i)=>{
+    const y=startY+i*rowH;
+    const barMaxW=W-labelW-16;
+    const bw=Math.max(4,(sets/maxV)*barMaxW);
+    ctx.fillStyle='#7A7068';ctx.font='700 11px Barlow Condensed,sans-serif';ctx.textAlign='right';
+    const lbl=tMuscle(muscle).toUpperCase();
+    ctx.fillText(lbl,labelW-6,y+barH/2+4);
+    const g=ctx.createLinearGradient(labelW,0,labelW+bw,0);
+    g.addColorStop(0,acHex);g.addColorStop(1,`rgba(${ar},${ag},${ab},0.5)`);
+    ctx.fillStyle=g;ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(labelW,y,bw,barH,4);else ctx.rect(labelW,y,bw,barH);
+    ctx.fill();
+    ctx.fillStyle='#F0EDE8';ctx.font='700 11px Barlow Condensed,sans-serif';ctx.textAlign='left';
+    ctx.fillText(sets,labelW+bw+6,y+barH/2+4);
+  });
+}
 function drawVol(data){
   const c=document.getElementById('vc');if(!c)return;
   const dpr=window.devicePixelRatio||1,W=c.clientWidth,H=80;
@@ -6603,9 +6923,14 @@ function drawVol(data){
   const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
   const maxV=Math.max(...data,1);
   const bw=(W-40)/data.length*.65,gap=(W-40-bw*data.length)/(data.length-1||1);
+  // Resolve CSS variable to real RGB so Canvas can use it (Canvas doesn't support CSS vars)
+  const acHex=_acHex();
+  const [ar,ag,ab]=_hexToRgb(acHex);
   data.forEach((v,i)=>{
     const x=20+i*(bw+gap),bh=Math.max(4,(v/maxV)*(H-24)),y=H-bh-4;
-    const g=ctx.createLinearGradient(0,y,0,H);g.addColorStop(0,i===data.length-1?_acHex():'rgba(var(--ac-rgb),.6)');g.addColorStop(1,'rgba(var(--ac-rgb),.1)');
+    const g=ctx.createLinearGradient(0,y,0,H);
+    g.addColorStop(0,i===data.length-1?acHex:`rgba(${ar},${ag},${ab},0.6)`);
+    g.addColorStop(1,`rgba(${ar},${ag},${ab},0.1)`);
     ctx.fillStyle=g;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,bw,bh,4);else ctx.rect(x,y,bw,bh);ctx.fill();
     ctx.fillStyle=i===data.length-1?'#F0EDE8':'#9A9288';
     ctx.font='bold 12px Barlow Condensed,sans-serif';ctx.textAlign='center';ctx.fillText(v||'0',x+bw/2,y-5);
@@ -6654,6 +6979,32 @@ function renderProf(){
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ok)">${g.bf}%</div>
         <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('bodyFat')}</div>
       </div>
+    </div>
+
+    <div class="slbl">
+      <span>${t('waterTitle')}</span>
+      <div style="display:flex;align-items:center;gap:7px">
+        <button id="water-rem-btn" onclick="openWaterTimePicker()" style="background:var(--sf2);border:1.5px solid ${(cfg.waterReminder)?'var(--ac)':'var(--bd)'};border-radius:8px;padding:5px 9px;color:${(cfg.waterReminder)?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;touch-action:manipulation">🔔 ${fmtWaterReminderTime()}</button>
+        <div id="water-rem-tgl" class="tgl${cfg.waterReminder?' on':''}" onclick="tglCfg('waterReminder',this)" style="flex-shrink:0"></div>
+        <button class="btn bg bsm" onclick="setWaterGoal()" style="font-size:11px">${t('waterGoalEdit')}</button>
+      </div>
+    </div>
+    <div id="water-card" class="card" style="margin:0 20px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span class="water-num" style="font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;line-height:1;color:var(--ac)">${getWaterToday()}</span>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--tx3)">/ <span class="water-goal-num">${S.cfg&&S.cfg.waterGoal||8}</span></span>
+          </div>
+          <div class="water-lbl" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase">${t('waterGlasses')}</div>
+        </div>
+        <div style="font-size:44px;line-height:1">💧</div>
+      </div>
+      <div class="barb" style="margin-bottom:14px"><div class="barf water-pct" style="width:${Math.min(100,Math.round(getWaterToday()/(S.cfg&&S.cfg.waterGoal||8)*100))}%"></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        ${[1,2,3,4].map(n=>`<button class="btn bg" onclick="addWater(${n})" style="padding:13px 0;font-size:${n>2?'18':'20'}px">${'💧'.repeat(n)}</button>`).join('')}
+      </div>
+      <button class="btn bg bsm" style="width:100%;color:var(--tx3)" onclick="resetWater()">${t('waterReset')}</button>
     </div>
 
     <div class="slbl">${t('settingsTitle')}</div>
@@ -6854,6 +7205,7 @@ function tglCfg(k,el){
   else if(k==='music')handleMusicToggle(S.cfg[k]);
   else if(k==='autoLog')showToast(S.cfg[k]?t('autoLogOn'):t('autoLogOff'),'info');
   else if(k==='restSound')showToast(S.cfg[k]?t('soundOn'):t('soundOff'),'info');
+  else if(k==='waterReminder')handleWaterReminderToggle(S.cfg[k]);
 }
 
 // ── Workout Reminders ──
@@ -6957,6 +7309,112 @@ function setReminderTime(val){
   renderProf();
   if(S.cfg.reminders&&Notification.permission==='granted')scheduleReminder();
 }
+
+
+// ── Water Reminder ──
+function fmtWaterReminderTime(){
+  const h=S.cfg?.waterReminderHour??8,m=S.cfg?.waterReminderMin??0;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+function scheduleWaterReminder(){
+  clearTimeout(window._waterRemTO);
+  if(!S.cfg?.waterReminder||Notification.permission!=='granted')return;
+  const rh=S.cfg?.waterReminderHour??8,rm=S.cfg?.waterReminderMin??0;
+  const now=new Date(),next=new Date();
+  next.setHours(rh,rm,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);
+  window._waterRemTO=setTimeout(()=>{
+    new Notification('IRONMEN 💧',{body:t('waterReminderBody'),icon:'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><text y=%2228%22 font-size=%2228%22>💧</text></svg>'});
+    scheduleWaterReminder();
+  },next-now);
+}
+async function handleWaterReminderToggle(on){
+  if(!on){clearTimeout(window._waterRemTO);showToast(t('waterReminderOff'),'info');_renderWaterReminder();return;}
+  if(!('Notification' in window)){
+    showToast(t('remindersNotSupported'),'err');
+    S.cfg.waterReminder=false;save();_renderWaterReminder();return;
+  }
+  const perm=Notification.permission==='granted'?'granted':await Notification.requestPermission();
+  if(perm!=='granted'){
+    showToast(t('remindersNoPermission'),'err');
+    S.cfg.waterReminder=false;save();_renderWaterReminder();return;
+  }
+  scheduleWaterReminder();
+  showToast(t('waterReminderScheduled').replace('{time}',fmtWaterReminderTime()),'ok');
+  _renderWaterReminder();
+}
+function _renderWaterReminder(){
+  const btn=document.getElementById('water-rem-btn');
+  const tgl=document.getElementById('water-rem-tgl');
+  if(btn){
+    const on=S.cfg?.waterReminder;
+    btn.textContent='🔔 '+fmtWaterReminderTime();
+    btn.style.color=on?'var(--ac)':'var(--tx3)';
+    btn.style.borderColor=on?'var(--ac)':'var(--bd)';
+  }
+  if(tgl){tgl.classList.toggle('on',!!S.cfg?.waterReminder);}
+}
+function openWaterTimePicker(){
+  const h=S.cfg?.waterReminderHour??8,m=S.cfg?.waterReminderMin??0;
+  window._wtpH=h;window._wtpM=m;
+  const titles={en:'Water Reminder Time',ro:'Ora reminder hidratare',ru:'Время напоминания о воде'};
+  const saveLbls={en:'SET REMINDER',ro:'SETEAZĂ',ru:'СОХРАНИТЬ'};
+  const presets=['06:00','07:00','08:00','09:00','10:00','12:00','14:00','18:00','20:00'];
+  const modal=document.createElement('div');
+  modal.className='modal open';modal.style.zIndex=400;
+  modal.innerHTML=`<div class="mbox" style="padding-bottom:max(32px,env(safe-area-inset-bottom))">
+    <div class="mtop"><div class="mtitle">${titles[lang]||titles.en}</div><button class="cbtn" onclick="this.closest('.modal').remove()">✕</button></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:28px 0 24px">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <button id="wtp-hu" ontouchstart="_wtpStartRepeat('h',1,this)" ontouchend="_wtpStopRepeat()" onmousedown="_wtpStartRepeat('h',1,this)" onmouseup="_wtpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:14px 14px 0 0;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-bottom:1px solid var(--bd)">▲</button>
+        <div id="wtp-h" style="width:80px;height:80px;background:var(--sf3);border-left:1px solid var(--bd);border-right:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:58px;letter-spacing:2px;color:var(--ac);line-height:1;-webkit-user-select:none;user-select:none">${String(h).padStart(2,'0')}</div>
+        <button id="wtp-hd" ontouchstart="_wtpStartRepeat('h',-1,this)" ontouchend="_wtpStopRepeat()" onmousedown="_wtpStartRepeat('h',-1,this)" onmouseup="_wtpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:0 0 14px 14px;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-top:1px solid var(--bd)">▼</button>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:58px;color:var(--tx3);line-height:1;padding-bottom:8px;-webkit-user-select:none;user-select:none">:</div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <button id="wtp-mu" ontouchstart="_wtpStartRepeat('m',5,this)" ontouchend="_wtpStopRepeat()" onmousedown="_wtpStartRepeat('m',5,this)" onmouseup="_wtpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:14px 14px 0 0;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-bottom:1px solid var(--bd)">▲</button>
+        <div id="wtp-m" style="width:80px;height:80px;background:var(--sf3);border-left:1px solid var(--bd);border-right:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:58px;letter-spacing:2px;color:var(--ac);line-height:1;-webkit-user-select:none;user-select:none">${String(m).padStart(2,'00')}</div>
+        <button id="wtp-md" ontouchstart="_wtpStartRepeat('m',-5,this)" ontouchend="_wtpStopRepeat()" onmousedown="_wtpStartRepeat('m',-5,this)" onmouseup="_wtpStopRepeat()" style="width:80px;height:56px;border:none;background:var(--sf2);border-radius:0 0 14px 14px;font-size:22px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;border-top:1px solid var(--bd)">▼</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:22px">
+      ${presets.map(p=>`<button onclick="_wtpPreset('${p}')" style="padding:7px 13px;border-radius:20px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .12s" onmouseenter="this.style.borderColor='var(--ac)';this.style.color='var(--tx)'" onmouseleave="this.style.borderColor='var(--bd)';this.style.color='var(--tx2)'">${p}</button>`).join('')}
+    </div>
+    <button class="btn bp" onclick="_wtpSave()">${saveLbls[lang]||saveLbls.en}</button>
+  </div>`;
+  window._wtpModal=modal;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+}
+window._wtpAdj=function(f,d){
+  if(f==='h'){window._wtpH=(window._wtpH+d+24)%24;const el=document.getElementById('wtp-h');if(el)el.textContent=String(window._wtpH).padStart(2,'0');}
+  else{window._wtpM=(window._wtpM+d+60)%60;const el=document.getElementById('wtp-m');if(el)el.textContent=String(window._wtpM).padStart(2,'00');}
+};
+window._wtpStartRepeat=function(f,d,btn){
+  window._wtpAdj(f,d);if(btn)btn.style.background='var(--sf3)';
+  clearTimeout(window._wtpRepTimer);clearInterval(window._wtpRepInterval);
+  window._wtpRepTimer=setTimeout(()=>{window._wtpRepInterval=setInterval(()=>window._wtpAdj(f,d),120);},400);
+};
+window._wtpStopRepeat=function(){
+  clearTimeout(window._wtpRepTimer);clearInterval(window._wtpRepInterval);
+  ['wtp-hu','wtp-hd','wtp-mu','wtp-md'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.background='var(--sf2)';});
+};
+window._wtpPreset=function(val){
+  const p=val.split(':');window._wtpH=parseInt(p[0]);window._wtpM=parseInt(p[1]);
+  const eh=document.getElementById('wtp-h'),em=document.getElementById('wtp-m');
+  if(eh)eh.textContent=String(window._wtpH).padStart(2,'0');
+  if(em)em.textContent=String(window._wtpM).padStart(2,'00');
+};
+window._wtpSave=function(){
+  if(!S.cfg)S.cfg={};
+  S.cfg.waterReminderHour=window._wtpH;
+  S.cfg.waterReminderMin=window._wtpM;
+  save();
+  if(S.cfg.waterReminder&&Notification.permission==='granted')scheduleWaterReminder();
+  if(S.cfg.waterReminder)showToast(t('waterReminderScheduled').replace('{time}',fmtWaterReminderTime()),'ok');
+  _renderWaterReminder();
+  if(window._wtpModal)window._wtpModal.remove();
+};
 
 // ── Workout Music ──
 function handleMusicToggle(on){

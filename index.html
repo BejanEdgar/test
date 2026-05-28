@@ -6727,9 +6727,12 @@ function _renderSleepButtons(){
 }
 function drawSleepChart(){
   const c=document.getElementById('sleep-canvas');if(!c)return;
-  const dpr=window.devicePixelRatio||1,W=c.clientWidth,H=68;
+  const dpr=window.devicePixelRatio||1,W=c.clientWidth,H=100;
   c.width=W*dpr;c.height=H*dpr;
+  c.style.height=H+'px';
   const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+
+  // Build 7-day dataset
   const days=[];
   for(let i=6;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
@@ -6738,37 +6741,120 @@ function drawSleepChart(){
     days.push({ds,rating:entry?entry.rating:null,dow:d.getDay()});
   }
   const hasAny=days.some(d=>d.rating);
-  const n=7,pad=8,slot=(W-pad*2)/n,barW=Math.max(slot-6,8),barH=H-18;
-  // Derive colors from accent — works across all accent settings and languages
+
+  // Accent color (resolved for canvas)
   const acHex=_acHex();const [ar,ag,ab]=_hexToRgb(acHex);
-  const colors={poor:`rgba(${ar},${ag},${ab},0.38)`,ok:`rgba(${ar},${ag},${ab},0.68)`,rested:acHex};
-  const emojis={poor:'😴',ok:'😐',rested:'💪'};
+
+  // Day labels (locale-safe single letter, no browser API needed)
   const dayL=['S','M','T','W','T','F','S'];
+
+  const padL=12,padR=12,padT=26,padB=20;
+  const cW=W-padL-padR, cH=H-padT-padB;
+  const n=7, xStep=cW/(n-1);
+
+  // Y: poor=0, ok=1, rested=2  → mapped to canvas Y (top=rested, bottom=poor)
+  const ratingVal={poor:0,ok:1,rested:2};
+  const emojis={poor:'😴',ok:'😐',rested:'💪'};
+
+  // Grid lines (3 horizontal levels)
+  [0,1,2].forEach(lv=>{
+    const y=padT+cH-(lv/2)*cH;
+    ctx.strokeStyle='rgba(80,72,69,.35)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([4,5]);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+cW,y);ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
   if(!hasAny){
     ctx.fillStyle='rgba(150,140,135,.5)';
     ctx.font='bold 11px Barlow Condensed,sans-serif';
-    ctx.textAlign='center';ctx.fillText(t('sleepNoData'),W/2,H/2-4);
+    ctx.textAlign='center';
+    ctx.fillText(t('sleepNoData'),W/2,H/2);
+    // Still draw x-axis labels
+    days.forEach((d,i)=>{
+      const x=padL+i*xStep;
+      ctx.fillStyle='#504845';ctx.font='bold 9px Barlow Condensed,sans-serif';
+      ctx.textAlign='center';ctx.fillText(dayL[d.dow],x,H-4);
+    });
     return;
   }
-  days.forEach((d,i)=>{
-    const cx=pad+i*slot+slot/2;
-    ctx.fillStyle='rgba(40,40,40,.55)';
-    if(ctx.roundRect)ctx.roundRect(cx-barW/2,2,barW,barH,5);
-    else ctx.rect(cx-barW/2,2,barW,barH);
-    ctx.fill();
-    if(d.rating){
-      ctx.fillStyle=colors[d.rating];
-      if(ctx.roundRect)ctx.roundRect(cx-barW/2,2,barW,barH,5);
-      else ctx.rect(cx-barW/2,2,barW,barH);
-      ctx.fill();
-      const ems=emojis[d.rating];
-      const fs=Math.min(barW-4,18);
-      ctx.font=`${fs}px serif`;ctx.textAlign='center';
-      ctx.fillText(ems,cx,barH-2);
+
+  // Collect points with data for line drawing
+  const pts=days.map((d,i)=>({
+    i,
+    x:padL+i*xStep,
+    y:d.rating?padT+cH-((ratingVal[d.rating]??0)/2)*cH:null,
+    rating:d.rating,
+    dow:d.dow
+  }));
+
+  // Filled gradient area under the line
+  const filled=pts.filter(p=>p.y!==null);
+  if(filled.length>1){
+    const grd=ctx.createLinearGradient(0,padT,0,padT+cH);
+    grd.addColorStop(0,`rgba(${ar},${ag},${ab},0.22)`);
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=grd;
+    ctx.beginPath();
+    let started=false;
+    pts.forEach(p=>{
+      if(p.y===null)return;
+      if(!started){ctx.moveTo(p.x,p.y);started=true;}
+      else ctx.lineTo(p.x,p.y);
+    });
+    // Close to bottom
+    ctx.lineTo(filled[filled.length-1].x,padT+cH);
+    ctx.lineTo(filled[0].x,padT+cH);
+    ctx.closePath();ctx.fill();
+  }
+
+  // Main line — connect only points that have data, skip gaps
+  ctx.strokeStyle=acHex;
+  ctx.lineWidth=2.5;
+  ctx.lineJoin='round';
+  ctx.lineCap='round';
+  let pathStarted=false;
+  pts.forEach(p=>{
+    if(p.y===null){pathStarted=false;if(pathStarted===false){}return;}
+    if(!pathStarted){ctx.beginPath();ctx.moveTo(p.x,p.y);pathStarted=true;}
+    else ctx.lineTo(p.x,p.y);
+  });
+  if(pathStarted)ctx.stroke();
+  // Re-draw properly by iterating segments
+  ctx.beginPath();
+  let inSeg=false;
+  pts.forEach(p=>{
+    if(p.y===null){inSeg=false;return;}
+    if(!inSeg){ctx.moveTo(p.x,p.y);inSeg=true;}
+    else ctx.lineTo(p.x,p.y);
+  });
+  ctx.stroke();
+
+  // Dots + emoji labels
+  pts.forEach(p=>{
+    // X-axis day label
+    ctx.fillStyle=p.rating?'#9A9288':'#504845';
+    ctx.font='bold 9px Barlow Condensed,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(dayL[p.dow],p.x,H-4);
+
+    if(p.y===null){
+      // Empty day: small dot on baseline
+      ctx.beginPath();ctx.arc(p.x,padT+cH,2.5,0,Math.PI*2);
+      ctx.fillStyle='rgba(80,72,69,.4)';ctx.fill();
+      return;
     }
-    ctx.fillStyle=d.rating?'#F0EDE8':'#504845';
-    ctx.font='bold 9px Barlow Condensed,sans-serif';ctx.textAlign='center';
-    ctx.fillText(dayL[d.dow],cx,H-4);
+
+    // Filled dot
+    ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);
+    ctx.fillStyle=acHex;ctx.fill();
+    ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);
+    ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1;ctx.stroke();
+
+    // Emoji above dot — padT=26 guarantees space even at top level
+    ctx.font='14px serif';ctx.textAlign='center';
+    ctx.fillText(emojis[p.rating],p.x,p.y-10);
   });
 }
 

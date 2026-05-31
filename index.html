@@ -893,12 +893,17 @@ button{-webkit-user-select:none;user-select:none}
             imAchGlowPulse 3.2s ease-in-out calc(var(--ad,0s) + .8s) 3;
 }
 
-/* ── Emoji ── */
+/* ── Icon (replaces emoji) ── */
 .ach-em{
   font-size:22px;line-height:1;margin-bottom:4px;display:block;
+  min-height:36px;display:flex;align-items:center;justify-content:center;
+}
+.ach-em img{
+  width:36px;height:36px;object-fit:contain;display:block;
+  pointer-events:none;-webkit-user-drag:none;user-drag:none;
 }
 .ach-u .ach-em{
-  display:inline-block;
+  display:inline-flex;align-items:center;justify-content:center;
   animation:imAchEmojiBob 3.4s ease-in-out var(--ad,0s) infinite;
   will-change:transform;
 }
@@ -4123,9 +4128,9 @@ const LANGS={
     currentStreak:'Current Streak',tapEdit:'Tap to edit',daysLbl:'DAYS',
     bestStreakLbl:'BEST STREAK',
     languageLbl:'Language',languageSub:'App language',
-    exportExcel:'📊 EXPORT EXCEL',importExcel:'📥 IMPORT EXCEL',
-    resetData:'⚠️ RESET MY DATA',switchAccount:'🔄 SWITCH ACCOUNT',logoutBtn:'🚪 LOG OUT',
-    deleteAccount:'🗑 DELETE THIS ACCOUNT',
+    exportExcel:'EXPORT EXCEL',importExcel:'IMPORT EXCEL',
+    resetData:'RESET MY DATA',switchAccount:'SWITCH ACCOUNT',logoutBtn:'LOG OUT',
+    deleteAccount:'DELETE THIS ACCOUNT',
     levelLbl:'LEVEL',dayStreak:'day streak',
     lvlNames:['','Iron','Bronze','Silver','Gold','Platinum','Diamond','Elite','Legend','Mythic'],
     finishWorkout:'🏁 FINISH WORKOUT',cancelSession:'CANCEL SESSION',
@@ -4247,9 +4252,9 @@ const LANGS={
     currentStreak:'Streak Curent',tapEdit:'Apasă pentru a edita',daysLbl:'ZILE',
     bestStreakLbl:'CEL MAI BUN',
     languageLbl:'Limbă',languageSub:'Limba aplicației',
-    exportExcel:'📊 EXPORT EXCEL',importExcel:'📥 IMPORT EXCEL',
-    resetData:'⚠️ RESETEAZĂ DATELE',switchAccount:'🔄 SCHIMBĂ CONTUL',logoutBtn:'🚪 DECONECTARE',
-    deleteAccount:'🗑 ȘTERGE CONTUL',
+    exportExcel:'EXPORT EXCEL',importExcel:'IMPORT EXCEL',
+    resetData:'RESETEAZĂ DATELE',switchAccount:'SCHIMBĂ CONTUL',logoutBtn:'DECONECTARE',
+    deleteAccount:'ȘTERGE CONTUL',
     levelLbl:'NIVEL',dayStreak:'zile streak',
     lvlNames:['','Fier','Bronz','Argint','Aur','Platină','Diamant','Elit','Legendă','Mitic'],
     finishWorkout:'🏁 FINALIZEAZĂ',cancelSession:'ANULEAZĂ SESIUNEA',
@@ -4371,9 +4376,9 @@ const LANGS={
     currentStreak:'Текущая серия',tapEdit:'Нажмите для редактирования',daysLbl:'Дней',
     bestStreakLbl:'Лучший рекорд',
     languageLbl:'Язык',languageSub:'Язык приложения',
-    exportExcel:'📊 Экспорт Excel',importExcel:'📥 Импорт Excel',
-    resetData:'⚠️ Сбросить данные',switchAccount:'🔄 Сменить аккаунт',logoutBtn:'🚪 Выход',
-    deleteAccount:'🗑 Удалить аккаунт',
+    exportExcel:'Экспорт Excel',importExcel:'Импорт Excel',
+    resetData:'Сбросить данные',switchAccount:'Сменить аккаунт',logoutBtn:'Выход',
+    deleteAccount:'Удалить аккаунт',
     levelLbl:'Уровень',dayStreak:'дней серия',
     lvlNames:['','Железный','Бронза','Серебро','Золото','Платина','Алмаз','Элита','Легенда','Мифик'],
     finishWorkout:'🏁 Завершить',cancelSession:'Отменить сессию',
@@ -7677,9 +7682,9 @@ function renderProf(){
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;cursor:pointer" onclick="openProf()">${name}</div>
       <div style="font-size:13px;color:var(--tx2);margin-top:4px;cursor:pointer" onclick="openProf()">${u.prog||'My Program'} ✏️</div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap">
-        <span class="chip">🔥 ${S.streak||0} ${t('dayStreak')}</span>
-        <span class="chip">💪 ${totWk} ${t('workoutsLbl').toLowerCase()}</span>
-        <span class="chip">🔥 ${totCal.toLocaleString()} kcal</span>
+        <span class="chip">${icoImg(UI_ICONS.fire,'🔥',14)} ${S.streak||0} ${t('dayStreak')}</span>
+        <span class="chip">${icoImg(UI_ICONS.muscle,'💪',14)} ${totWk} ${t('workoutsLbl').toLowerCase()}</span>
+        <span class="chip">${icoImg(UI_ICONS.fire,'🔥',14)} ${totCal.toLocaleString()} kcal</span>
       </div>
     </div>
 
@@ -7693,15 +7698,15 @@ function renderProf(){
 
     <div class="slbl">${t('myGoals')} <button class="btn bok bsm" onclick="OM('m-goals')">${t('editBtn')}</button></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 20px">
-      <div class="gc" onclick="OM('m-goals')"><div style="font-size:22px;margin-bottom:6px">⚖️</div>
+      <div class="gc" onclick="OM('m-goals')"><div style="margin-bottom:6px;display:flex;align-items:center;justify-content:center;min-height:28px">${icoImg(UI_ICONS.scale,'⚖️',28)}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ac2)">${g.tw}</div>
         <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('targetKg')}</div>
       </div>
-      <div class="gc" onclick="OM('m-goals')"><div style="font-size:22px;margin-bottom:6px">📅</div>
+      <div class="gc" onclick="OM('m-goals')"><div style="margin-bottom:6px;display:flex;align-items:center;justify-content:center;min-height:28px">${icoImg(UI_ICONS.calendar,'📅',28)}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ac)">${g.dpw}</div>
         <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('daysPerWeek')}</div>
       </div>
-      <div class="gc" onclick="OM('m-goals')"><div style="font-size:22px;margin-bottom:6px">💧</div>
+      <div class="gc" onclick="OM('m-goals')"><div style="margin-bottom:6px;display:flex;align-items:center;justify-content:center;min-height:28px">${icoImg(UI_ICONS.water,'💧',28)}</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--ok)">${g.bf}%</div>
         <div style="font-size:10px;color:var(--tx3);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;margin-top:2px">${t('bodyFat')}</div>
       </div>
@@ -7710,9 +7715,9 @@ function renderProf(){
     <div class="slbl">
       <span>${t('waterTitle')}</span>
       <div style="display:flex;align-items:center;gap:7px">
-        <button id="water-rem-btn" onclick="openWaterTimePicker()" style="background:var(--sf2);border:1.5px solid ${(cfg.waterReminder)?'var(--ac)':'var(--bd)'};border-radius:8px;padding:5px 9px;color:${(cfg.waterReminder)?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;touch-action:manipulation">🔔 ${fmtWaterReminderTime()}</button>
+        <button id="water-rem-btn" onclick="openWaterTimePicker()" style="background:var(--sf2);border:1.5px solid ${(cfg.waterReminder)?'var(--ac)':'var(--bd)'};border-radius:8px;padding:5px 9px;color:${(cfg.waterReminder)?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;touch-action:manipulation;display:inline-flex;align-items:center;gap:5px">${icoImg(UI_ICONS.bell,'🔔',13)} ${fmtWaterReminderTime()}</button>
         <div id="water-rem-tgl" class="tgl${cfg.waterReminder?' on':''}" onclick="tglCfg('waterReminder',this)" style="flex-shrink:0"></div>
-        <button class="btn bg bsm" onclick="setWaterGoal()" style="font-size:11px">${t('waterGoalEdit')}</button>
+        <button class="btn bg bsm" onclick="setWaterGoal()" style="font-size:15px">${t('waterGoalEdit')}</button>
       </div>
     </div>
     <div id="water-card" class="card" style="margin:0 20px">
@@ -7724,24 +7729,24 @@ function renderProf(){
           </div>
           <div class="water-lbl" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:var(--tx3);text-transform:uppercase">${t('waterGlasses')}</div>
         </div>
-        <div style="font-size:44px;line-height:1">💧</div>
+        <div style="line-height:1">${icoImg(UI_ICONS.water,'💧',44)}</div>
       </div>
       <div class="barb" style="margin-bottom:14px"><div class="barf water-pct" style="width:${Math.min(100,Math.round(getWaterToday()/(S.cfg&&S.cfg.waterGoal||8)*100))}%"></div></div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
-        ${[1,2,3,4].map(n=>`<button class="btn bg" onclick="addWater(${n})" style="padding:13px 0;font-size:${n>2?'18':'20'}px">${'💧'.repeat(n)}</button>`).join('')}
+        ${[1,2,3,4].map(n=>`<button class="btn bg" onclick="addWater(${n})" style="padding:13px 0;display:flex;align-items:center;justify-content:center;gap:3px">${Array(n).fill(icoImg(UI_ICONS.water,'💧',n>2?15:18)).join('')}</button>`).join('')}
       </div>
       <button class="btn bg bsm" style="width:100%;color:var(--tx3)" onclick="resetWater()">${t('waterReset')}</button>
     </div>
 
     <div class="slbl">${t('settingsTitle')}</div>
     <div style="margin:0 20px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r)">
-      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'Задать'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0"><div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🔔</div><div style="min-width:0;overflow:hidden"><div style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 10px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
-      ${sr('📊',t('autoLog'),t('connectHealth'),'autoLog',cfg.autoLog)}
-      ${sr('🎵',t('workoutMusic'),t('spotifyInt'),'music',cfg.music)}
-      ${sr('⏱',t('restTimerSound'),t('alertCompletion'),'restSound',cfg.restSound)}
+      ${(()=>{const rh=cfg.reminderHour??7,rm=cfg.reminderMin??0;const tv=String(rh).padStart(2,'0')+':'+String(rm).padStart(2,'0');const dayPfx={en:'Daily at',ro:'Zilnic la',ru:'Ежедневно в'};const sub=(dayPfx[lang]||'Daily at')+' '+tv;const setLbl={en:'SET',ro:'SETEAZĂ',ru:'Задать'};return`<div class="srow"><div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0"><div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">${icoImg(UI_ICONS.bell,'🔔',22)}</div><div style="min-width:0;overflow:hidden"><div style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t('wkReminders')}</div><div style="font-size:12px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div></div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:8px"><button onclick="openTimePicker()" style="background:var(--sf2);border:1.5px solid ${cfg.reminders?'var(--ac)':'var(--bd)'};border-radius:8px;padding:6px 10px;color:${cfg.reminders?'var(--ac)':'var(--tx3)'};font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">${setLbl[lang]||setLbl.en}</button><div class="tgl${cfg.reminders?' on':''}" onclick="tglCfg('reminders',this)"></div></div></div>`;})()}
+      ${sr(icoImg(UI_ICONS.chart,'📊',22),t('autoLog'),t('connectHealth'),'autoLog',cfg.autoLog)}
+      ${sr(icoImg(UI_ICONS.music,'🎵',22),t('workoutMusic'),t('spotifyInt'),'music',cfg.music)}
+      ${sr(icoImg(UI_ICONS.timer,'⏱',22),t('restTimerSound'),t('alertCompletion'),'restSound',cfg.restSound)}
       <div class="srow" style="flex-direction:column;align-items:flex-start;gap:12px;padding:14px 20px">
         <div style="display:flex;align-items:center;gap:14px;width:100%">
-          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🎨</div>
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">${icoImg(UI_ICONS.palette,'🎨',22)}</div>
           <div><div style="font-size:15px;font-weight:500">${t('accentColorLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('accentColorSub')}</div></div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;padding-left:50px">
@@ -7753,7 +7758,7 @@ function renderProf(){
       </div>
       <div class="srow">
         <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">📏</div>
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">${icoImg(UI_ICONS.ruler,'📏',22)}</div>
           <div><div style="font-size:15px;font-weight:500">${t('unitsLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('weightDistance')}</div></div>
         </div>
         <div style="display:flex;gap:6px">
@@ -7763,14 +7768,14 @@ function renderProf(){
       </div>
       <div class="srow" style="cursor:pointer" onclick="manualStreak()">
         <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,184,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">🔥</div>
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,184,0,.1);display:flex;align-items:center;justify-content:center;font-size:17px">${icoImg(UI_ICONS.fire,'🔥',22)}</div>
           <div><div style="font-size:15px;font-weight:500">${t('currentStreak')}</div><div style="font-size:12px;color:var(--tx2)">${t('tapEdit')}</div></div>
         </div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--ac)">${S.streak||0} ${t('daysLbl')}</div>
       </div>
       <div class="srow">
         <div style="display:flex;align-items:center;gap:14px">
-          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">🌐</div>
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(var(--ac-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:17px">${icoImg(UI_ICONS.globe,'🌐',22)}</div>
           <div><div style="font-size:15px;font-weight:500">${t('languageLbl')}</div><div style="font-size:12px;color:var(--tx2)">${t('languageSub')}</div></div>
         </div>
         <div style="display:flex;gap:6px">
@@ -7828,23 +7833,23 @@ function renderProf(){
       return rows.map((row,ri)=>`
         <div class="slbl" style="margin-top:12px">${row.cat}</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 20px">
-          ${row.items.map((a,i)=>ach(a.em,t(a.key),a.done,a.hint,a.cur,a.max,`${ri*0.12+i*0.07}s`)).join('')}
+          ${row.items.map((a,i)=>ach(a.em,t(a.key),a.done,a.hint,a.cur,a.max,`${ri*0.12+i*0.07}s`,a.key)).join('')}
         </div>`).join('');
     })()}
 
     <div style="margin:20px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn bg" onclick="exportExcel()">${t('exportExcel')}</button>
-      <button class="btn bg" onclick="document.getElementById('xl-import-input').value='';document.getElementById('xl-import-input').click()">${t('importExcel')}</button>
+      <button class="btn bg" onclick="exportExcel()">${icoImg(UI_ICONS.excel,'📊',18)} ${t('exportExcel')}</button>
+      <button class="btn bg" onclick="document.getElementById('xl-import-input').value='';document.getElementById('xl-import-input').click()">${icoImg(UI_ICONS.importXl,'📥',18)} ${t('importExcel')}</button>
     </div>
     <div style="margin:0 20px 20px">
-      <button class="btn bd2" onclick="if(confirm(t('resetConfirm'))){localStorage.removeItem(SK);initUserData();renderProf();renderHome();}">${t('resetData')}</button>
+      <button class="btn bd2" onclick="if(confirm(t('resetConfirm'))){localStorage.removeItem(SK);initUserData();renderProf();renderHome();}">${icoImg(UI_ICONS.warning,'⚠️',18)} ${t('resetData')}</button>
     </div>
     <div style="margin:0 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <button class="btn bg" onclick="showSwitchAccount()">${t('switchAccount')}</button>
-      <button class="btn bg" onclick="doLogout()">${t('logoutBtn')}</button>
+      <button class="btn bg" onclick="showSwitchAccount()">${icoImg(UI_ICONS.switchAc,'🔄',18)} ${t('switchAccount')}</button>
+      <button class="btn bg" onclick="doLogout()">${icoImg(UI_ICONS.logout,'🚪',18)} ${t('logoutBtn')}</button>
     </div>
     <div style="margin:0 20px 30px">
-      <button class="btn bd2" style="font-size:11px" onclick="deleteAccount()">${t('deleteAccount')}</button>
+      <button class="btn bd2" style="font-size:15px" onclick="deleteAccount()">${icoImg(UI_ICONS.trash,'🗑',16)} ${t('deleteAccount')}</button>
     </div>
   </div>`;
   // Boot achievement effects after DOM is ready
@@ -7860,7 +7865,55 @@ function sr(ico,name,sub,key,val){
     <div class="tgl${val?' on':''}" onclick="tglCfg('${key}',this)"></div>
   </div>`;
 }
-function ach(em,lbl,unlocked,hint,cur,max,delay){
+// ═══════════ ACHIEVEMENT ICONS (Flaticon CDN) ═══════════
+// Each entry: achievement key → Flaticon CDN PNG URL (128px, no attribution needed for display)
+const ACH_ICONS = {
+   'ach_first':    'https://cdn-icons-png.flaticon.com/128/2583/2583344.png',
+  'ach_century':  'https://cdn-icons-png.flaticon.com/128/9097/9097582.png',
+  'ach_grinder':  'https://cdn-icons-png.flaticon.com/128/2548/2548530.png',
+  'ach_machine':  'https://cdn-icons-png.flaticon.com/128/5610/5610174.png',
+  'ach_onfire':   'https://cdn-icons-png.flaticon.com/128/14261/14261136.png',
+  'ach_streak10': 'https://cdn-icons-png.flaticon.com/128/477/477406.png',
+  'ach_unstop':   'https://cdn-icons-png.flaticon.com/128/14242/14242809.png',
+  'ach_ironmind': 'https://cdn-icons-png.flaticon.com/128/11245/11245349.png',
+  'ach_firstPR':  'https://cdn-icons-png.flaticon.com/128/2112/2112184.png',
+  'ach_beast':    'https://cdn-icons-png.flaticon.com/128/5767/5767591.png',
+  'ach_pking':    'https://cdn-icons-png.flaticon.com/128/2548/2548492.png',
+  'ach_irongod':  'https://cdn-icons-png.flaticon.com/128/11891/11891916.png',
+  'ach_scale':    'https://cdn-icons-png.flaticon.com/128/1642/1642423.png',
+  'ach_datanerd': 'https://cdn-icons-png.flaticon.com/128/2316/2316065.png',
+  'ach_furnace':  'https://cdn-icons-png.flaticon.com/128/5730/5730132.png',
+  'ach_builder':  'https://cdn-icons-png.flaticon.com/128/3976/3976487.png',
+};
+// ═══════════ UI ICONS (Flaticon CDN) ═══════════
+const UI_ICONS = {
+  scale:    'https://cdn-icons-png.flaticon.com/128/10580/10580854.png',
+  calendar: 'https://cdn-icons-png.flaticon.com/128/10691/10691802.png',
+  water:    'https://cdn-icons-png.flaticon.com/128/427/427112.png',
+  bell:     'https://cdn-icons-png.flaticon.com/128/1156/1156949.png',
+  fire:     'https://cdn-icons-png.flaticon.com/128/599/599502.png',
+  muscle:   'https://cdn-icons-png.flaticon.com/128/7118/7118242.png',
+  excel:    'https://cdn-icons-png.flaticon.com/128/732/732220.png',
+  importXl: 'https://cdn-icons-png.flaticon.com/128/11689/11689990.png',
+  warning:  'https://cdn-icons-png.flaticon.com/128/1680/1680012.png',
+  switchAc: 'https://cdn-icons-png.flaticon.com/128/17740/17740761.png',
+  logout:   'https://cdn-icons-png.flaticon.com/128/4043/4043198.png',
+  trash:    'https://cdn-icons-png.flaticon.com/128/9790/9790368.png',
+  chart:    'https://cdn-icons-png.flaticon.com/128/670/670883.png',
+  music:    'https://cdn-icons-png.flaticon.com/128/3670/3670145.png',
+  timer:    'https://cdn-icons-png.flaticon.com/128/2055/2055568.png',
+  palette:  'https://cdn-icons-png.flaticon.com/128/10573/10573532.png',
+  ruler:    'https://cdn-icons-png.flaticon.com/128/1743/1743275.png',
+  globe:    'https://cdn-icons-png.flaticon.com/128/10947/10947495.png',
+};
+// Generic icon image helper — returns <img> with emoji fallback
+function icoImg(url, em, size) {
+  size = size || 22;
+  const esc = em.replace(/'/g,"\\'");
+  const fs = Math.round(size * 0.85);
+  return `<img loading="lazy" decoding="async" src="${url}" width="${size}" height="${size}" style="object-fit:contain;vertical-align:middle;display:inline-block" alt="" onerror="this.onerror=null;this.outerHTML='<span style=\\'font-size:${fs}px\\'>${esc}</span>'">`;
+}
+function ach(em,lbl,unlocked,hint,cur,max,delay,key){
   const pct=max?Math.min(100,Math.round(((cur||0)/max)*100)):0;
   const delayStr=delay||'0s';
   const virgin=!unlocked&&(cur||0)===0; // not started at all
@@ -7899,7 +7952,13 @@ function ach(em,lbl,unlocked,hint,cur,max,delay){
     style="background:${bg};border:1px solid ${border};opacity:${opacity};--ad:${delayStr}"
     title="${hint}" ${lockTap}${unlocked?` onclick="playChime();vib([50])"`:``}>
     ${veil}${sparks}
-    <span class="ach-em" style="${virgin?'filter:grayscale(1) brightness(.45)':''}${unlocked?'':'filter:grayscale(.5) brightness(.7)'}">${em}</span>
+    <span class="ach-em">${(()=>{
+      const url=ACH_ICONS[key]||'';
+      const flt=virgin?'grayscale(1) brightness(.35) opacity(.55)':unlocked?'none':'grayscale(.6) brightness(.6)';
+      if(!url)return `<span style="font-size:26px;filter:${flt}">${em}</span>`;
+      const esc=em.replace(/'/g,"\\'");
+      return `<img loading="lazy" decoding="async" src="${url}" alt="" width="36" height="36" style="filter:${flt}" onerror="this.onerror=null;this.outerHTML='<span style=\\'font-size:26px;filter:${flt}\\'>${esc}</span>'">`;
+    })()}</span>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:${unlocked?'var(--ac)':virgin?'rgba(255,255,255,.2)':'var(--tx3)'};font-weight:700;letter-spacing:.6px;line-height:1.25">${lbl}</div>
     ${progressBar}${check}
   </div>`;
@@ -8074,7 +8133,7 @@ function _renderWaterReminder(){
   const tgl=document.getElementById('water-rem-tgl');
   if(btn){
     const on=S.cfg?.waterReminder;
-    btn.textContent='🔔 '+fmtWaterReminderTime();
+    btn.innerHTML=icoImg(UI_ICONS.bell,'🔔',13)+' '+fmtWaterReminderTime();
     btn.style.color=on?'var(--ac)':'var(--tx3)';
     btn.style.borderColor=on?'var(--ac)':'var(--bd)';
   }

@@ -4023,9 +4023,11 @@ async function bootSession(userId){
   const _explicitLang=_authLangExplicit?lang:null;
   _authLangExplicit=false;
   currentUserId=userId;
+  spInit(); // încarcă tokenele Spotify per-utilizator
   document.getElementById('sc-auth').classList.remove('active');
   document.getElementById('main-nav').style.display='flex';
   await initUserData();
+  // Aplică limba aleasă pe ecranul de auth (suprascrie config salvat)
   if(_explicitLang){
     lang=_explicitLang;
     if(S.cfg)S.cfg.lang=_explicitLang;
@@ -4491,13 +4493,15 @@ function togglePgCardVis(id){
   if(tgl){tgl.classList.toggle('on',vis);}
   // Redesenăm canvas-ul specific dacă devine vizibil
   if(vis){
-    requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
       try{
-        if(id==='vol'){const wv=[0,0,0,0];(S.hist||[]).forEach(h=>{const da=Math.floor((Date.now()-new Date(h.date+'T12:00:00').getTime())/864e5);const wi=Math.floor(da/7);if(wi<4)wv[3-wi]+=h.sets||1;});drawVol(wv);}
-        if(id==='bw')drawBW((S.bw||[]).slice().sort((a,b)=>a.date.localeCompare(b.date)));
+        if(id==='vol')drawVol(_lastWkVol);
+        if(id==='bw')drawBW(_lastBWData);
         if(id==='musvol')drawMuscleVol();
+        if(id==='sleep')drawSleepChart();
+        if(id==='exprog'){const sel=document.getElementById('exprog-sel');if(sel&&sel.options.length>0)selectExProg();}
       }catch(e){}
-    });
+    }));
   }
 }
 function openPgVis(){
@@ -4674,10 +4678,12 @@ function updateAuthLangUI(){
 
 // ═══════════ STATE ═══════════
 let SK='ironmen4';let S={};
+let _lastBWData=[];let _lastWkVol=[0,0,0,0];
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const now=new Date();
-function td(){return now.toISOString().split('T')[0];}
+function td(){const _d=new Date();return _d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0');}
+function _localStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function uid(){return Math.random().toString(36).slice(2,9);}
 function fdate(iso){const d=new Date(iso+'T12:00:00');return DAYS[d.getDay()]+', '+MONS[d.getMonth()]+' '+d.getDate();}
 
@@ -4685,13 +4691,13 @@ function fdate(iso){const d=new Date(iso+'T12:00:00');return DAYS[d.getDay()]+',
 function calcStreak(){
   if(!S.hist||!S.hist.length)return 0;
   const dates=new Set(S.hist.map(h=>h.date));
-  const today=new Date();today.setHours(12,0,0,0);
-  let d=new Date(today),streak=0;
+  let d=new Date();d.setHours(12,0,0,0);
+  let streak=0;
   // If today has no workout yet, start checking from yesterday
-  if(!dates.has(d.toISOString().split('T')[0]))d.setDate(d.getDate()-1);
+  if(!dates.has(_localStr(d)))d.setDate(d.getDate()-1);
   // Walk backwards counting consecutive days with a workout
   for(let i=0;i<365;i++){
-    const ds=d.toISOString().split('T')[0];
+    const ds=_localStr(d);
     if(dates.has(ds)){streak++;d.setDate(d.getDate()-1);}
     else break;
   }
@@ -5585,7 +5591,11 @@ function saveCustomEx(){
 
 function deleteCustomEx(id){
   const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
-  if(!confirm(`${t('deleteConfirmWk').replace('{name}',e.n)}`))return;
+  const usedIn=(S.workouts||[]).filter(w=>(w.exs||[]).some(ex=>ex.n===e.n));
+  const warnLabel={en:'Used in',ro:'Folosit în',ru:'Используется в'}[lang]||'Used in';
+  const wkLabel={en:'workout(s)',ro:'antrenament(e)',ru:'тренировке(ах)'}[lang]||'workout(s)';
+  const warnTxt=usedIn.length?'\n⚠️ '+warnLabel+' '+usedIn.length+' '+wkLabel+': '+usedIn.map(w=>w.name).join(', '):'';
+  if(!confirm(t('deleteConfirmWk').replace('{name}',e.n)+warnTxt))return;
   S.customExs=S.customExs.filter(x=>x.id!==id);
   save();
   renderLib();
@@ -5593,7 +5603,11 @@ function deleteCustomEx(id){
 }
 function deleteCustomExFromModal(id,btn){
   const e=(S.customExs||[]).find(x=>x.id===id);if(!e)return;
-  if(!confirm(`${t('deleteConfirmWk').replace('{name}',e.n)}`))return;
+  const usedIn=(S.workouts||[]).filter(w=>(w.exs||[]).some(ex=>ex.n===e.n));
+  const warnLabel={en:'Used in',ro:'Folosit în',ru:'Используется в'}[lang]||'Used in';
+  const wkLabel={en:'workout(s)',ro:'antrenament(e)',ru:'тренировке(ах)'}[lang]||'workout(s)';
+  const warnTxt=usedIn.length?'\n⚠️ '+warnLabel+' '+usedIn.length+' '+wkLabel+': '+usedIn.map(w=>w.name).join(', '):'';
+  if(!confirm(t('deleteConfirmWk').replace('{name}',e.n)+warnTxt))return;
   S.customExs=S.customExs.filter(x=>x.id!==id);
   save();
   // Ștergem rândul din modal fără să închidem modalul
@@ -5609,10 +5623,12 @@ function deleteCustomExFromModal(id,btn){
 
 // ═══════════ ACTIVE WORKOUT ═══════════
 let wkT=null,wkSt=0,asets={};
+let wkRestSecs=0,_rStartTime=0;
 function buildActive(id){
   const w=S.workouts.find(x=>x.id===id);if(!w){go('library');return;}
   asets={};
   w.exs.forEach((e,i)=>{asets[i]=e.sets.map(s=>({w:s.w,r:s.r,done:false}));});
+  wkRestSecs=0;_rStartTime=0;
   wkSt=Date.now();clearInterval(wkT);
   wkT=setInterval(()=>{const el=document.getElementById('wk-el');if(el){const s=Math.floor((Date.now()-wkSt)/1e3);el.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}},1e3);
 
@@ -5773,7 +5789,7 @@ function finishActive(wid){
   clearInterval(wkT);
   vib([80,55,80,55,200]);
   const w=S.workouts.find(x=>x.id===wid);if(!w)return;
-  const elapsed=Math.max(1,Math.round((Date.now()-wkSt)/6e4));
+  const elapsed=Math.max(1,Math.round((Date.now()-wkSt-wkRestSecs*1000)/6e4));
   let totalSets=0,cardioMin=0;const newPRs=[];
   w.exs.forEach((e,i)=>{
     const sets=(asets[i]||[]).filter(s=>s.done);
@@ -5833,7 +5849,7 @@ function finLogWeight(){
 // ═══════════ REST TIMER ═══════════
 let rInt=null,rLeft=0,rTotal=0;
 function startRest(secs,exIdx){
-  clearInterval(rInt);rLeft=secs;rTotal=secs;
+  clearInterval(rInt);rLeft=secs;rTotal=secs;_rStartTime=Date.now();
   updR();document.getElementById('rscreen').classList.add('open');
   const _rt=document.getElementById('rest-title');if(_rt)_rt.textContent=t('restTimer').toUpperCase();
   const _rs=document.getElementById('rest-sub');if(_rs)_rs.textContent=t('secondsRemaining');
@@ -5849,6 +5865,7 @@ function updR(){
 function adjR(d){rLeft=Math.max(0,rLeft+d);if(d>0)rTotal=Math.max(rTotal,rLeft);updR();}
 function endRest(){
   clearInterval(rInt);
+  if(_rStartTime>0){wkRestSecs+=Math.round((Date.now()-_rStartTime)/1000);_rStartTime=0;}
   document.getElementById('rscreen').classList.remove('open');
   playRestBeep();
 }
@@ -6225,17 +6242,25 @@ function renderProg(){
     }catch(e){console.warn('buildCalendar:',e);}
     initProgReveal();
     applyPgVis();
+    // Salvează datele pentru retry când cardurile devin vizibile
+    _lastBWData=bw;_lastWkVol=wkVol;
     // Redesenăm canvas-urile după ce applyPgVis a setat display (layout recalculat)
     // Double rAF ensures the browser has fully computed layout before reading clientWidth
     requestAnimationFrame(()=>{requestAnimationFrame(()=>{
       try{drawVol(wkVol);}catch(e){}
       try{drawBW(bw);}catch(e){}
       try{drawMuscleVol();}catch(e){}
-      // Flush any canvas that had W===0 on first draw (hidden by applyPgVis)
+      try{drawSleepChart();}catch(e){}
       const vc=document.getElementById('vc');if(vc&&vc._pendingVolData){try{drawVol(vc._pendingVolData);}catch(e){}}
       const bwc=document.getElementById('bwc');if(bwc&&bwc._pendingBWData){try{drawBW(bwc._pendingBWData);}catch(e){}}
     });});
-  },150);
+    // Al doilea retry pentru dispozitive lente (800ms)
+    setTimeout(()=>{
+      try{const bwc2=document.getElementById('bwc');if(bwc2&&bwc2.clientWidth>0&&(!bwc2._lastW||bwc2._lastW!==bwc2.clientWidth))drawBW(_lastBWData);}catch(e){}
+      try{const vc2=document.getElementById('vc');if(vc2&&vc2.clientWidth>0)drawVol(_lastWkVol);}catch(e){}
+      try{drawMuscleVol();}catch(e){}
+    },800);
+  },300);
   }catch(err){
     console.error('renderProg failed:',err);
     document.getElementById('sc-progress').innerHTML=`
@@ -8632,14 +8657,21 @@ document.addEventListener('focusin',e=>{
 
 // ═══════════ SPOTIFY INTEGRATION (PKCE) ═══════════
 const SP_SCOPES='user-read-currently-playing user-read-playback-state user-modify-playback-state';
-let _spToken=localStorage.getItem('sp_token')||null;
-let _spExpiry=parseInt(localStorage.getItem('sp_expiry')||'0');
-let _spRefresh=localStorage.getItem('sp_refresh')||null;
+// Prefix chei Spotify cu user ID pentru a evita coliziuni între utilizatori
+function spKey(k){return 'sp_'+(currentUserId||'shared')+'_'+k;}
+let _spToken=null;
+let _spExpiry=0;
+let _spRefresh=null;
+function spInit(){
+  _spToken=localStorage.getItem(spKey('token'))||null;
+  _spExpiry=parseInt(localStorage.getItem(spKey('expiry'))||'0');
+  _spRefresh=localStorage.getItem(spKey('refresh'))||null;
+}
 let _spPoll=null;
 let _spTrack=null;
 
-function spCid(){return localStorage.getItem('sp_client_id')||'';}
-function spCustomRedirect(){return localStorage.getItem('sp_redirect_uri')||'';}
+function spCid(){return localStorage.getItem(spKey('client_id'))||'';}
+function spCustomRedirect(){return localStorage.getItem(spKey('redirect_uri'))||'';}
 function spRedirect(){
   const custom=spCustomRedirect();
   if(custom)return custom;
@@ -8708,9 +8740,9 @@ async function spRefreshToken(){
 function _spSetTokens(d){
   _spToken=d.access_token;
   _spExpiry=Date.now()+(d.expires_in||3600)*1000;
-  if(d.refresh_token){_spRefresh=d.refresh_token;localStorage.setItem('sp_refresh',_spRefresh);}
-  localStorage.setItem('sp_token',_spToken);
-  localStorage.setItem('sp_expiry',String(_spExpiry));
+  if(d.refresh_token){_spRefresh=d.refresh_token;localStorage.setItem(spKey('refresh'),_spRefresh);}
+  localStorage.setItem(spKey('token'),_spToken);
+  localStorage.setItem(spKey('expiry'),String(_spExpiry));
 }
 
 function spSaveCid(){
@@ -8719,14 +8751,14 @@ function spSaveCid(){
   if(!inp)return;
   const v=inp.value.trim();
   if(v.length<10){showToast('Invalid Client ID','err');return;}
-  localStorage.setItem('sp_client_id',v);
-  if(rinp){const rv=rinp.value.trim();if(rv)localStorage.setItem('sp_redirect_uri',rv);else localStorage.removeItem('sp_redirect_uri');}
+  localStorage.setItem(spKey('client_id'),v);
+  if(rinp){const rv=rinp.value.trim();if(rv)localStorage.setItem(spKey('redirect_uri'),rv);else localStorage.removeItem(spKey('redirect_uri'));}
   renderHome();
 }
 
 function spLogout(){
   _spToken=null;_spTrack=null;_spRefresh=null;
-  localStorage.removeItem('sp_token');localStorage.removeItem('sp_expiry');localStorage.removeItem('sp_refresh');
+  localStorage.removeItem(spKey('token'));localStorage.removeItem(spKey('expiry'));localStorage.removeItem(spKey('refresh'));
   clearInterval(_spPoll);_spPoll=null;
   renderHome();
 }
@@ -8748,7 +8780,7 @@ async function spHandleCallback(){
     const tok=p.get('access_token'),exp=p.get('expires_in');
     if(tok){
       _spToken=tok;_spExpiry=Date.now()+parseInt(exp||'3600')*1000;
-      localStorage.setItem('sp_token',tok);localStorage.setItem('sp_expiry',String(_spExpiry));
+      localStorage.setItem(spKey('token'),tok);localStorage.setItem(spKey('expiry'),String(_spExpiry));
       history.replaceState({},'',window.location.pathname+window.location.search);
       renderHome();startSpPoll();
     }
@@ -9004,7 +9036,7 @@ function playChime(){
         animation:'imFadeSlideUp .3s ease-out both'
       });
       document.body.appendChild(banner);
-      setTimeout(()=>{if(banner.parentNode){banner.style.transition='opacity .4s';banner.style.opacity='0';setTimeout(()=>banner.remove(),400);}},7000);
+      setTimeout(()=>{if(banner.parentNode){localStorage.setItem('im_a2hs_dismissed','1');banner.style.transition='opacity .4s';banner.style.opacity='0';setTimeout(()=>banner.remove(),400);}},7000);
     },2500);
   }
 })();
